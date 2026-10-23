@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://bom5tvyg5l25n"]
+
+[ext_resource type="PackedScene" path="res://scenes/world/deck1.tscn" id="1_deck1"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/terminal_ui.tscn" id="4_terminal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/principle_card.tscn" id="5_card"]
+[ext_resource type="PackedScene" path="res://scenes/world/stairwell.tscn" id="6_stair"]
+[ext_resource type="PackedScene" path="res://scenes/world/deck2.tscn" id="7_deck2"]
+
+[sub_resource type="Environment" id="Environment_deck1"]
+background_mode = 1
+background_color = Color(0.03, 0.02, 0.02, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.35, 0.19, 0.15, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 3
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.5
+
+[node name="Deck1Slice" type="Node3D" unique_id=1352207728]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2058270309]
+environment = SubResource("Environment_deck1")
+
+[node name="Deck1" parent="." unique_id=1693707019 instance=ExtResource("1_deck1")]
+
+[node name="Stairwell" parent="." unique_id=1755860473 instance=ExtResource("6_stair")]
+
+[node name="Deck2" parent="." unique_id=46924450 instance=ExtResource("7_deck2")]
+
+[node name="Player" parent="." unique_id=1827516875 instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 17)
+
+[node name="UI" type="Node" parent="." unique_id=840660826]
+
+[node name="HUD" parent="UI" unique_id=1346744324 instance=ExtResource("3_hud")]
+
+[node name="TerminalUI" parent="UI" unique_id=1691971020 instance=ExtResource("4_terminal")]
+
+[node name="PrincipleCard" parent="UI" unique_id=992011697 instance=ExtResource("5_card")]
+
+[node name="Sfx" type="Node" parent="." unique_id=925644239]
+
+[node name="Ambience" type="AudioStreamPlayer" parent="Sfx" unique_id=1429101093 groups=["sfx_ambience"]]
+
+[node name="Music" type="AudioStreamPlayer" parent="Sfx" unique_id=1564793530 groups=["sfx_music"]]
+
+[node name="OneShot0" type="AudioStreamPlayer" parent="Sfx" unique_id=406507659 groups=["sfx_voice"]]
+
+[node name="OneShot1" type="AudioStreamPlayer" parent="Sfx" unique_id=2864588 groups=["sfx_voice"]]
+
+[node name="OneShot2" type="AudioStreamPlayer" parent="Sfx" unique_id=1034604470 groups=["sfx_voice"]]
+
+[node name="OneShot3" type="AudioStreamPlayer" parent="Sfx" unique_id=1051063045 groups=["sfx_voice"]]

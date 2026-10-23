@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://db08dff3pgihh"]
+
+[ext_resource type="Script" uid="uid://dtfgax3otcv56" path="res://scripts/game.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://dideytj1p4l6y" path="res://scenes/world/station.tscn" id="2_station"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/terminal_ui.tscn" id="5_terminal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/principle_card.tscn" id="6_card"]
+[ext_resource type="PackedScene" path="res://scenes/ui/touch_controls.tscn" id="7_touch"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dev_reset_menu.tscn" id="8_devreset"]
+[ext_resource type="PackedScene" path="res://scenes/ui/launch_screen.tscn" id="9_launch"]
+
+[node name="Main" type="Node3D" unique_id=2043222375]
+script = ExtResource("1_game")
+
+[node name="Station" parent="." unique_id=1743716066 instance=ExtResource("2_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.011924744, 9.536743e-07, 0.011022568)
+
+[node name="Player" parent="." unique_id=701974590 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 16)
+
+[node name="UI" type="Node" parent="." unique_id=1097967724]
+
+[node name="HUD" parent="UI" unique_id=446294619 instance=ExtResource("4_hud")]
+
+[node name="TouchControls" parent="UI" unique_id=1294218568 instance=ExtResource("7_touch")]
+
+[node name="TerminalUI" parent="UI" unique_id=616532527 instance=ExtResource("5_terminal")]
+
+[node name="PrincipleCard" parent="UI" unique_id=1421656008 instance=ExtResource("6_card")]
+
+[node name="DevResetMenu" parent="UI" unique_id=623413578 instance=ExtResource("8_devreset")]
+
+[node name="LaunchScreen" parent="UI" unique_id=1832670445 instance=ExtResource("9_launch")]
+
+[node name="Sfx" type="Node" parent="." unique_id=2125099373]
+
+[node name="Ambience" type="AudioStreamPlayer" parent="Sfx" unique_id=1052710101 groups=["sfx_ambience"]]
+
+[node name="Music" type="AudioStreamPlayer" parent="Sfx" unique_id=1926404106 groups=["sfx_music"]]
+
+[node name="OneShot0" type="AudioStreamPlayer" parent="Sfx" unique_id=1647773896 groups=["sfx_voice"]]
+
+[node name="OneShot1" type="AudioStreamPlayer" parent="Sfx" unique_id=183060713 groups=["sfx_voice"]]
+
+[node name="OneShot2" type="AudioStreamPlayer" parent="Sfx" unique_id=1236860620 groups=["sfx_voice"]]
+
+[node name="OneShot3" type="AudioStreamPlayer" parent="Sfx" unique_id=1919885626 groups=["sfx_voice"]]

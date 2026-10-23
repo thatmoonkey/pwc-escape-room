@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/Wall_01.tscn" id="1_wall"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/Doorway_01.tscn" id="2_doorway"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/Door_01.tscn" id="3_door"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/FloorTile_01.tscn" id="4_floor"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/Crate_01.tscn" id="5_crate"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/interior/SlidingWindow_01.tscn" id="6_window"]
+[ext_resource type="Script" path="res://scripts/dev/interior_pack_lineup.gd" id="7_script"]
+
+[sub_resource type="BoxMesh" id="RefCube"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="RefMat"]
+albedo_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 1
+background_color = Color(0.05, 0.05, 0.06, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.55, 0.6, 1)
+ambient_light_energy = 0.5
+
+[node name="InteriorPackLineup" type="Node3D"]
+script = ExtResource("7_script")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 4.5, 24)
+fov = 75.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86, -0.25, 0.44, 0, 0.87, 0.5, -0.5, -0.43, 0.75, 0, 8, 12)
+light_energy = 1.6
+
+[node name="Ref1m" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.5, 0)
+mesh = SubResource("RefCube")
+surface_material_override/0 = SubResource("RefMat")
+
+[node name="FloorTile" parent="." instance=ExtResource("4_floor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
+
+[node name="Wall" parent="." instance=ExtResource("1_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 0)
+
+[node name="Doorway" parent="." instance=ExtResource("2_doorway")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Door" parent="." instance=ExtResource("3_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="Crate" parent="." instance=ExtResource("5_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
+[node name="Window" parent="." instance=ExtResource("6_window")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2, 0)

@@ -1,0 +1,46 @@
+[gd_scene format=4]
+
+[ext_resource type="Shader" path="res://shaders/ember_recolour.gdshader" id="1_b0jkx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_80rcp"]
+render_priority = 0
+shader = ExtResource("1_b0jkx")
+shader_parameter/tint_low = Color(0.31, 0.063, 0.063, 1)
+shader_parameter/tint_high = Color(0.678, 0.137, 0.137, 1)
+shader_parameter/glow_tint = Color(0.941, 0.722, 0.224, 1)
+shader_parameter/exposure_gain = 1.0
+shader_parameter/seam_floor = 0.05
+shader_parameter/plate_ceiling = 0.85
+shader_parameter/param_metallic = 0.18
+shader_parameter/param_roughness = 0.78
+shader_parameter/normal_strength = 1.0
+shader_parameter/emission_energy = 0.6
+shader_parameter/emission_cut = 0.15
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_pud6k"]
+_surfaces = [{
+"aabb": AABB(-1.75, 0, -1.75, 3.5, 1e-05, 3.5),
+"attribute_data": PackedByteArray("nKi7O0K4Kj9ZD6w+mkh/P1UPrD5BuCo/nKm7O5xIfz8="),
+"format": 34359742487,
+"index_count": 6,
+"index_data": PackedByteArray("AAABAAIAAAADAAEA"),
+"material": SubResource("ShaderMaterial_80rcp"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray("AADgPwAAAAAAAOA/AADgvwAAgDUAAOC/AADgvwAAgDUAAOA/AADgPwAAAAAAAOC//38AAAAA/r//fwAAAAD+v/9/AAAAAP6//38AAAAA/r8=")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hpxvr"]
+size = Vector3(3.5, 0.05, 3.5)
+
+[node name="Ceiling_01" type="StaticBody3D" unique_id=313939371]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="." unique_id=1131761137]
+mesh = SubResource("ArrayMesh_pud6k")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=998266054]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.024999047, 0)
+shape = SubResource("BoxShape3D_hpxvr")

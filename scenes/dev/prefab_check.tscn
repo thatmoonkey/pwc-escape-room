@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/prefabs/floor/DeckPlate_12.tscn" id="1_plate"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/terminal/Modulare_Konsole_Grade_mit_Fu.tscn" id="2_console"]
+[ext_resource type="PackedScene" path="res://scenes/prefabs/corridor/Corridor_Segment.tscn" id="3_corridor"]
+
+[sub_resource type="BoxMesh" id="RefMesh"]
+size = Vector3(1, 1, 1)
+
+[node name="PrefabCheck" type="Node3D"]
+
+[node name="DeckPlate" parent="." instance=ExtResource("1_plate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 0)
+
+[node name="Ref_plate" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.5, 6)
+mesh = SubResource("RefMesh")
+
+[node name="CorridorSegment" parent="." instance=ExtResource("3_corridor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Console" parent="." instance=ExtResource("2_console")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 0)
+
+[node name="Ref_console" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.5, 4)
+mesh = SubResource("RefMesh")

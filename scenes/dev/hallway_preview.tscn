@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/exterior/space_ship_hallway.glb" id="1_hall"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.09, 0.11, 0.15, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.68, 0.8, 1)
+ambient_light_energy = 0.6
+
+[node name="HallwayPreview" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="Hall" parent="." instance=ExtResource("1_hall")]
+
+[node name="Light" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, 20, 14, -11)
+light_energy = 1.4

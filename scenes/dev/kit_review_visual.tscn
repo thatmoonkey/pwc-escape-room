@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/kit/ultimate_space_kit.glb" id="1_kit"]
+
+[node name="KitReviewVisual" type="Node3D"]
+
+[node name="Kit" parent="." instance=ExtResource("1_kit")]

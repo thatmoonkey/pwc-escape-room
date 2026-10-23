@@ -1,0 +1,48 @@
+[gd_scene format=4]
+
+[ext_resource type="Shader" path="res://shaders/ember_recolour.gdshader" id="1_7n2i6"]
+[ext_resource type="Texture2D" path="res://assets/kit/sci-fi_interior_pack_lowpoly_6.png" id="2_ye0dc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gusbq"]
+render_priority = 0
+shader = ExtResource("1_7n2i6")
+shader_parameter/albedo_texture = ExtResource("2_ye0dc")
+shader_parameter/tint_low = Color(0.31, 0.063, 0.063, 1)
+shader_parameter/tint_high = Color(0.678, 0.137, 0.137, 1)
+shader_parameter/glow_tint = Color(0.941, 0.722, 0.224, 1)
+shader_parameter/exposure_gain = 1.0
+shader_parameter/seam_floor = 0.05
+shader_parameter/plate_ceiling = 0.85
+shader_parameter/param_metallic = 0.05
+shader_parameter/param_roughness = 0.35
+shader_parameter/normal_strength = 1.0
+shader_parameter/emission_energy = 2.2
+shader_parameter/emission_cut = 0.15
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_csao2"]
+_surfaces = [{
+"aabb": AABB(-4.7683716e-07, 0, -0.858006, 1e-05, 1.1785865, 1.716012),
+"attribute_data": PackedByteArray("9Y70PoaLBT+R8hA/m+QaP4h+CD+GhwU/5JbjPpvsGj8="),
+"format": 34359742487,
+"index_count": 6,
+"index_data": PackedByteArray("AAABAAIAAAADAAEA"),
+"material": SubResource("ShaderMaterial_gusbq"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray("AACANAAgdToA/se+AAAAtCyilj9Ipls/AADANAAAAAAg9cg+AAAAtezblj9Iplu/AAD6f/p//78AAPp/+n//vwAA+n/6f/+/AAD6f/p//78=")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gokqb"]
+size = Vector3(0.05, 1.1785865, 1.716012)
+
+[node name="SlidingWindow_01" type="StaticBody3D" unique_id=1679186756]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="." unique_id=1611400004]
+mesh = SubResource("ArrayMesh_csao2")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=294785494]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58929324, 0)
+shape = SubResource("BoxShape3D_gokqb")

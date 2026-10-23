@@ -1,0 +1,85 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/input/touch_controls.gd" id="1_touch"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stick"]
+bg_color = Color(0.78, 0.45, 0.28, 0.16)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.94, 0.72, 0.42, 0.4)
+corner_radius_top_left = 68
+corner_radius_top_right = 68
+corner_radius_bottom_right = 68
+corner_radius_bottom_left = 68
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_knob"]
+bg_color = Color(0.94, 0.76, 0.45, 0.62)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 3
+script = ExtResource("1_touch")
+
+[node name="Root" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Stick" type="Control" parent="Root"]
+visible = false
+offset_right = 136.0
+offset_bottom = 136.0
+mouse_filter = 2
+
+[node name="Base" type="Panel" parent="Root/Stick"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stick")
+
+[node name="Knob" type="Panel" parent="Root/Stick"]
+offset_left = 42.0
+offset_top = 42.0
+offset_right = 94.0
+offset_bottom = 94.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
+
+[node name="InteractButton" type="Button" parent="Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -210.0
+offset_top = -118.0
+offset_right = -34.0
+offset_bottom = -34.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.96, 0.92, 0.87, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "INTERACT"
+
+[node name="Hint" type="Label" parent="Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -152.0
+offset_right = -34.0
+offset_bottom = -126.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.72, 0.62, 0.55, 1)
+theme_override_font_sizes/font_size = 13
+text = "drag to look, tap to use"
+horizontal_alignment = 2

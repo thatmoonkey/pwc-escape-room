@@ -1,0 +1,50 @@
+[gd_scene format=4]
+
+[ext_resource type="Shader" path="res://shaders/ember_recolour.gdshader" id="1_cf5og"]
+[ext_resource type="Texture2D" path="res://assets/kit/sci-fi_interior_pack_lowpoly_2.png" id="2_0lof5"]
+[ext_resource type="Texture2D" path="res://assets/kit/sci-fi_interior_pack_lowpoly_3.png" id="3_3ggge"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fp4jm"]
+render_priority = 0
+shader = ExtResource("1_cf5og")
+shader_parameter/albedo_texture = ExtResource("2_0lof5")
+shader_parameter/emission_texture = ExtResource("3_3ggge")
+shader_parameter/tint_low = Color(0.31, 0.063, 0.063, 1)
+shader_parameter/tint_high = Color(0.678, 0.137, 0.137, 1)
+shader_parameter/glow_tint = Color(0.941, 0.722, 0.224, 1)
+shader_parameter/exposure_gain = 1.0
+shader_parameter/seam_floor = 0.05
+shader_parameter/plate_ceiling = 0.85
+shader_parameter/param_metallic = 0.18
+shader_parameter/param_roughness = 0.78
+shader_parameter/normal_strength = 1.0
+shader_parameter/emission_energy = 0.6
+shader_parameter/emission_cut = 0.15
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_vihbi"]
+_surfaces = [{
+"aabb": AABB(-1.75, 0, -1.75, 3.4999998, 1e-05, 3.5),
+"attribute_data": PackedByteArray("wzosP1ixrT6Nl38/czUqP42Xfz9Wsa0+wzosP3c1Kj8="),
+"format": 34359742487,
+"index_count": 6,
+"index_data": PackedByteArray("AAABAAIAAAADAAEA"),
+"material": SubResource("ShaderMaterial_fp4jm"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray("AADgvwAAAAAAAOA//v/fPwAA4CYAAOC//v/fPwAAAAAAAOA/AADgvwAA4CYAAOC//3/+/wAA/7//f/7/AAD/v/9//v8AAP+//3/+/wAA/78=")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_p3iwk"]
+size = Vector3(3.4999998, 0.05, 3.5)
+
+[node name="FloorTile_02" type="StaticBody3D" unique_id=1342389909]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="." unique_id=1546994527]
+mesh = SubResource("ArrayMesh_vihbi")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=804703521]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025, 0)
+shape = SubResource("BoxShape3D_p3iwk")

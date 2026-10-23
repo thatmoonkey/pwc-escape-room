@@ -1,0 +1,45 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/kit/modular_sci-fi_floor.glb" id="1_floor"]
+[ext_resource type="PackedScene" path="res://assets/kit/sci-fi_modular_terminal_toolkit.glb" id="2_term"]
+[ext_resource type="PackedScene" path="res://assets/kit/spaceship_interior.glb" id="3_int"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ref"]
+size = Vector3(1, 1, 1)
+
+[node name="KitLineup" type="Node3D"]
+
+[node name="Station_floor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 0)
+
+[node name="Centre" type="Node3D" parent="Station_floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.072, -0.037, -3.072)
+
+[node name="Kit" parent="Station_floor/Centre" instance=ExtResource("1_floor")]
+transform = Transform3D(0.001159, 0, 0, 0, 0.001159, 0, 0, 0, 0.001159, 0, 0, 0)
+
+[node name="Station_terminals" type="Node3D" parent="."]
+
+[node name="Centre" type="Node3D" parent="Station_terminals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.458, -0.421, 8.58)
+
+[node name="Kit" parent="Station_terminals/Centre" instance=ExtResource("2_term")]
+transform = Transform3D(0.09346, 0, 0, 0, 0.09346, 0, 0, 0, 0.09346, 0, 0, 0)
+
+[node name="Station_interior" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
+
+[node name="Kit" parent="Station_interior" instance=ExtResource("3_int")]
+transform = Transform3D(4.0404, 0, 0, 0, 4.0404, 0, 0, 0, 4.0404, 0, 0, 0)
+
+[node name="Ref_floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.5, 0.5, 5.5)
+mesh = SubResource("BoxMesh_ref")
+
+[node name="Ref_terminals" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0.5, 5.5)
+mesh = SubResource("BoxMesh_ref")
+
+[node name="Ref_interior" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.5, 5.5)
+mesh = SubResource("BoxMesh_ref")

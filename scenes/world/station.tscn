@@ -1,0 +1,200 @@
+[gd_scene format=3 uid="uid://dideytj1p4l6y"]
+
+[ext_resource type="Material" path="res://materials/accent_amber.tres" id="1_accent_amber"]
+[ext_resource type="Material" path="res://materials/highlight.tres" id="2_highlight"]
+[ext_resource type="Script" uid="uid://bovt8r6ix5wln" path="res://scripts/interact/console_interactable.gd" id="3_console"]
+[ext_resource type="Script" uid="uid://cacxmxyde27gb" path="res://scripts/world/cockpit_door.gd" id="4_cockpit_door"]
+[ext_resource type="Script" uid="uid://dcw6un3alnbma" path="res://scripts/puzzles/flight_console.gd" id="5_flight"]
+[ext_resource type="Script" uid="uid://dh4bpp6e7fu4s" path="res://scripts/puzzles/log_terminal.gd" id="6_log"]
+[ext_resource type="Script" uid="uid://c1w86m7suiiy4" path="res://scripts/world/ship_exterior.gd" id="7_exterior"]
+[ext_resource type="PackedScene" path="res://scenes/world/cockpit.tscn" id="8_cockpit"]
+[ext_resource type="Script" uid="uid://bjjnejjbifyka" path="res://scripts/world/launch_cutscene.gd" id="9_cutscene"]
+[ext_resource type="Script" uid="uid://c3etbn2at5vob" path="res://scripts/world/ship_hull.gd" id="10_hull"]
+[ext_resource type="Texture2D" uid="uid://cu7gl7a3m3e5x" path="res://assets/exterior/8k_stars_milky_way.jpg" id="11_starfield"]
+[ext_resource type="PackedScene" uid="uid://ds3uic0byicop" path="res://assets/library/shooter-scifi/sci-fi-terminal.glb" id="12_terminal"]
+[ext_resource type="Material" path="res://materials/wall_upper.tres" id="13_wall_upper"]
+[ext_resource type="PackedScene" path="res://scenes/world/deck1.tscn" id="14_deck1"]
+[ext_resource type="PackedScene" path="res://scenes/world/stairwell.tscn" id="15_stairwell"]
+[ext_resource type="PackedScene" path="res://scenes/world/deck2.tscn" id="16_deck2"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_space"]
+panorama = ExtResource("11_starfield")
+
+[sub_resource type="Sky" id="Sky_station"]
+sky_material = SubResource("PanoramaSkyMaterial_space")
+
+[sub_resource type="Environment" id="Environment_station"]
+background_mode = 2
+background_color = Color(0.02, 0.035, 0.055, 1)
+background_energy_multiplier = 0.18
+sky = SubResource("Sky_station")
+ambient_light_source = 2
+ambient_light_color = Color(0.38, 0.2, 0.17, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 0.6
+ssao_intensity = 1.4
+glow_enabled = true
+glow_intensity = 0.55
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.05, 0.055, 0.085, 1)
+fog_density = 0.0015
+fog_sky_affect = 0.0
+
+[sub_resource type="BoxMesh" id="Mesh_approach"]
+size = Vector3(1.3825, 4.06, 0.295)
+
+[sub_resource type="BoxShape3D" id="Shape_approach"]
+size = Vector3(1.3825, 4.06, 0.295)
+
+[sub_resource type="BoxMesh" id="Mesh_header"]
+size = Vector3(3.205, 0.66, 0.295)
+
+[sub_resource type="BoxShape3D" id="Shape_header"]
+size = Vector3(3.205, 0.66, 0.295)
+
+[sub_resource type="BoxMesh" id="Mesh_gate"]
+size = Vector3(3.205, 3.4, 0.24)
+
+[sub_resource type="BoxShape3D" id="Shape_gate"]
+size = Vector3(3.205, 3.4, 0.24)
+
+[sub_resource type="BoxMesh" id="Mesh_gate_highlight"]
+size = Vector3(3.36, 3.57, 0.25)
+
+[sub_resource type="BoxShape3D" id="Shape_helm"]
+size = Vector3(1.7, 1, 1.25)
+
+[sub_resource type="BoxMesh" id="Mesh_helm_highlight"]
+size = Vector3(1.8, 1.1, 1.35)
+
+[sub_resource type="BoxShape3D" id="Shape_relay"]
+size = Vector3(1.1, 2, 1.2)
+
+[sub_resource type="BoxMesh" id="Mesh_unit"]
+
+[node name="Station" type="Node3D" unique_id=547250136]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=362015774]
+environment = SubResource("Environment_station")
+
+[node name="Deck1" parent="." unique_id=1693707019 instance=ExtResource("14_deck1")]
+
+[node name="Stairwell" parent="." unique_id=1755860473 instance=ExtResource("15_stairwell")]
+
+[node name="Deck2" parent="." unique_id=46924450 instance=ExtResource("16_deck2")]
+
+[node name="BridgeApproach" type="Node3D" parent="." unique_id=1067502402]
+
+[node name="ApproachWall_Starboard" type="StaticBody3D" parent="BridgeApproach" unique_id=1104932474]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.29375, 2.03, 17.5)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="BridgeApproach/ApproachWall_Starboard" unique_id=98455849]
+material_override = ExtResource("13_wall_upper")
+mesh = SubResource("Mesh_approach")
+
+[node name="Shape" type="CollisionShape3D" parent="BridgeApproach/ApproachWall_Starboard" unique_id=219583844]
+shape = SubResource("Shape_approach")
+
+[node name="ApproachWall_Port" type="StaticBody3D" parent="BridgeApproach" unique_id=237905017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.29375, 2.03, 17.5)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="BridgeApproach/ApproachWall_Port" unique_id=243908033]
+material_override = ExtResource("13_wall_upper")
+mesh = SubResource("Mesh_approach")
+
+[node name="Shape" type="CollisionShape3D" parent="BridgeApproach/ApproachWall_Port" unique_id=1964628305]
+shape = SubResource("Shape_approach")
+
+[node name="Header" type="StaticBody3D" parent="BridgeApproach" unique_id=600490175]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.73, 17.5)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="BridgeApproach/Header" unique_id=1781961686]
+material_override = ExtResource("13_wall_upper")
+mesh = SubResource("Mesh_header")
+
+[node name="Shape" type="CollisionShape3D" parent="BridgeApproach/Header" unique_id=851065233]
+shape = SubResource("Shape_header")
+
+[node name="Interactables" type="Node3D" parent="." unique_id=921144049]
+
+[node name="CockpitGate" type="StaticBody3D" parent="Interactables" unique_id=363717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 17.5)
+script = ExtResource("4_cockpit_door")
+
+[node name="Panel" type="MeshInstance3D" parent="Interactables/CockpitGate" unique_id=1980468550]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+material_override = ExtResource("1_accent_amber")
+mesh = SubResource("Mesh_gate")
+
+[node name="Shape" type="CollisionShape3D" parent="Interactables/CockpitGate" unique_id=336531807]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+shape = SubResource("Shape_gate")
+
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/CockpitGate" unique_id=475433961]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+visible = false
+material_override = ExtResource("2_highlight")
+mesh = SubResource("Mesh_gate_highlight")
+
+[node name="CockpitHelm" type="StaticBody3D" parent="Interactables" unique_id=1446932337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 22.6)
+script = ExtResource("3_console")
+puzzle_path = NodePath("Helm")
+fit_to_model = false
+prompt = "Helm - plot the course home"
+
+[node name="Shape" type="CollisionShape3D" parent="Interactables/CockpitHelm" unique_id=228143461]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Shape_helm")
+
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/CockpitHelm" unique_id=818950674]
+visible = false
+material_override = ExtResource("2_highlight")
+mesh = SubResource("Mesh_helm_highlight")
+
+[node name="Helm" type="Node" parent="Interactables/CockpitHelm" unique_id=1696243978]
+script = ExtResource("5_flight")
+puzzle_id = "cockpit"
+system_title = "HELM - MANUAL FLIGHT CONTROL"
+
+[node name="SensorRelay" type="StaticBody3D" parent="Interactables" unique_id=463097814]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 4.8, 0, 3.5)
+script = ExtResource("3_console")
+puzzle_path = NodePath("Log")
+prompt = "Sensor relay: internal log"
+
+[node name="Model" parent="Interactables/SensorRelay" unique_id=1114099098 instance=ExtResource("12_terminal")]
+
+[node name="Shape" type="CollisionShape3D" parent="Interactables/SensorRelay" unique_id=2054950289]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("Shape_relay")
+
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/SensorRelay" unique_id=1795788641]
+transform = Transform3D(1.1, 0, 0, 0, 1.6, 0, 0, 0, 1.2, 0, 0.75, 0)
+visible = false
+material_override = ExtResource("2_highlight")
+mesh = SubResource("Mesh_unit")
+
+[node name="Log" type="Node" parent="Interactables/SensorRelay" unique_id=1246332007]
+script = ExtResource("6_log")
+system_title = "SENSOR RELAY / INTERNAL LOG"
+
+[node name="Exterior" type="Node3D" parent="." unique_id=1963411376]
+script = ExtResource("7_exterior")
+
+[node name="Cockpit" parent="." unique_id=1345796290 instance=ExtResource("8_cockpit")]
+
+[node name="LaunchCutscene" type="Node3D" parent="." unique_id=590264685]
+script = ExtResource("9_cutscene")
+
+[node name="Hull" type="Node3D" parent="." unique_id=1847119321]
+script = ExtResource("10_hull")

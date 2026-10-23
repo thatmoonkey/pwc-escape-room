@@ -1,0 +1,50 @@
+[gd_scene format=4]
+
+[ext_resource type="Shader" path="res://shaders/ember_recolour.gdshader" id="1_q5eix"]
+[ext_resource type="Texture2D" path="res://assets/kit/sci-fi_interior_pack_lowpoly_0.png" id="2_o6m50"]
+[ext_resource type="Texture2D" path="res://assets/kit/sci-fi_interior_pack_lowpoly_1.png" id="3_8x10w"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_08ngv"]
+render_priority = 0
+shader = ExtResource("1_q5eix")
+shader_parameter/albedo_texture = ExtResource("2_o6m50")
+shader_parameter/emission_texture = ExtResource("3_8x10w")
+shader_parameter/tint_low = Color(0.31, 0.063, 0.063, 1)
+shader_parameter/tint_high = Color(0.678, 0.137, 0.137, 1)
+shader_parameter/glow_tint = Color(0.941, 0.722, 0.224, 1)
+shader_parameter/exposure_gain = 1.0
+shader_parameter/seam_floor = 0.05
+shader_parameter/plate_ceiling = 0.85
+shader_parameter/param_metallic = 0.12
+shader_parameter/param_roughness = 0.72
+shader_parameter/normal_strength = 1.0
+shader_parameter/emission_energy = 0.9
+shader_parameter/emission_cut = 0.15
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_e4xlo"]
+_surfaces = [{
+"aabb": AABB(-1.7499998, 0, -0.14754605, 3.4999995, 4.0617623, 0.29509223),
+"attribute_data": PackedByteArray("eJG3OxV2cT4sJKM+imeKPiwkoz4RdnE+eJG3O45nij4wJKM+7YYQP/iRtzvvhhA/+JG3OzFdGT8wJKM+L10ZPw=="),
+"format": 34359742487,
+"index_count": 18,
+"index_data": PackedByteArray("AAABAAIAAAADAAEAAwAEAAEAAwAFAAQABAAFAAYABAAGAAcA"),
+"material": SubResource("ShaderMaterial_08ngv"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("/v/fvwAAAAAwFhc+/v/fP0CcxT5QFhe+/v/fPwAAAAAwFhc+/v/fv0CcxT5QFhe+/v/fP2JAa0AwFhe+/v/fv2JAa0AwFhe+/v/fv/X5gUBYFhc+/v/fP/X5gUBYFhc+/390tydgv6T/f12g6HXzk/9/dLcnYL+k/39doOh185P/f6JfGFgLhf9/ol8YWAuF/3+KSH027I//f4pIfTbsjw==")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dca7g"]
+size = Vector3(3.4999995, 4.0617623, 0.29509223)
+
+[node name="Wall_01" type="StaticBody3D" unique_id=796505068]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Model" type="MeshInstance3D" parent="." unique_id=1638254051]
+mesh = SubResource("ArrayMesh_e4xlo")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=783851007]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0308812, 0)
+shape = SubResource("BoxShape3D_dca7g")

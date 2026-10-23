@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/dev/probe_ascent.gd" id="1_probe"]
+[ext_resource type="PackedScene" path="res://scenes/world/station.tscn" id="2_station"]
+
+[node name="ProbeAscent" type="Node3D"]
+
+[node name="Station" parent="." instance=ExtResource("2_station")]
+
+[node name="Probe" type="Node3D" parent="."]
+script = ExtResource("1_probe")

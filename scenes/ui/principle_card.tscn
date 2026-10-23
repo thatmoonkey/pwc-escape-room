@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/principle_card.gd" id="1_card"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 42.0
+content_margin_top = 36.0
+content_margin_right = 42.0
+content_margin_bottom = 32.0
+bg_color = Color(0.06, 0.032, 0.022, 0.97)
+border_width_top = 3
+border_color = Color(1, 0.88, 0.55, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="PrincipleCard" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_card")
+
+[node name="Root" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="Root"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.01, 0.008, 0.78)
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Root"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -190.0
+offset_right = 400.0
+offset_bottom = 190.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="Root/Card"]
+
+[node name="VBox" type="VBoxContainer" parent="Root/Card/Margin"]
+theme_override_constants/separation = 14
+
+[node name="Kicker" type="Label" parent="Root/Card/Margin/VBox"]
+theme_override_colors/font_color = Color(1, 0.88, 0.55, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="Title" type="Label" parent="Root/Card/Margin/VBox"]
+theme_override_colors/font_color = Color(0.96, 0.93, 0.89, 1)
+theme_override_font_sizes/font_size = 26
+
+[node name="System" type="Label" parent="Root/Card/Margin/VBox"]
+theme_override_colors/font_color = Color(0.863, 0.369, 0.153, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="Body" type="Label" parent="Root/Card/Margin/VBox"]
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.9, 0.86, 0.82, 1)
+theme_override_constants/line_spacing = 6
+theme_override_font_sizes/font_size = 19
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="Root/Card/Margin/VBox"]
+theme_override_colors/font_color = Color(0.6, 0.52, 0.46, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 2
