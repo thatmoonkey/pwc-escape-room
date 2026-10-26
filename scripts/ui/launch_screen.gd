@@ -51,6 +51,10 @@ var _callsign: LineEdit = null
 var _hint: Label = null
 var _open: bool = false
 
+## The mandate, as chosen on this card. Held as ids until BEGIN, because a
+## half-typed name or a half-chosen mandate must not reach the record: the
+## mandate is what every placement is judged against, so it is committed once,
+## deliberately, with the callsign.
 var _objective_pick: String = ""
 var _appetite_pick: String = ""
 var _objective_buttons: Dictionary = {}
@@ -73,6 +77,8 @@ var _sheet_body: VBoxContainer = null
 var _mode_buttons: Dictionary = {}
 var _mode_note: Label = null
 var _mode_watch: int = -1
+var _music_button: Button = null
+var _music_glyph: Glyph = null
 
 
 func _ready() -> void:
@@ -173,6 +179,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	# The cursor is the whole point of this screen: it is the only thing that
+	# can press the tiles. The mode is set when the card opens, but anything
+	# that grabs the mouse later (a straggler desktop capture, a rig swap) must
+	# not be able to leave the crew staring at a menu they cannot click. So the
+	# open card enforces its own visibility, every frame.
+	if _open and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	# The mode chips cannot receive a change notification - the mode layer is a
 	# plain static, deliberately signal-free - so the card notices the change
 	# the same way the station controller does: by watching for it.
@@ -413,7 +426,7 @@ func _controls_rows() -> Dictionary:
 		rows = [
 			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse or trackpad: look."},
 			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
-			{"icon": "close", "lead": "ESC", "text": "release the cursor. F8 opens the developer reset."},
+			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, switch input mode, or return here."},
 		]
 	rows.append({"text": "Switch between desktop, mobile and VR with the chips in the "
 		+ "corner of this screen."})
@@ -490,11 +503,14 @@ func _fit_to_viewport() -> void:
 	if needed > view.y:
 		scale = view.y / needed
 	_fit.scale = Vector2(scale, scale)
-	# Centred on both axes: the anchor screen is a poster, not a document, and
-	# a poster hangs in the middle.
+	# Centred on both axes - but centred on the SCALED CONTENT, not on the
+	# scaled viewport. The old maths centred view.y * scale, which is only the
+	# content's height when nothing was scaled at all: with the chooser open on
+	# a taller-than-16:9 screen it pushed the whole card half the leftover
+	# space down the screen and clipped the callsign row off the bottom.
 	_fit.position = Vector2(
 		(view.x - view.x * scale) * 0.5,
-		maxf(0.0, (view.y - view.y * scale) * 0.5))
+		maxf(0.0, (view.y - needed * scale) * 0.5))
 
 
 # --- Build -------------------------------------------------------------------------
@@ -864,7 +880,7 @@ func _build_mode_chips() -> void:
 	var chips := HBoxContainer.new()
 	chips.name = "ModeChips"
 	chips.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	chips.offset_left = -330.0
+	chips.offset_left = -378.0
 	chips.offset_top = 14.0
 	chips.offset_right = -20.0
 	chips.offset_bottom = 42.0
@@ -872,6 +888,38 @@ func _build_mode_chips() -> void:
 	chips.add_theme_constant_override("separation", 6)
 	chips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(chips)
+
+	# The music switch lives beside the mode chips: a control the crew reach
+	# for on day one, parked where day-one controls belong. It is icon-only so
+	# the corner stays quiet, with a tooltip and the note line to name it.
+	_music_button = Button.new()
+	_music_button.name = "MusicToggle"
+	_music_button.focus_mode = Control.FOCUS_NONE
+	_music_button.tooltip_text = "Music: muted"
+	_music_button.custom_minimum_size = Vector2(34.0, 28.0)
+	_music_button.add_theme_color_override("font_color", MUTED)
+	var music_idle := StyleBoxFlat.new()
+	music_idle.bg_color = Color(0, 0, 0, 0.35)
+	music_idle.border_color = Color(0.4, 0.32, 0.26)
+	music_idle.set_border_width_all(1)
+	music_idle.set_corner_radius_all(3)
+	_music_button.add_theme_stylebox_override("normal", music_idle)
+	var music_hover: StyleBoxFlat = music_idle.duplicate()
+	music_hover.border_color = TANGERINE
+	_music_button.add_theme_stylebox_override("hover", music_hover)
+	var music_on: StyleBoxFlat = music_idle.duplicate()
+	music_on.border_color = GOLD
+	_music_button.add_theme_stylebox_override("pressed", music_on)
+	_music_button.add_theme_stylebox_override("focus", music_idle)
+	_music_glyph = Glyph.make("sound_off", 16.0, MUTED)
+	_music_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_music_glyph.set_anchors_preset(Control.PRESET_CENTER)
+	_music_glyph.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_music_glyph.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_music_button.add_child(_music_glyph)
+	_music_button.pressed.connect(_on_music_toggled)
+	_refresh_music_button()
+	chips.add_child(_music_button)
 
 	var group := ButtonGroup.new()
 	group.allow_unpress = false
@@ -935,6 +983,24 @@ func _on_mode_chip(value: int) -> void:
 	else:
 		_mode_note.text = "No OpenXR runtime found - VR stays off for now."
 	_refresh_mode_chips()
+
+
+func _on_music_toggled() -> void:
+	Sfx.toggle_music_muted()
+	_refresh_music_button()
+	if _mode_note != null:
+		_mode_note.text = "music " + ("muted" if Sfx.music_muted else "on")
+
+
+func _refresh_music_button() -> void:
+	if _music_button == null:
+		return
+	_music_button.set_pressed_no_signal(not Sfx.music_muted)
+	_music_button.tooltip_text = "Music: muted - click to unmute" if Sfx.music_muted \
+		else "Music: on - click to mute"
+	if _music_glyph != null:
+		_music_glyph.icon = "sound_off" if Sfx.music_muted else "sound_on"
+		_music_glyph.tint = MUTED if Sfx.music_muted else GOLD
 
 
 func _refresh_mode_chips() -> void:
