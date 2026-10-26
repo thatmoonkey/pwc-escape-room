@@ -25,7 +25,10 @@ func grab_mouse_if_clear() -> void:
 
 
 func touch_mode() -> bool:
-	return DisplayServer.is_touchscreen_available()
+	# The input mode layer owns the answer now: the mode may have been forced
+	# to MOBILE by the test chips even on a desktop, and a forced mode must
+	# never let the mouse be captured out from under the joysticks.
+	return InputMode.mode != InputMode.Mode.DESKTOP
 
 
 func grab_mouse() -> void:

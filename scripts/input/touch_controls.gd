@@ -6,8 +6,10 @@ extends CanvasLayer
 ## InputMap actions and the same InputRouter look delta as the mouse, so no room
 ## or puzzle script changes for mobile.
 ##
-## Set force_visible = true to exercise the mobile layout on desktop (mouse drag
-## drives it too).
+## It is active when the hardware is a touchscreen, or when the input mode
+## override says so - set_active() is what the station controller calls when the
+## test chips flip the mode, so the mobile layer can be exercised on a desktop
+## with the mouse driving it too.
 
 @export var force_visible: bool = false
 @export var look_sensitivity: float = 0.22
@@ -27,14 +29,39 @@ var _look_touch: int = -1
 var _move_center: Vector2 = Vector2.ZERO
 var _look_last: Vector2 = Vector2.ZERO
 var _look_travel: float = 0.0
+var _active_override: bool = false
 
 
 func _ready() -> void:
-	root.visible = force_visible or DisplayServer.is_touchscreen_available()
 	stick.visible = false
-	if not root.visible:
+	_refresh_visibility()
+	if root.visible:
+		interact_button.pressed.connect(func() -> void: InputRouter.queue_interact())
+
+
+## The station controller's mode switch. On a desktop the override also lets
+## the mouse drive the sticks, because a test is only useful if it can actually
+## be driven.
+func set_active(value: bool) -> void:
+	if value == _active_override:
 		return
-	interact_button.pressed.connect(func() -> void: InputRouter.queue_interact())
+	_active_override = value
+	_refresh_visibility()
+	if not root.visible:
+		_release_all()
+
+
+func _refresh_visibility() -> void:
+	root.visible = force_visible or _active_override \
+		or DisplayServer.is_touchscreen_available()
+
+
+## Mouse events drive the layer when it is running as a deliberate test on a
+## machine with no touchscreen of its own.
+func _mouse_drives() -> bool:
+	if force_visible:
+		return true
+	return _active_override and not DisplayServer.is_touchscreen_available()
 
 
 func _input(event: InputEvent) -> void:
@@ -44,9 +71,9 @@ func _input(event: InputEvent) -> void:
 		_handle_press(event.index, event.position, event.pressed)
 	elif event is InputEventScreenDrag:
 		_handle_drag(event.index, event.position)
-	elif force_visible and event is InputEventMouseButton:
+	elif _mouse_drives() and event is InputEventMouseButton:
 		_handle_press(-2, event.position, event.pressed)
-	elif force_visible and event is InputEventMouseMotion \
+	elif _mouse_drives() and event is InputEventMouseMotion \
 			and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
 		_handle_drag(-2, event.position)
 
@@ -113,7 +140,13 @@ func _action(action: StringName, pressed: bool) -> void:
 		Input.action_release(action)
 
 
+## Left pressed after a deactivation would walk the crew into a wall forever.
+func _release_all() -> void:
+	_move_touch = -1
+	_look_touch = -1
+	stick.visible = false
+	_set_move(Vector2.ZERO)
+
+
 func _exit_tree() -> void:
-	for action in MOVE_ACTIONS:
-		if Input.is_action_pressed(action):
-			Input.action_release(action)
+	_release_all()

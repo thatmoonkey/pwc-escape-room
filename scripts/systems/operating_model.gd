@@ -37,19 +37,19 @@ const APPETITES := [
 		"id": "cautious",
 		"label": "CAUTIOUS",
 		"rank": 0,
-		"blurb": "Protect the ship and the crew first. Slower, and you will turn down openings.",
+		"blurb": "Protect the ship and crew first. Slower; you will turn down openings.",
 	},
 	{
 		"id": "balanced",
 		"label": "BALANCED",
 		"rank": 1,
-		"blurb": "Take the openings that are worth it, and carry the cost of the ones you refuse.",
+		"blurb": "Take the openings worth it, and carry the cost of the rest.",
 	},
 	{
 		"id": "ambitious",
 		"label": "AMBITIOUS",
 		"rank": 2,
-		"blurb": "The mission is worth real risk. Move fast, spend margin, and own the outcome.",
+		"blurb": "The mission is worth real risk. Move fast, spend margin.",
 	},
 ]
 
@@ -61,19 +61,19 @@ const OBJECTIVES := [
 	{
 		"id": "home_intact",
 		"label": "HOME INTACT",
-		"statement": "Return the crew to KEPLER-442b with the ship intact and no further hull risk.",
+		"statement": "Everyone home, ship intact. No further hull risk.",
 		"pressure": 0.75,
 	},
 	{
 		"id": "home_on_schedule",
 		"label": "HOME ON SCHEDULE",
-		"statement": "Return the crew to KEPLER-442b on the filed schedule: the charter holders are waiting.",
+		"statement": "Keep the filed schedule. The charter holders are waiting.",
 		"pressure": -0.75,
 	},
 	{
 		"id": "finish_the_survey",
 		"label": "FINISH THE SURVEY",
-		"statement": "Complete the survey this ship was sent for, then bring the crew home with the data.",
+		"statement": "Finish the survey first, then bring the data home.",
 		"pressure": -0.10,
 	},
 ]

@@ -30,12 +30,14 @@ extends CanvasLayer
 
 var _reloading: bool = false
 var _teaser: Label = null
+var _mode_buttons: Dictionary = {}
 
 
 func _ready() -> void:
 	add_to_group("dev_reset_menu")
 	root.visible = false
 	_build_teaser()
+	_build_mode_row()
 	reset_button.pressed.connect(_on_reset_all)
 	restore_button.pressed.connect(_on_restore_all)
 	reload_button.pressed.connect(_on_reload_only)
@@ -48,6 +50,7 @@ func is_open() -> bool:
 
 func open() -> void:
 	_refresh_status()
+	_refresh_mode_buttons()
 	root.visible = true
 	_set_teaser(false)
 	InputRouter.set_ui_blocking(true)
@@ -89,6 +92,51 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_reset_all() -> void:
 	GameState.clear_save()
 	_reload()
+
+
+## The same test switch the launch screen carries, here for flipping the input
+## mode mid-run: mobile's floating sticks and the HUD's compact variant can be
+## checked without leaving the ship. VR is best-effort - with no OpenXR runtime
+## the mode refuses and the status line says so.
+func _build_mode_row() -> void:
+	var vbox := $Root/Card/Margin/VBox as VBoxContainer
+	var buttons := vbox.get_node("Buttons") as VBoxContainer
+	var row := HBoxContainer.new()
+	row.name = "ModeRow"
+	row.add_theme_constant_override("separation", 6)
+
+	var caption := Label.new()
+	caption.text = "INPUT MODE"
+	caption.add_theme_font_size_override("font_size", 12)
+	row.add_child(caption)
+
+	var group := ButtonGroup.new()
+	group.allow_unpress = false
+	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
+		var chip := Button.new()
+		chip.text = InputMode.label(int(value))
+		chip.toggle_mode = true
+		chip.button_group = group
+		chip.add_theme_font_size_override("font_size", 12)
+		chip.pressed.connect(_on_mode_button.bind(int(value)))
+		_mode_buttons[int(value)] = chip
+		row.add_child(chip)
+
+	vbox.add_child(row)
+	vbox.move_child(row, buttons.get_index())
+
+
+func _on_mode_button(value: int) -> void:
+	if not InputMode.set_mode(value):
+		status_label.text = "No OpenXR runtime found - VR stays off."
+	_refresh_mode_buttons()
+
+
+func _refresh_mode_buttons() -> void:
+	InputMode.ensure_detected()
+	for value in _mode_buttons:
+		var chip: Button = _mode_buttons[value]
+		chip.set_pressed_no_signal(int(value) == InputMode.mode)
 
 
 func _on_restore_all() -> void:

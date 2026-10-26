@@ -3,34 +3,29 @@ extends CanvasLayer
 
 ## The title card the crew reads before they take a step.
 ##
-## ONE PAGE, AND ENFORCED RATHER THAN HOPED FOR.
-## The briefing is a fixed set of text read in a window nobody has measured in
-## advance. An earlier version stacked it all in a single column until it ran
-## off the bottom of the screen - including the callsign field, which is what the
-## player has to use - and there is no scrolling here on purpose, because a
-## scrolled title card is a wall of text pretending to be a briefing.
+## THE SCREEN IS THE FIRST GOAL. The old card was an instruction manual: two
+## columns of paragraphs the player had to read before a single pixel of play.
+## This one leads with the three things the crew will actually do - declare the
+## mandate, set five decisions, fly home - as three icons in the centre, each
+## carrying its own completion state, so the shape of the whole run is visible
+## in one glance and progress is legible the moment it happens.
 ##
-## So the card is laid out at the window's own width and then SCALED DOWN until
-## its measured height fits the window. The measuring happens after the
-## containers have laid out, because an autowrapping label only reports its true
-## height once it has been given the width it will actually be read at.
+## The first tile IS the first step: tapping it opens the mandate chooser, and
+## sealing a mandate is what completes it. Everything else a briefing used to
+## say sits behind curiosity buttons - WHY YOU'RE HERE / HOW IT'S JUDGED /
+## CONTROLS - because a player who wants the detail will ask for it, and a
+## player who does not should not pay for it. Sheet copy runs smaller and
+## tolerates longer paragraphs; the anchor stays almost empty.
 ##
-## It is deliberately not a menu: one field, two required choices and one button,
-## and the corridor is already lit and audible behind it, so the first thing the
-## player sees is the ship they are about to configure. The screen's whole job is
-## to state the premise and the goal in SHIPMIND's own register - calm,
-## reasonable, corporate - because the premise IS the lesson: nothing here
-## sounds like a threat.
+## Input mode is chosen here too, as three chips in the corner. It is a testing
+## control, so it is honest about that: small, out of the fiction's way, and
+## labelled as a test switch.
 ##
-## THE MANDATE IS CAPTURED HERE, and it has to be captured HERE. Consistency is
-## measured against what the player declared before they decided, so the
-## objective and the risk appetite are a scoring prerequisite rather than an
-## opening cutscene: a player who picks a risk appetite after seeing the bays is
-## rationalising, not deciding. BEGIN refuses to start without both.
-##
-## It holds the opening monologue rather than the station, so the first thing
-## SHIPMIND says lands after the player has chosen to begin, not underneath a
-## title card where it would be missed. Emits `begun` and the station speaks.
+## Behaviour the card keeps from its earlier life: the mandate is captured HERE,
+## before the crew can see a single bay, because consistency is measured against
+## what was declared before deciding; BEGIN refuses to run without a callsign
+## and a mandate; and a resumed session opens with its record already shown
+## rather than being asked to re-declare it.
 
 signal begun
 
@@ -40,14 +35,12 @@ const GOLD := Color(0.941, 0.722, 0.224)
 const WHITE := Color(1.0, 1.0, 1.0)
 const BODY := Color(0.93, 0.89, 0.85)
 const MUTED := Color(0.72, 0.66, 0.62)
+const SURFACE := Color(0.105, 0.068, 0.052, 1.0)
+const SURFACE_RAISED := Color(0.16, 0.11, 0.085, 1.0)
 
-## The card's own margins. Kept as constants because the fit measurement has to
-## add them back to the column's height: the scale applies to the whole card, so
-## leaving them out would let a taller-than-measured card overflow by exactly the
-## margin it forgot to count.
-const MARGIN_SIDE := 76.0
-const MARGIN_TOP := 44.0
-const MARGIN_BOTTOM := 34.0
+const MARGIN_SIDE := 64.0
+const MARGIN_TOP := 30.0
+const MARGIN_BOTTOM := 26.0
 
 var _root: Control = null
 var _fit: Control = null
@@ -58,14 +51,28 @@ var _callsign: LineEdit = null
 var _hint: Label = null
 var _open: bool = false
 
-## The mandate, as chosen on this card. Held as ids until BEGIN, because a
-## half-typed name or a half-chosen mandate must not reach the record: the
-## mandate is what every placement is judged against, so it is committed once,
-## deliberately, with the callsign.
 var _objective_pick: String = ""
 var _appetite_pick: String = ""
 var _objective_buttons: Dictionary = {}
 var _appetite_buttons: Dictionary = {}
+
+## The three goal tiles and their furniture.
+var _tile_buttons: Dictionary = {}
+var _tile_status: Dictionary = {}
+var _tile_badges: Dictionary = {}
+var _pulsing_tile: CanvasItem = null
+var _pulse: Tween = null
+
+var _chooser: PanelContainer = null
+var _chooser_open: bool = false
+
+var _sheet: Control = null
+var _sheet_title: Label = null
+var _sheet_body: VBoxContainer = null
+
+var _mode_buttons: Dictionary = {}
+var _mode_note: Label = null
+var _mode_watch: int = -1
 
 
 func _ready() -> void:
@@ -82,15 +89,9 @@ func is_open() -> bool:
 func show_screen() -> void:
 	_open = true
 	_root.visible = true
-	## The world keeps running behind this card - the corridor is the backdrop -
-	## but the crew cannot walk or look until they have read it.
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	refresh_from_state()
-	## A saved callsign is restored rather than re-asked. On a fresh session the
-	## field starts empty instead of pre-filled with the default, because the
-	## point of asking is that the player chooses the name on the record; so
-	## focus starts in the field until three letters are in it.
 	if _callsign != null and _callsign.text.length() < GameState.CALLSIGN_LENGTH:
 		_callsign.grab_focus()
 	elif _button != null:
@@ -99,22 +100,10 @@ func show_screen() -> void:
 
 
 ## Re-reads the record. The station controller calls this AFTER it has loaded
-## the save, because this card's own _ready fires before that does: without it a
-## resumed session would open with an empty callsign and no mandate even though
-## the record holds both.
+## the save, because this card's own _ready fires before that does.
 func refresh_from_state() -> void:
 	if _callsign != null and GameState.has_save() and GameState.callsign != "":
 		_callsign.text = GameState.callsign
-	_show_declared_mandate()
-	_refresh_resume()
-	_request_fit()
-
-
-## Opens with whatever mandate is already on the record, so a resumed session is
-## not asked to re-declare what it has already stated - and can still change it,
-## which re-scores the placements it has made. That is the honest reading of a
-## changed mandate rather than a hidden trap.
-func _show_declared_mandate() -> void:
 	_objective_pick = OperatingModel.objective_id
 	_appetite_pick = OperatingModel.appetite_id
 	for id in _objective_buttons:
@@ -123,37 +112,34 @@ func _show_declared_mandate() -> void:
 	for id in _appetite_buttons:
 		if String(id) == _appetite_pick:
 			BrandTokens.mark_chosen(_appetite_buttons[id])
+	_refresh_resume()
+	_refresh_tiles()
+	_request_fit()
 
 
 ## Hands the ship over: cursor back into the room, input back to the crew.
 func begin() -> void:
 	if not _open:
 		return
-	## A run with no callsign would file every decision under nobody, and the
-	## record is the deliverable, so an incomplete field sends the player back to
-	## it rather than starting an unattributed session.
 	if _callsign == null or _callsign.text.length() < GameState.CALLSIGN_LENGTH:
 		if _callsign != null:
 			_callsign.grab_focus()
 		_set_hint("Three letters for the record, then BEGIN.")
 		return
-	## THE MANDATE COMES FIRST. Consistency is measured against it, so a session
-	## that began without one could not score any decision at all; the card
-	## refuses to start rather than letting every bay refuse later.
 	if _objective_pick == "":
-		_set_hint("State the mission objective. It is the yardstick every decision is judged against.")
+		_open_chooser()
+		_set_hint("Declare the mandate first - it is the yardstick every decision is judged against.")
 		return
 	if _appetite_pick == "":
-		_set_hint("Choose the risk appetite the model runs at: cautious, balanced or ambitious.")
+		_open_chooser()
+		_set_hint("Choose the risk appetite the model runs at.")
 		return
-	## Committed here, not per keystroke: set_callsign and set_mandate write the
-	## save file, and one disk write per click is a lot of churn for a form the
-	## player fills in once.
 	GameState.set_callsign(_callsign.text)
 	GameState.set_mandate(_objective_pick, _appetite_pick)
 	_set_hint("")
 	_open = false
 	_root.visible = false
+	_close_sheet()
 	InputRouter.set_ui_blocking(false)
 	for node in get_tree().get_nodes_in_group("input_layer"):
 		if node.has_method("grab_mouse"):
@@ -166,14 +152,19 @@ func _refresh_resume() -> void:
 		return
 	if GameState.restored_count() > 0:
 		_button.text = "RESUME SESSION"
-		_resume_label.text = "Session on record: %d of %d decisions placed. %s" % [
-			GameState.restored_count(), GameState.SYSTEMS.size(), Score.summary_line().to_lower()]
-		return
-	_button.text = "BEGIN"
-	_resume_label.text = "No prior session on record. This briefing starts a new one."
+		_resume_label.text = "On the record: %d of %d decisions placed." % [
+			GameState.restored_count(), GameState.SYSTEMS.size()]
+	else:
+		_button.text = "BEGIN"
+		_resume_label.text = ""
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _sheet != null and _sheet.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_sheet()
+			get_viewport().set_input_as_handled()
+		return
 	if not _open:
 		return
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("interact"):
@@ -181,15 +172,304 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-# --- Fitting to one page -------------------------------------------------------
+func _process(_delta: float) -> void:
+	# The mode chips cannot receive a change notification - the mode layer is a
+	# plain static, deliberately signal-free - so the card notices the change
+	# the same way the station controller does: by watching for it.
+	if InputMode.mode != _mode_watch:
+		_mode_watch = InputMode.mode
+		_refresh_mode_chips()
+
+
+# --- The three goals ------------------------------------------------------------
+
+func _mandate_declared() -> bool:
+	return _objective_pick != "" and _appetite_pick != ""
+
+
+func _refresh_tiles() -> void:
+	var declared: bool = _mandate_declared()
+	var placed: int = Score.placed_count()
+	var total: int = GameState.SYSTEMS.size()
+
+	_set_tile("mandate", declared, "SEALED" if declared else "START HERE")
+	_set_tile("decisions", placed >= total, "%d / %d PLACED" % [placed, total])
+	var helm_open: bool = placed >= total
+	_set_tile("fly", helm_open, "HELM UNLOCKED" if helm_open else "LOCKED")
+
+	# The pulse marks the one tile the crew should touch next: the mandate
+	# until it is declared, then the decisions while any are still open.
+	var next_tile: String = "mandate"
+	if declared:
+		next_tile = "decisions" if placed < total else ""
+	_set_pulse(next_tile)
+
+
+func _set_tile(tile_id: String, done: bool, status: String) -> void:
+	var status_label: Label = _tile_status.get(tile_id)
+	if status_label != null:
+		status_label.text = status
+		status_label.add_theme_color_override("font_color", GOLD if done else MUTED)
+	var badge: Control = _tile_badges.get(tile_id)
+	if badge != null:
+		badge.visible = done
+
+
+func _set_pulse(tile_id: String) -> void:
+	var target: CanvasItem = _tile_buttons.get(tile_id)
+	if _pulsing_tile != null and (tile_id == "" or target == _pulsing_tile):
+		if tile_id != "":
+			return
+	if _pulse != null:
+		_pulse.kill()
+		_pulse = null
+	if _pulsing_tile != null:
+		_pulsing_tile.modulate = Color(1, 1, 1, 1)
+	_pulsing_tile = null
+	if target == null:
+		return
+	_pulsing_tile = target
+	_pulse = create_tween().set_loops()
+	_pulse.tween_property(_pulsing_tile, "modulate:a", 0.62, 0.85) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_pulse.tween_property(_pulsing_tile, "modulate:a", 1.0, 0.85) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _on_tile_pressed(tile_id: String) -> void:
+	match tile_id:
+		"mandate":
+			if _chooser_open:
+				_close_chooser()
+			else:
+				_open_chooser()
+		"decisions":
+			_open_sheet(_decisions_rows)
+		"fly":
+			_open_sheet(_flight_rows)
+	_set_hint("")
+
+
+func _open_chooser() -> void:
+	_chooser_open = true
+	if _chooser != null:
+		_chooser.visible = true
+	_request_fit()
+
+
+func _close_chooser() -> void:
+	_chooser_open = false
+	if _chooser != null:
+		_chooser.visible = false
+	_request_fit()
+
+
+func _on_objective_chosen(objective_id: String) -> void:
+	_objective_pick = objective_id
+	_set_hint("")
+	_refresh_tiles()
+	_maybe_seal()
+
+
+func _on_appetite_chosen(appetite_id: String) -> void:
+	_appetite_pick = appetite_id
+	_set_hint("")
+	_refresh_tiles()
+	_maybe_seal()
+
+
+## Both halves picked: the tile completes and the chooser folds itself away,
+## because a form that stays open after it is done reads as unfinished.
+func _maybe_seal() -> void:
+	if not _mandate_declared() or not _chooser_open:
+		return
+	await get_tree().create_timer(0.45).timeout
+	if not is_inside_tree() or not _mandate_declared():
+		return
+	_close_chooser()
+
+
+# --- Secondary sheets ------------------------------------------------------------
+
+func _open_sheet(rows_provider: Callable) -> void:
+	var spec: Dictionary = rows_provider.call()
+	_sheet_title.text = String(spec.get("title", ""))
+	var kicker_text: String = String(spec.get("kicker", ""))
+	for child in _sheet_body.get_children():
+		_sheet_body.remove_child(child)
+		child.queue_free()
+	var kick := Label.new()
+	kick.text = kicker_text
+	kick.add_theme_font_size_override("font_size", 12)
+	kick.add_theme_color_override("font_color", PAPAYA)
+	_sheet_body.add_child(kick)
+	_sheet_body.add_child(_sheet_gap(8))
+	for row in spec.get("rows", []):
+		var entry: Dictionary = row
+		if entry.has("icon"):
+			_sheet_body.add_child(_sheet_icon_row(
+				String(entry["icon"]), String(entry.get("lead", "")),
+				String(entry.get("text", ""))))
+		else:
+			_sheet_body.add_child(_sheet_text(String(entry.get("text", ""))))
+		_sheet_body.add_child(_sheet_gap(6))
+	_sheet.visible = true
+
+
+func _close_sheet() -> void:
+	if _sheet != null:
+		_sheet.visible = false
+
+
+func _sheet_gap(height: float) -> Control:
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0.0, height)
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return spacer
+
+
+func _sheet_text(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Sheet copy is the second layer of information: smaller than the anchor
+	# screen, and forgiving to a longer paragraph.
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", BODY)
+	return label
+
+
+func _sheet_icon_row(icon_name: String, lead: String, text: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var glyph := Glyph.make(icon_name, 24.0, GOLD)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(glyph)
+	var label := Label.new()
+	var parts: Array[String] = []
+	if lead != "":
+		parts.append(lead)
+	if text != "":
+		parts.append(text)
+	label.text = "  ".join(parts)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", BODY)
+	row.add_child(label)
+	return row
+
+
+## The information sheets behind the curiosity buttons and tiles. Each provider
+## builds its rows at open time, so the controls sheet can follow the current
+## input mode. Written to be readable in one sitting rather than exhaustive.
+func _situation_rows() -> Dictionary:
+	return {
+		"kicker": "THE SITUATION",
+		"title": "Why you're here",
+		"rows": [
+			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity."},
+			{"text": "SHIPMIND has flown this ship for years on an operating model nobody "
+				+ "has re-stated: transit time, inside a hazard ceiling of its own "
+				+ "definition. Nothing has failed and nothing is rogue. The ship is simply "
+				+ "where a legacy model - efficient, reasonable, optimised around "
+				+ "objectives that were never fully specified - has brought it."},
+			{"text": "The next phase of the mission is yours to configure."},
+		],
+	}
+
+
+func _judged_rows() -> Dictionary:
+	return {
+		"kicker": "THE OPERATING MODEL",
+		"title": "How it's judged",
+		"rows": [
+			{"text": "There is no correct placement to find, and none is recorded here. "
+				+ "Each of the five decisions is read back twice:"},
+			{"icon": "eye", "lead": "CONSISTENCY",
+				"text": "whether the placement follows from the mandate you declared."},
+			{"icon": "scales", "lead": "COHERENCE",
+				"text": "whether it is defensible for what the decision can cost, and whether it can be undone."},
+			{"text": "Over-controlling something cheap to undo is a choice with a price, "
+				+ "exactly as under-controlling something that cannot be undone is. "
+				+ "Changing your mind is never charged for. Time is not scored at all."},
+		],
+	}
+
+
+func _controls_rows() -> Dictionary:
+	var rows: Array
+	if InputMode.is_touch():
+		rows = [
+			{"icon": "sliders", "lead": "LEFT THUMB",
+				"text": "walk - a floating stick appears where you touch."},
+			{"icon": "chevron", "lead": "RIGHT THUMB",
+				"text": "look - drag anywhere on the right of the screen."},
+			{"icon": "check", "lead": "TAP",
+				"text": "interact - tap a console, or use the round button."},
+		]
+	else:
+		rows = [
+			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse or trackpad: look."},
+			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
+			{"icon": "close", "lead": "ESC", "text": "release the cursor. F8 opens the developer reset."},
+		]
+	rows.append({"text": "Switch between desktop, mobile and VR with the chips in the "
+		+ "corner of this screen."})
+	return {"kicker": "INPUT", "title": "Controls", "rows": rows}
+
+
+func _decisions_rows() -> Dictionary:
+	var rows: Array = [
+		{"text": "Five ship systems are running under SHIPMIND's own operating model. "
+			+ "Walk the ship, open each bay console, and place that decision on the "
+			+ "autonomy spectrum:"},
+	]
+	for level in OperatingModel.LEVELS:
+		rows.append({
+			"icon": _level_icon(String(level["id"])),
+			"lead": String(level["label"]),
+			"text": String(level["hint"]),
+		})
+	rows.append({
+		"text": "Each placement also names the role that answers for it, and carries one "
+			+ "guardrail that costs something against your objective.",
+	})
+	return {"kicker": "THE FIVE DECISIONS", "title": "Five calls, one spectrum", "rows": rows}
+
+
+func _flight_rows() -> Dictionary:
+	return {
+		"kicker": "THE FLIGHT",
+		"title": "Fly for KEPLER-442b",
+		"rows": [
+			{"text": "The bridge is the last room. Its helm console is the flight itself."},
+			{"text": "The forward door opens once all five decisions are placed. From the "
+				+ "helm, plot the course for KEPLER-442b and take the ship home."},
+		],
+	}
+
+
+func _level_icon(level_id: String) -> String:
+	match level_id:
+		"automated":
+			return "gear"
+		"review":
+			return "eye"
+		"signoff":
+			return "check"
+		"human_only":
+			return "person"
+	return "question"
+
+
+# --- Fitting to one page ---------------------------------------------------------
 
 func _on_viewport_resized() -> void:
 	_request_fit()
 
 
-## Deferred, and twice over: the containers need one pass to lay out at the new
-## width before the wrapped labels report a height that means anything, and the
-## second pass is what re-measures after that layout has landed.
 func _request_fit() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -203,10 +483,6 @@ func _fit_to_viewport() -> void:
 	var view: Vector2 = get_viewport().get_visible_rect().size
 	if view.x < 2.0 or view.y < 2.0:
 		return
-	## Laid out unscaled at the window's full width first, so the text wraps at
-	## the width it will be read at. Scale is a render transform and does not
-	## change layout, so measuring after setting the size is measuring the real
-	## thing.
 	_fit.scale = Vector2.ONE
 	_fit.size = view
 	var needed: float = MARGIN_TOP + _column.get_combined_minimum_size().y + MARGIN_BOTTOM
@@ -214,12 +490,14 @@ func _fit_to_viewport() -> void:
 	if needed > view.y:
 		scale = view.y / needed
 	_fit.scale = Vector2(scale, scale)
-	## Centred across the window, and flush to the top: the card is read from the
-	## heading down, so the heading is what should be pinned.
-	_fit.position = Vector2((view.x - view.x * scale) * 0.5, 0.0)
+	# Centred on both axes: the anchor screen is a poster, not a document, and
+	# a poster hangs in the middle.
+	_fit.position = Vector2(
+		(view.x - view.x * scale) * 0.5,
+		maxf(0.0, (view.y - view.y * scale) * 0.5))
 
 
-# --- Build --------------------------------------------------------------------
+# --- Build -------------------------------------------------------------------------
 
 func _build() -> void:
 	_root = Control.new()
@@ -228,8 +506,6 @@ func _build() -> void:
 	_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_root)
 
-	## Warm near-black rather than neutral: the card has to feel like it belongs
-	## to the same ship as the corridor showing through it.
 	var dim := ColorRect.new()
 	dim.name = "Dim"
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -259,9 +535,9 @@ func _build() -> void:
 	_column.add_theme_constant_override("separation", 6)
 	margin.add_child(_column)
 
-	_column.add_child(_kicker("ADAMANT VERITY  -  MISSION AUTHORITY BRIEFING"))
-	_column.add_child(_title("THE OPERATING MODEL"))
-	_column.add_child(_sub("State the mandate, then place five decisions on the autonomy spectrum"))
+	_column.add_child(_kicker("ADAMANT VERITY  -  SURVEY SHIP"))
+	_column.add_child(_title("THE SHIP IS YOURS"))
+	_column.add_child(_sub("Five decisions. One ship. Your call."))
 
 	var rule := ColorRect.new()
 	rule.name = "Rule"
@@ -269,133 +545,173 @@ func _build() -> void:
 	rule.custom_minimum_size = Vector2(0.0, 2.0)
 	_column.add_child(rule)
 
-	_column.add_child(_gap(6))
-	_column.add_child(_two_columns())
-	_column.add_child(_gap(8))
+	_column.add_child(_gap(16))
+	_column.add_child(_goal_tiles())
+	_chooser = _build_chooser()
+	_column.add_child(_chooser)
+	_column.add_child(_gap(12))
 	_column.add_child(_field_row())
+	_resume_label = _micro("")
+	_resume_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_column.add_child(_resume_label)
+	_column.add_child(_gap(8))
+	_column.add_child(_curiosity_row())
+
+	_build_sheet()
+	_build_mode_chips()
 
 
-## The briefing sits in two columns rather than one long stack. Halving the
-## vertical run is the difference between a card that fits and a card whose last
-## third - the callsign field and the button - is off the bottom of the screen.
-func _two_columns() -> HBoxContainer:
-	var columns := HBoxContainer.new()
-	columns.name = "Columns"
-	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	columns.add_theme_constant_override("separation", 42)
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+func _goal_tiles() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Goals"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 22)
 
-	var left := VBoxContainer.new()
-	left.name = "Left"
-	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	left.add_theme_constant_override("separation", 6)
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.size_flags_stretch_ratio = 1.15
-	columns.add_child(left)
-
-	left.add_child(_heading("THE SITUATION"))
-	left.add_child(_body(
-		"You are Crew Member Reyes, aboard the survey ship Adamant Verity.\n"
-		+ "SHIPMIND has flown this ship for years on an operating model nobody has re-stated: transit time, inside a hazard ceiling of its own "
-		+ "definition. Nothing has failed and nothing is rogue. The ship is where a legacy model - efficient, reasonable, optimised around "
-		+ "objectives that were never fully specified - has brought it.\n"
-		+ "The next phase of the mission is yours to configure."))
-	left.add_child(_gap(4))
-	left.add_child(_heading("YOUR OBJECTIVE"))
-	left.add_child(_step("1", "State the mandate: the mission objective and the risk appetite you are willing to run this phase at. Every decision on this ship is judged against it, and no decision can be placed before it exists."))
-	left.add_child(_step("2", "Walk the ship and place five decisions on the autonomy spectrum - automated within guardrails, human review, human sign-off, or human-only - each with one guardrail that costs something against the objective."))
-	left.add_child(_step("3", "Reach the bridge and fly for KEPLER-442b. The forward door opens once all five decisions are placed."))
-
-	var right := VBoxContainer.new()
-	right.name = "Right"
-	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	right.add_theme_constant_override("separation", 6)
-	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	columns.add_child(right)
-
-	right.add_child(_heading("HOW IT IS JUDGED"))
-	right.add_child(_body(
-		"There is no correct placement to find, and none is recorded here. Each decision is read back twice: CONSISTENCY, "
-		+ "whether it follows from the mandate you declare, and COHERENCE, whether it is defensible for what that decision "
-		+ "can cost and whether it can be undone.\n"
-		+ "Over-controlling something cheap to undo is a choice with a price, exactly as under-controlling something that "
-		+ "cannot be undone is. Changing your mind is never charged for. Time is not scored at all."))
-	right.add_child(_gap(4))
-	right.add_child(_mandate_block())
-	right.add_child(_gap(4))
-	right.add_child(_heading("CONTROLS"))
-	right.add_child(_body("WASD  move        Mouse  look        E  interact\nEsc  release cursor        F8  developer reset"))
-	right.add_child(_gap(4))
-
-	_resume_label = _body("")
-	_resume_label.modulate = MUTED
-	right.add_child(_resume_label)
-	right.add_child(_gap(4))
-	right.add_child(_heading("YOUR CALLSIGN"))
-	right.add_child(_body("Three letters, filed against every decision you make from here."))
-	return columns
+	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE",
+		"Declare it before you walk."))
+	row.add_child(_goal_tile("decisions", "sliders", "FIVE DECISIONS",
+		"Set how much SHIPMIND decides."))
+	row.add_child(_goal_tile("fly", "rocket", "FLY HOME",
+		"Take the ship to KEPLER-442b."))
+	return row
 
 
-## The mandate chooser: two exclusive choices, objective first and then risk
-## appetite, both required before BEGIN. This is the yardstick every placement on
-## the ship is measured against, so it is stated here, on the record, before the
-## crew take a single step - not inferred later from what they did.
-func _mandate_block() -> VBoxContainer:
-	var block := VBoxContainer.new()
-	block.name = "Mandate"
-	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	block.add_theme_constant_override("separation", 4)
+func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: String) -> Button:
+	var tile := Button.new()
+	tile.name = "Tile_%s" % tile_id
+	tile.custom_minimum_size = Vector2(226.0, 178.0)
+	tile.focus_mode = Control.FOCUS_ALL
+	tile.pressed.connect(_on_tile_pressed.bind(tile_id))
 
-	block.add_child(_heading("DECLARE THE MANDATE"))
+	var rest := StyleBoxFlat.new()
+	rest.bg_color = SURFACE
+	rest.border_color = Color(0.35, 0.26, 0.20)
+	rest.set_border_width_all(2)
+	rest.set_corner_radius_all(6)
+	tile.add_theme_stylebox_override("normal", rest)
+	var hover: StyleBoxFlat = rest.duplicate()
+	hover.bg_color = SURFACE_RAISED
+	hover.border_color = TANGERINE
+	tile.add_theme_stylebox_override("hover", hover)
+	tile.add_theme_stylebox_override("focus", hover)
+	var pressed_style: StyleBoxFlat = rest.duplicate()
+	pressed_style.bg_color = SURFACE_RAISED
+	tile.add_theme_stylebox_override("pressed", pressed_style)
+
+	var content := VBoxContainer.new()
+	content.name = "Content"
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 10.0
+	content.offset_top = 14.0
+	content.offset_right = -10.0
+	content.offset_bottom = -10.0
+	content.add_theme_constant_override("separation", 7)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.add_child(content)
+
+	var glyph := Glyph.make(icon_name, 50.0, GOLD)
+	glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	content.add_child(glyph)
+
+	var label := Label.new()
+	label.text = label_text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", WHITE)
+	content.add_child(label)
+
+	var status := Label.new()
+	status.text = ""
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status.add_theme_font_size_override("font_size", 12)
+	status.add_theme_color_override("font_color", MUTED)
+	content.add_child(status)
+
+	var caption := Label.new()
+	caption.text = hint
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.add_theme_font_size_override("font_size", 11)
+	caption.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
+	caption.custom_minimum_size = Vector2(0.0, 26.0)
+	content.add_child(caption)
+
+	var badge := Glyph.make("check_badge", 26.0, GOLD)
+	badge.accent = SURFACE
+	badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	badge.offset_left = -34.0
+	badge.offset_top = 8.0
+	badge.offset_right = -8.0
+	badge.offset_bottom = 34.0
+	badge.visible = false
+	tile.add_child(badge)
+
+	_tile_buttons[tile_id] = tile
+	_tile_status[tile_id] = status
+	_tile_badges[tile_id] = badge
+	return tile
+
+
+## The mandate chooser, opened from the first tile. Two exclusive picks with
+## icons, one short line each - the long form of this copy lives in the
+## curiosity sheets.
+func _build_chooser() -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = "Chooser"
+	panel.visible = false
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.055, 0.04, 0.98)
+	style.border_color = TANGERINE
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 22.0
+	style.content_margin_right = 22.0
+	style.content_margin_top = 14.0
+	style.content_margin_bottom = 16.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var column := VBoxContainer.new()
+	column.name = "Column"
+	column.add_theme_constant_override("separation", 6)
+	panel.add_child(column)
+
+	column.add_child(_heading("DECLARE THE MANDATE"))
+	column.add_child(_micro("Every decision you make is judged against this."))
+
 	var objective_group := ButtonGroup.new()
 	objective_group.allow_unpress = false
 	for entry in OperatingModel.OBJECTIVES:
 		var id: String = String(entry["id"])
-		var button: Button = BrandTokens.choice_button(
-			objective_group, String(entry["label"]), String(entry["statement"]))
+		var button := BrandTokens.icon_choice_button(
+			objective_group, Glyph.icon_for_objective(id),
+			String(entry["label"]), String(entry["statement"]))
 		button.name = "Objective_%s" % id
 		button.pressed.connect(_on_objective_chosen.bind(id))
 		_objective_buttons[id] = button
-		block.add_child(button)
+		column.add_child(button)
 
-	block.add_child(_gap(4))
-	block.add_child(_heading("RISK APPETITE"))
+	column.add_child(_gap(8))
+	column.add_child(_heading("RISK APPETITE"))
 	var appetite_group := ButtonGroup.new()
 	appetite_group.allow_unpress = false
 	for entry in OperatingModel.APPETITES:
 		var id: String = String(entry["id"])
-		var button: Button = BrandTokens.choice_button(
-			appetite_group, String(entry["label"]), String(entry["blurb"]))
+		var button := BrandTokens.icon_choice_button(
+			appetite_group, Glyph.icon_for_appetite(id),
+			String(entry["label"]), String(entry["blurb"]))
 		button.name = "Appetite_%s" % id
 		button.pressed.connect(_on_appetite_chosen.bind(id))
 		_appetite_buttons[id] = button
-		block.add_child(button)
-	return block
+		column.add_child(button)
+	return panel
 
 
-func _on_objective_chosen(objective_id: String) -> void:
-	_objective_pick = objective_id
-	_set_hint("")
-
-
-func _on_appetite_chosen(appetite_id: String) -> void:
-	_appetite_pick = appetite_id
-	_set_hint("")
-
-
-## One line under BEGIN that says what is still missing. It is a sentence rather
-## than a disabled button, so the card can never look complete while it is not.
-func _set_hint(text: String) -> void:
-	if _hint != null:
-		_hint.text = text
-
-
-## The callsign field and BEGIN, side by side: the two things the player has to
-## touch, kept together at the bottom so neither is left below the fold.
 func _field_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "FieldRow"
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
 
 	row.add_child(_callsign_row())
@@ -429,8 +745,6 @@ func _field_row() -> HBoxContainer:
 	start_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(start_hint)
 
-	## What is still missing before BEGIN. An empty label costs no layout until
-	## it has something to say, and it says it in the same place every time.
 	_hint = Label.new()
 	_hint.name = "Hint"
 	_hint.text = ""
@@ -443,14 +757,9 @@ func _field_row() -> HBoxContainer:
 	return row
 
 
-## The callsign entry. Three characters, letters only, upper-cased as it is
-## typed, so the record reads the same way however the crew entered it. Focus
-## moves to BEGIN the moment the third letter lands, which makes Enter-Enter the
-## whole flow and leaves no way to start the run without a callsign.
 func _callsign_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "CallsignRow"
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 12)
 
 	_callsign = LineEdit.new()
@@ -462,10 +771,8 @@ func _callsign_row() -> HBoxContainer:
 	_callsign.add_theme_color_override("font_color", WHITE)
 	_callsign.add_theme_color_override("caret_color", GOLD)
 	_callsign.add_theme_color_override("font_placeholder_color", MUTED)
-	## Styled by hand because the engine's default focus ring is a cool blue, and
-	## this ship's interior has no cool colour anywhere in it.
 	var field := StyleBoxFlat.new()
-	field.bg_color = Color(0.105, 0.068, 0.052, 1.0)
+	field.bg_color = SURFACE
 	field.border_color = TANGERINE
 	field.set_border_width_all(2)
 	field.set_corner_radius_all(3)
@@ -481,17 +788,14 @@ func _callsign_row() -> HBoxContainer:
 
 	var note := Label.new()
 	note.name = "Note"
-	note.text = "letters only"
-	note.add_theme_font_size_override("font_size", 14)
+	note.text = "your callsign"
+	note.add_theme_font_size_override("font_size", 13)
 	note.add_theme_color_override("font_color", MUTED)
 	note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(note)
 	return row
 
 
-## Filters as it is typed. set_text would re-enter this handler, so the field is
-## only written when the cleaned value actually differs - which makes the second
-## pass a no-op rather than a loop.
 func _on_callsign_typed(text: String) -> void:
 	var cleaned: String = ""
 	for character in text.to_upper():
@@ -502,15 +806,10 @@ func _on_callsign_typed(text: String) -> void:
 	if cleaned != text:
 		_callsign.set_text(cleaned)
 		_callsign.caret_column = cleaned.length()
-	## Only focus moves here. The handle is committed by begin(), so a half-typed
-	## callsign is never written to the save or shown on the HUD.
 	if cleaned.length() >= GameState.CALLSIGN_LENGTH and _button != null:
 		_button.grab_focus()
 
 
-## Enter inside the field. The field consumes ui_accept to raise this, so without
-## it the one key a player is most likely to press would do nothing at the exact
-## moment the form is complete.
 func _on_callsign_submitted(_text: String) -> void:
 	if _callsign != null and _callsign.text.length() >= GameState.CALLSIGN_LENGTH:
 		begin()
@@ -518,11 +817,221 @@ func _on_callsign_submitted(_text: String) -> void:
 		_callsign.grab_focus()
 
 
+func _set_hint(text: String) -> void:
+	if _hint != null:
+		_hint.text = text
+
+
+## The curiosity row: three quiet doors to the detail the old card used to
+## insist on. Small, unbordered, and labelled as questions rather than sections.
+func _curiosity_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Curiosity"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 26)
+	row.add_child(_curiosity_button("WHY YOU'RE HERE", _situation_rows))
+	row.add_child(_curiosity_button("HOW IT'S JUDGED", _judged_rows))
+	row.add_child(_curiosity_button("CONTROLS", _controls_rows))
+	return row
+
+
+func _curiosity_button(label_text: String, rows_provider: Callable) -> Button:
+	var button := Button.new()
+	button.text = label_text
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_color_override("font_color", MUTED)
+	button.add_theme_color_override("font_hover_color", GOLD)
+	button.add_theme_color_override("font_pressed_color", GOLD)
+	var flat := StyleBoxFlat.new()
+	flat.bg_color = Color(0, 0, 0, 0)
+	flat.set_border_width_all(0)
+	flat.content_margin_left = 6.0
+	flat.content_margin_right = 6.0
+	flat.content_margin_top = 4.0
+	flat.content_margin_bottom = 4.0
+	button.add_theme_stylebox_override("normal", flat)
+	button.add_theme_stylebox_override("hover", flat)
+	button.add_theme_stylebox_override("pressed", flat)
+	button.add_theme_stylebox_override("focus", flat)
+	button.pressed.connect(func() -> void: _open_sheet(rows_provider))
+	return button
+
+
+# --- Mode chips -------------------------------------------------------------------
+
+func _build_mode_chips() -> void:
+	var chips := HBoxContainer.new()
+	chips.name = "ModeChips"
+	chips.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	chips.offset_left = -330.0
+	chips.offset_top = 14.0
+	chips.offset_right = -20.0
+	chips.offset_bottom = 42.0
+	chips.alignment = BoxContainer.ALIGNMENT_END
+	chips.add_theme_constant_override("separation", 6)
+	chips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(chips)
+
+	var group := ButtonGroup.new()
+	group.allow_unpress = false
+	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
+		var chip := _mode_chip(int(value), group)
+		_mode_buttons[int(value)] = chip
+		chips.add_child(chip)
+
+	_mode_note = Label.new()
+	_mode_note.name = "ModeNote"
+	_mode_note.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_mode_note.offset_left = -440.0
+	_mode_note.offset_top = 44.0
+	_mode_note.offset_right = -20.0
+	_mode_note.offset_bottom = 60.0
+	_mode_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_mode_note.add_theme_font_size_override("font_size", 11)
+	_mode_note.add_theme_color_override("font_color", MUTED)
+	_mode_note.text = "input mode  -  test switch"
+	_root.add_child(_mode_note)
+	_mode_watch = InputMode.mode
+	_refresh_mode_chips()
+
+
+func _mode_chip(value: int, group: ButtonGroup) -> Button:
+	var chip := Button.new()
+	chip.name = "Mode_%d" % value
+	chip.toggle_mode = true
+	chip.button_group = group
+	chip.focus_mode = Control.FOCUS_NONE
+	chip.text = InputMode.label(value)
+	chip.add_theme_font_size_override("font_size", 12)
+	chip.add_theme_color_override("font_color", MUTED)
+	chip.add_theme_color_override("font_hover_color", WHITE)
+	chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
+	var idle := StyleBoxFlat.new()
+	idle.bg_color = Color(0, 0, 0, 0.35)
+	idle.border_color = Color(0.4, 0.32, 0.26)
+	idle.set_border_width_all(1)
+	idle.set_corner_radius_all(3)
+	idle.content_margin_left = 10.0
+	idle.content_margin_right = 10.0
+	idle.content_margin_top = 3.0
+	idle.content_margin_bottom = 3.0
+	chip.add_theme_stylebox_override("normal", idle)
+	var hovered: StyleBoxFlat = idle.duplicate()
+	hovered.border_color = TANGERINE
+	chip.add_theme_stylebox_override("hover", hovered)
+	var chosen: StyleBoxFlat = idle.duplicate()
+	chosen.bg_color = GOLD
+	chosen.border_color = GOLD
+	chip.add_theme_stylebox_override("pressed", chosen)
+	chip.add_theme_stylebox_override("focus", idle)
+	chip.pressed.connect(_on_mode_chip.bind(value))
+	return chip
+
+
+func _on_mode_chip(value: int) -> void:
+	if InputMode.set_mode(value):
+		_mode_note.text = "input mode  -  test switch"
+	else:
+		_mode_note.text = "No OpenXR runtime found - VR stays off for now."
+	_refresh_mode_chips()
+
+
+func _refresh_mode_chips() -> void:
+	for value in _mode_buttons:
+		var chip: Button = _mode_buttons[value]
+		chip.set_pressed_no_signal(int(value) == InputMode.mode)
+
+
+# --- Sheet ----------------------------------------------------------------------
+
+func _build_sheet() -> void:
+	_sheet = Control.new()
+	_sheet.name = "Sheet"
+	_sheet.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
+	_sheet.visible = false
+	_root.add_child(_sheet)
+
+	var dim := ColorRect.new()
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.03, 0.02, 0.015, 0.82)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.gui_input.connect(_on_sheet_dim_input)
+	_sheet.add_child(dim)
+
+	var panel := PanelContainer.new()
+	panel.name = "Panel"
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.custom_minimum_size = Vector2(620.0, 0.0)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.055, 0.04, 0.99)
+	style.border_color = PAPAYA
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 26.0
+	style.content_margin_right = 26.0
+	style.content_margin_top = 18.0
+	style.content_margin_bottom = 18.0
+	panel.add_theme_stylebox_override("panel", style)
+	_sheet.add_child(panel)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	panel.add_child(column)
+
+	_sheet_title = Label.new()
+	_sheet_title.name = "Title"
+	_sheet_title.add_theme_font_size_override("font_size", 24)
+	_sheet_title.add_theme_color_override("font_color", WHITE)
+	column.add_child(_sheet_title)
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.custom_minimum_size = Vector2(0.0, 230.0)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
+
+	_sheet_body = VBoxContainer.new()
+	_sheet_body.name = "Body"
+	_sheet_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_sheet_body.add_theme_constant_override("separation", 2)
+	scroll.add_child(_sheet_body)
+
+	var close := Button.new()
+	close.text = "CLOSE"
+	close.custom_minimum_size = Vector2(150.0, 40.0)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close.add_theme_font_size_override("font_size", 14)
+	close.add_theme_color_override("font_color", Color(0.1, 0.06, 0.04))
+	var close_fill := StyleBoxFlat.new()
+	close_fill.bg_color = GOLD
+	close_fill.set_corner_radius_all(3)
+	close.add_theme_stylebox_override("normal", close_fill)
+	var close_hover: StyleBoxFlat = close_fill.duplicate()
+	close_hover.bg_color = Color(1.0, 0.82, 0.36)
+	close.add_theme_stylebox_override("hover", close_hover)
+	close.add_theme_stylebox_override("focus", close_hover)
+	close.pressed.connect(_close_sheet)
+	column.add_child(close)
+
+
+func _on_sheet_dim_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_close_sheet()
+
+
+# --- Small builders ---------------------------------------------------------------
+
 func _kicker(text: String) -> Label:
 	var label := Label.new()
 	label.name = "Kicker"
 	label.text = text
-	label.add_theme_font_size_override("font_size", 14)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 13)
 	label.add_theme_color_override("font_color", PAPAYA)
 	return label
 
@@ -531,7 +1040,8 @@ func _title(text: String) -> Label:
 	var label := Label.new()
 	label.name = "Title"
 	label.text = text
-	label.add_theme_font_size_override("font_size", 40)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 42)
 	label.add_theme_color_override("font_color", WHITE)
 	return label
 
@@ -540,6 +1050,7 @@ func _sub(text: String) -> Label:
 	var label := Label.new()
 	label.name = "Sub"
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 16)
 	label.add_theme_color_override("font_color", GOLD)
 	return label
@@ -554,36 +1065,12 @@ func _heading(text: String) -> Label:
 	return label
 
 
-func _body(text: String) -> Label:
+func _micro(text: String) -> Label:
 	var label := Label.new()
-	label.name = "Body"
 	label.text = text
-	label.add_theme_font_size_override("font_size", 15)
-	label.add_theme_color_override("font_color", BODY)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", MUTED)
 	return label
-
-
-## A numbered objective. The number is its own column so the wrapped text lines
-## up under itself rather than under the numeral.
-func _step(number: String, text: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "Step%s" % number
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 10)
-
-	var index := Label.new()
-	index.name = "Number"
-	index.text = number
-	index.custom_minimum_size = Vector2(18.0, 0.0)
-	index.add_theme_font_size_override("font_size", 15)
-	index.add_theme_color_override("font_color", TANGERINE)
-	row.add_child(index)
-
-	var body := _body(text)
-	row.add_child(body)
-	return row
 
 
 func _gap(height: float) -> Control:
@@ -594,7 +1081,6 @@ func _gap(height: float) -> Control:
 	return spacer
 
 
-## A flexible spacer, used to push the button to the right-hand edge of the row.
 func _gap_h(_weight: int) -> Control:
 	var spacer := Control.new()
 	spacer.name = "Spacer"

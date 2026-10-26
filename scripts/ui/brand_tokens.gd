@@ -52,6 +52,32 @@ static func choice_button(group: ButtonGroup, label: String, hint: String = "", 
 	return button
 
 
+## The same exclusive choice, with an icon. The glyph sits in its own column so
+## the eye can anchor each option to a picture - a list of choices reads as
+## shapes first and words second, which is what stops the player re-reading the
+## words every time they want to remind themselves what a choice means.
+static func icon_choice_button(group: ButtonGroup, icon_name: String, label: String, hint: String = "") -> Button:
+	var button := choice_button(group, label, hint)
+	var glyph := Glyph.make(icon_name, 30.0, Brand.ACCENT_TINT)
+	glyph.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	glyph.offset_left = 14.0
+	glyph.offset_right = 44.0
+	glyph.offset_top = -15.0
+	glyph.offset_bottom = 15.0
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(glyph)
+	# The text clears the glyph's column instead of flowing under it: the text
+	# follows the current stylebox's left content margin, so every state gets
+	# the same wider margin.
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var box: StyleBoxFlat = button.get_theme_stylebox(state) as StyleBoxFlat
+		if box != null:
+			var adjusted: StyleBoxFlat = box.duplicate()
+			adjusted.content_margin_left = 58.0
+			button.add_theme_stylebox_override(state, adjusted)
+	return button
+
+
 ## An exclusive choice, already set. Used to re-read a decision that is on the
 ## record, so the screen opens showing what the player picked rather than
 ## asking them again from nothing.

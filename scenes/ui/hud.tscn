@@ -57,49 +57,6 @@ theme_override_font_sizes/font_size = 17
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Objective" type="Label" parent="Root"]
-offset_left = 26.0
-offset_top = 22.0
-offset_right = 366.0
-offset_bottom = 150.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.76, 0.68, 0.62, 0.92)
-theme_override_colors/font_outline_color = Color(0.06, 0.03, 0.02, 1)
-theme_override_constants/line_spacing = 3
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 14
-
-[node name="Callsign" type="Label" parent="Root"]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -366.0
-offset_top = 20.0
-offset_right = -26.0
-offset_bottom = 42.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.863, 0.369, 0.153, 1)
-theme_override_colors/font_outline_color = Color(0.06, 0.03, 0.02, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 2
-
-[node name="Score" type="Label" parent="Root"]
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -366.0
-offset_top = 44.0
-offset_right = -26.0
-offset_bottom = 122.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.941, 0.722, 0.224, 1)
-theme_override_colors/font_outline_color = Color(0.06, 0.03, 0.02, 1)
-theme_override_constants/line_spacing = 3
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 15
-horizontal_alignment = 2
-
 [node name="Subtitle" type="PanelContainer" parent="Root"]
 anchor_left = 0.5
 anchor_top = 1.0

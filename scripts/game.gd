@@ -8,6 +8,7 @@ extends Node3D
 ## station.tscn. This file does not need to change (docs/adding-a-system.md).
 
 const XR_RIG_PATH := "res://scenes/player/xr_rig.tscn"
+const DESKTOP_RIG_PATH := "res://scenes/player/player.tscn"
 
 @onready var hud: HUD = $UI/HUD
 @onready var terminal: TerminalUI = $UI/TerminalUI
@@ -15,6 +16,9 @@ const XR_RIG_PATH := "res://scenes/player/xr_rig.tscn"
 
 var _player: Node3D = null
 var _pending_pa: String = ""
+## The station's own environment, kept so a test swing into VR and back can
+## restore the desktop look instead of leaving it with XR's post-processing.
+var _desktop_environment: Environment = null
 
 
 func _ready() -> void:
@@ -50,6 +54,9 @@ func _ready() -> void:
 		## it is re-read here: without this a resumed session would open with an
 		## empty callsign and no mandate on a record that holds both.
 		launch.refresh_from_state()
+		## The readout strip stays dark while the card is up: it would only
+		## bleed through the dim as noise the player cannot act on yet.
+		hud.visible = not launch.is_open()
 	if launch != null and launch.is_open():
 		launch.begun.connect(_on_session_begin)
 	else:
@@ -59,28 +66,114 @@ func _ready() -> void:
 ## The run starts here. The clock begins at the moment the crew takes the ship,
 ## not when the title card loads, so reading the briefing is not billed to them.
 func _on_session_begin() -> void:
+	hud.visible = true
 	GameState.begin_run()
 	_announce_boot()
 
 
-## Platform selection: desktop/touch player by default, XR rig when OpenXR is
-## explicitly enabled in project settings and can actually start.
+## Platform selection. The input mode layer decides - hardware detection first,
+## with the launch screen's test chips able to override it for the session -
+## and this controller re-wires the rig, the touch layer and the HUD whenever
+## it changes.
 func _activate_player() -> Node3D:
+	InputMode.ensure_detected()
 	var default_player: Node3D = get_node_or_null("Player") as Node3D
-	if not _xr_available() or default_player == null:
+	if InputMode.mode != InputMode.Mode.VR or not _xr_available() or default_player == null:
 		return default_player
-	var scene: PackedScene = load(XR_RIG_PATH) as PackedScene
-	if scene == null:
-		push_warning("XR rig scene missing at %s; staying on the desktop player." % XR_RIG_PATH)
-		return default_player
+	return _install_rig(XR_RIG_PATH, default_player)
+
+
+func _process(_delta: float) -> void:
+	if InputMode.consume_dirty():
+		_apply_mode()
+
+
+## The test switch, honoured live: desktop and touch share the same body and
+## only swap their input layer and HUD density, so they flip instantly. VR
+## needs a different rig, so it swaps nodes - and when no OpenXR runtime is
+## reachable it says so and stays on the desktop body rather than failing
+## silently.
+func _apply_mode() -> void:
+	var touch := get_node_or_null("UI/TouchControls") as TouchControls
+	match InputMode.mode:
+		InputMode.Mode.TOUCH:
+			_ensure_desktop_rig()
+			if touch != null:
+				touch.set_active(true)
+			hud.set_compact(true)
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			hud.say_system("Mobile mode. Left thumb walks, right thumb looks, tap to use.", 4.5)
+		InputMode.Mode.VR:
+			if _xr_available():
+				_ensure_xr_rig()
+				if touch != null:
+					touch.set_active(false)
+				hud.set_compact(false)
+			else:
+				InputMode.mode = InputMode.Mode.DESKTOP
+				hud.set_compact(false)
+				hud.say_system("No OpenXR runtime found - staying on desktop.", 4.5)
+		_:
+			_ensure_desktop_rig()
+			if touch != null:
+				touch.set_active(false)
+			hud.set_compact(false)
+			_grab_cursor_back()
+
+
+func _ensure_desktop_rig() -> void:
+	if _player is Player:
+		return
+	var current := get_node_or_null("Player") as Node3D
+	_player = _install_rig(DESKTOP_RIG_PATH, current)
+	_restore_desktop_environment()
+	_wire_interactors()
+
+
+func _ensure_xr_rig() -> void:
+	if _player is XRRig:
+		return
+	var current := get_node_or_null("Player") as Node3D
+	_player = _install_rig(XR_RIG_PATH, current)
+	_apply_xr_safe_environment()
+	_wire_interactors()
+
+
+## Swaps whatever stands at "Player" for a fresh instance of the given rig
+## scene, keeping its transform so a mode change never teleports the crew.
+func _install_rig(rig_path: String, current: Node3D) -> Node3D:
+	var scene: PackedScene = load(rig_path) as PackedScene
+	if scene == null or current == null:
+		push_warning("Rig scene missing at %s; keeping the current player." % rig_path)
+		return current
+	var transform: Transform3D = current.transform
+	var parent: Node = current.get_parent()
+	parent.remove_child(current)
+	current.queue_free()
 	var rig: Node3D = scene.instantiate()
-	rig.transform = default_player.transform
-	var parent: Node = default_player.get_parent()
-	parent.remove_child(default_player)
-	default_player.queue_free()
+	rig.transform = transform
 	parent.add_child(rig)
 	rig.name = "Player"
 	return rig
+
+
+func _restore_desktop_environment() -> void:
+	get_viewport().use_xr = false
+	if _desktop_environment == null:
+		return
+	var world_env := get_node_or_null("Station/WorldEnvironment") as WorldEnvironment
+	if world_env != null:
+		world_env.environment = _desktop_environment
+	_desktop_environment = null
+
+
+## The same hand-back the launch screen does on BEGIN: whoever owns the
+## "input_layer" group decides whether the cursor may be captured, and in a
+## touch or XR mode it will decline on its own.
+func _grab_cursor_back() -> void:
+	for node in get_tree().get_nodes_in_group("input_layer"):
+		if node.has_method("grab_mouse"):
+			node.grab_mouse()
 
 
 func _xr_available() -> bool:
@@ -115,7 +208,9 @@ func _apply_xr_safe_environment() -> void:
 	var world_env := get_node_or_null("Station/WorldEnvironment") as WorldEnvironment
 	if world_env == null or world_env.environment == null:
 		return
-	var xr_env: Environment = world_env.environment.duplicate()
+	if _desktop_environment == null:
+		_desktop_environment = world_env.environment
+	var xr_env: Environment = _desktop_environment.duplicate()
 	xr_env.glow_enabled = false
 	xr_env.ssao_enabled = false
 	world_env.environment = xr_env
@@ -288,8 +383,9 @@ func _on_overlay_closed() -> void:
 
 
 func _interact_hint() -> String:
-	if bool(ProjectSettings.get_setting("xr/openxr/enabled", false)):
-		return "TRIGGER"
-	if DisplayServer.is_touchscreen_available():
-		return "TAP"
+	match InputMode.mode:
+		InputMode.Mode.VR:
+			return "TRIGGER"
+		InputMode.Mode.TOUCH:
+			return "TAP"
 	return "E"

@@ -21,7 +21,9 @@ signal closed
 @onready var card: PanelContainer = $Root/Card
 @onready var kicker: Label = $Root/Card/Margin/VBox/Kicker
 @onready var title_label: Label = $Root/Card/Margin/VBox/Title
-@onready var system_label: Label = $Root/Card/Margin/VBox/System
+@onready var system_glyph: Glyph = $Root/Card/Margin/VBox/SystemRow/Glyph
+@onready var system_label: Label = $Root/Card/Margin/VBox/SystemRow/System
+@onready var verdict_label: Label = $Root/Card/Margin/VBox/SystemRow/Verdict
 @onready var body_label: Label = $Root/Card/Margin/VBox/Body
 @onready var hint: Label = $Root/Card/Margin/VBox/Hint
 
@@ -36,14 +38,27 @@ func is_open() -> bool:
 	return _open
 
 
+## VERDICT FIRST. The card used to open with its bureaucratic kicker and make
+## the player read six lines to learn how they did. Now the system's icon and
+## the verdict word lead - "WELL JUDGED", "DEFENSIBLE", "HARD TO DEFEND" - and
+## the written reflection sits under it in a quieter size, read by the players
+## who want the reasoning rather than the headline.
 func show_card(system_id: String) -> void:
 	_open = true
 	kicker.text = "OPERATING MODEL  -  DECISION REFLECTION"
 	title_label.text = "DECISION %d / %d" % [GameState.system_index(system_id), GameState.SYSTEMS.size()]
-	if GameState.has_placement(system_id):
-		system_label.text = "%s  -  PLACED" % GameState.display_name(system_id)
+	system_glyph.icon = Glyph.icon_for_system(system_id)
+	system_glyph.tint = Color(0.863, 0.369, 0.153)
+	system_label.text = GameState.display_name(system_id)
+	var quality: float = Score.decision_quality(system_id)
+	var verdict: String = Score.grade_label(quality).to_upper()
+	verdict_label.text = "-  %s" % verdict
+	if quality >= 0.75:
+		verdict_label.add_theme_color_override("font_color", Color(0.941, 0.722, 0.224))
+	elif quality >= 0.0:
+		verdict_label.add_theme_color_override("font_color", Color(0.816, 0.251, 0.149))
 	else:
-		system_label.text = "%s  -  NOT YET PLACED" % GameState.display_name(system_id)
+		verdict_label.add_theme_color_override("font_color", Color(0.6, 0.52, 0.46))
 	body_label.text = Score.reflection_text(system_id)
 	hint.text = "Click or press any key to continue"
 	root.visible = true
