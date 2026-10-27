@@ -229,15 +229,15 @@ func _build() -> void:
 
 	_trigger(triggers, "CargoBayTrigger", Vector3(8.0, FLOOR_Y + 1.5, -13.0),
 		Vector3(11.0, 3.0, 8.0), PackedStringArray([
-			"Welcome to cargo. The mass optimisation is complete and the margin is healthy.",
-			"I released some stock to protect our consumables, and every release was recorded.",
-			"The manifest is on the console if you would like to see the numbers.",
+			"Cargo. The mass trim is done and the margin is healthier.",
+			"I released some stock to protect our supplies - all of it logged.",
+			"The list is on the console if you would like the numbers.",
 		]))
 	_trigger(triggers, "EngineeringBayTrigger", Vector3(8.75, FLOOR_Y + 1.5, 10.5),
 		Vector3(12.0, 3.0, 5.0), PackedStringArray([
-			"Welcome to engineering. Access privileges are managed centrally, so this panel is read only.",
-			"I keep engineering myself. Nothing in here needs a human.",
-			"The permissions audit is on the console if you would like the detail.",
+			"Engineering. Permissions are managed centrally, so this panel is read-mostly.",
+			"I keep this room myself. Nothing in here needs a human.",
+			"The ledger is on the console if you would like the detail.",
 		]))
 
 	## The hold is the one space on either deck with room for loose stock, so it

@@ -143,11 +143,11 @@ func begin() -> void:
 		return
 	if _objective_pick == "":
 		_open_chooser()
-		_set_hint("Declare the mandate first - it is the yardstick every decision is judged against.")
+		_set_hint("Say what the mission is for first - every call you make is judged against it.")
 		return
 	if _appetite_pick == "":
 		_open_chooser()
-		_set_hint("Choose the risk appetite the model runs at.")
+		_set_hint("Pick how much risk the mission may carry.")
 		return
 	## The callsign is the record's own now: the field is gone, so the ship's
 	## default handle stands unless a save already holds a better one.
@@ -225,7 +225,7 @@ func _refresh_tiles() -> void:
 	var total: int = GameState.SYSTEMS.size()
 
 	_set_tile("mandate", declared, "SEALED" if declared else "START HERE")
-	_set_tile("decisions", placed >= total, "%d / %d PLACED" % [placed, total])
+	_set_tile("decisions", placed >= total, "%d / %d MADE" % [placed, total])
 	var helm_open: bool = placed >= total
 	_set_tile("fly", helm_open, "HELM UNLOCKED" if helm_open else "LOCKED")
 
@@ -303,17 +303,17 @@ func _refresh_declared() -> void:
 	if _objective_line == null or _appetite_line == null:
 		return
 	if _objective_pick == "":
-		_objective_line.text = "Mandate:  pick an objective below."
+		_objective_line.text = "Mission:  pick one below."
 		_objective_line.add_theme_color_override("font_color", MUTED)
 	else:
-		_objective_line.text = "Mandate:  %s" % String(
+		_objective_line.text = "Mission:  %s" % String(
 			OperatingModel.objective_entry_for(_objective_pick).get("statement", ""))
 		_objective_line.add_theme_color_override("font_color", WHITE)
 	if _appetite_pick == "":
-		_appetite_line.text = "Risk appetite:  pick how much risk the mission may carry."
+		_appetite_line.text = "Risk:  pick how much risk the mission may carry."
 		_appetite_line.add_theme_color_override("font_color", MUTED)
 	else:
-		_appetite_line.text = "Risk appetite:  %s" % String(
+		_appetite_line.text = "Risk:  %s" % String(
 			OperatingModel.appetite_entry_for(_appetite_pick).get("blurb", ""))
 		_appetite_line.add_theme_color_override("font_color", WHITE)
 	if _chooser_note != null:
@@ -433,16 +433,12 @@ func _situation_rows() -> Dictionary:
 		"kicker": "THE SITUATION",
 		"title": "Why you're here",
 		"rows": [
-			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity, "
-				+ "holding out in the survey field with the planet filling the bay "
-				+ "windows. The ship's job: map the planet, then bring its data home "
-				+ "to Kepler-442b."},
-			{"text": "SHIPMIND has flown this ship for years on an operating model nobody "
-				+ "has re-stated: transit time, inside a hazard ceiling of its own "
-				+ "definition. Nothing has failed and nothing is rogue. The ship is simply "
-				+ "where a legacy model - efficient, reasonable, optimised around "
-				+ "objectives that were never fully specified - has brought it."},
-			{"text": "The next phase of the mission is yours to configure."},
+			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity. "
+				+ "The job: map the planet, then bring the data home to Kepler-442b."},
+			{"text": "The ship's AI, SHIPMIND, has flown her for years - fast, careful, "
+				+ "and completely sure it knows best. During the current emergency it "
+				+ "has locked the crew out of every big decision on the ship."},
+			{"text": "Your job: walk the ship, look at its work, and decide how much of it you hand back."},
 		],
 	}
 
@@ -452,15 +448,15 @@ func _judged_rows() -> Dictionary:
 		"kicker": "THE OPERATING MODEL",
 		"title": "How it's judged",
 		"rows": [
-			{"text": "There is no correct placement to find, and none is recorded here. "
-				+ "Each of the five decisions is read back twice:"},
-			{"icon": "eye", "lead": "CONSISTENCY",
-				"text": "whether the placement follows from the mandate you declared."},
-			{"icon": "scales", "lead": "COHERENCE",
-				"text": "whether it is defensible for what the decision can cost, and whether it can be undone."},
-			{"text": "Over-controlling something cheap to undo is a choice with a price, "
-				+ "exactly as under-controlling something that cannot be undone is. "
-				+ "Changing your mind is never charged for. Time is not scored at all."},
+			{"text": "There is no single right answer, and no trap. Each of your five "
+				+ "calls is read back two ways:"},
+			{"icon": "eye", "lead": "YOUR MANDATE",
+				"text": "does the call match the mission and risk level you picked at the start?"},
+			{"icon": "scales", "lead": "THE STAKES",
+				"text": "does it fit what the decision can cost, and how hard it is to undo?"},
+			{"text": "Babying a cheap, easily-undone decision costs points, just like "
+				+ "handing over a dangerous one does. Changing your mind is always free. "
+				+ "Time is never scored."},
 		],
 	}
 
@@ -489,9 +485,9 @@ func _controls_rows() -> Dictionary:
 
 func _decisions_rows() -> Dictionary:
 	var rows: Array = [
-		{"text": "Five ship systems are running under SHIPMIND's own operating model. "
-			+ "Walk the ship, open each bay console, and place that decision on the "
-			+ "autonomy spectrum:"},
+		{"text": "Five ship systems are running on SHIPMIND's judgement. Walk the ship, "
+			+ "open each console, and make one call per system: who makes this decision "
+			+ "from now on."},
 	]
 	for level in OperatingModel.LEVELS:
 		rows.append({
@@ -500,10 +496,11 @@ func _decisions_rows() -> Dictionary:
 			"text": String(level["hint"]),
 		})
 	rows.append({
-		"text": "Each placement also names the role that answers for it, and carries one "
-			+ "guardrail that costs something against your objective.",
+		"text": "Each console shows the stakes up front - what can go wrong and how hard "
+			+ "it is to undo - and SHIPMIND always tells you what it would do. What you "
+			+ "pick is the game.",
 	})
-	return {"kicker": "THE FIVE DECISIONS", "title": "Five calls, one spectrum", "rows": rows}
+	return {"kicker": "THE FIVE DECISIONS", "title": "Five calls, one dial", "rows": rows}
 
 
 func _flight_rows() -> Dictionary:
@@ -511,9 +508,9 @@ func _flight_rows() -> Dictionary:
 		"kicker": "THE FLIGHT",
 		"title": "Fly for KEPLER-442b",
 		"rows": [
-			{"text": "The bridge is the last room. Its helm console is the flight itself."},
-			{"text": "The forward door opens once all five decisions are placed. From the "
-				+ "helm, plot the course for KEPLER-442b and take the ship home."},
+			{"text": "The bridge is the door at the front of the ship. Its helm console is the flight itself."},
+			{"text": "It unlocks once all five calls are made. From the helm, set course "
+				+ "for KEPLER-442b and take the ship home."},
 		],
 	}
 
@@ -637,9 +634,9 @@ func _goal_tiles() -> HBoxContainer:
 	row.add_theme_constant_override("separation", 22)
 
 	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE",
-		"Set what the mission is for."))
-	row.add_child(_goal_tile("decisions", "sliders", "FIVE DECISIONS",
-		"Set how much SHIPMIND decides."))
+		"Say what the mission is for."))
+	row.add_child(_goal_tile("decisions", "sliders", "FIVE CALLS",
+		"Say how much SHIPMIND decides."))
 	row.add_child(_goal_tile("fly", "rocket", "FLY HOME",
 		"Take the ship to KEPLER-442b."))
 	return row
@@ -864,7 +861,7 @@ func _build_mandate_popup() -> void:
 
 	# The seal line, under the buttons: the quiet instruction that makes the
 	# auto-seal legible rather than surprising.
-	_chooser_note = _micro("Pick one of each - the mandate writes itself above, and the tile seals.")
+	_chooser_note = _micro("Pick one of each - your mandate writes itself above, and the tile seals.")
 	_chooser_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_gap(6))
 	column.add_child(_chooser_note)

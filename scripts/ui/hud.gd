@@ -135,21 +135,21 @@ func refresh_objective() -> void:
 		if GameState.has_placement(system_id):
 			style.border_color = GOLD
 			glyph.tint = GOLD
-			chip.tooltip_text = "%s - placed: %s" % [
+			chip.tooltip_text = "%s - your call: %s" % [
 				GameState.display_name(system_id),
 				OperatingModel.level_short(String(GameState.placement(system_id).get("level", "")))]
 		elif GameState.is_restored(system_id):
 			style.border_color = PAPAYA
 			glyph.tint = INK
-			chip.tooltip_text = "%s - on the record, no placement" % GameState.display_name(system_id)
+			chip.tooltip_text = "%s - on the record, no call yet" % GameState.display_name(system_id)
 		elif GameState.is_integrated(system_id):
 			style.border_color = Color(0.45, 0.34, 0.26)
 			glyph.tint = INK
-			chip.tooltip_text = "%s - bay open, not placed" % GameState.display_name(system_id)
+			chip.tooltip_text = "%s - console live, no call yet" % GameState.display_name(system_id)
 		else:
 			style.border_color = Color(0.22, 0.17, 0.13)
 			glyph.tint = DIM
-			chip.tooltip_text = "%s - console not commissioned" % GameState.display_name(system_id)
+			chip.tooltip_text = "%s - console not live yet" % GameState.display_name(system_id)
 		chip.add_theme_stylebox_override("panel", style)
 	if _chip_counter != null:
 		_chip_counter.text = "%d/%d" % [Score.placed_count(), GameState.SYSTEMS.size()]
@@ -238,13 +238,13 @@ func _refresh_detail() -> void:
 			var level: String = String(GameState.placement(system_id).get("level", ""))
 			lines.append("[x] %s  -  %s" % [label, OperatingModel.level_short(level)])
 		elif GameState.is_restored(system_id):
-			lines.append("[x] %s  -  on the record, no placement" % label)
+			lines.append("[x] %s  -  on the record, no call yet" % label)
 		elif GameState.is_integrated(system_id):
-			lines.append("[ ] %s  -  bay open, not placed" % label)
+			lines.append("[ ] %s  -  console live, no call yet" % label)
 		else:
-			lines.append("[ ] %s  -  console not commissioned" % label)
-	lines.append("CONSISTENCY  %s" % _axis_text(Score.mean_consistency()))
-	lines.append("COHERENCE    %s" % _axis_text(Score.mean_coherence()))
+			lines.append("[ ] %s  -  console not live yet" % label)
+	lines.append("YOUR MANDATE  %s" % _axis_text(Score.mean_consistency()))
+	lines.append("THE STAKES    %s" % _axis_text(Score.mean_coherence()))
 	## Shown for a host's interest. NOT part of the score, and nothing here
 	## multiplies it by anything.
 	lines.append("ELAPSED      %s   (not scored)" % GameState.elapsed_text())
@@ -481,9 +481,10 @@ func _bars_row_control() -> HBoxContainer:
 	row.name = "Bars"
 	row.add_theme_constant_override("separation", 8)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var axis_labels := {"consistency": "MANDATE", "coherence": "STAKES"}
 	for axis in ["consistency", "coherence"]:
 		var name_label := Label.new()
-		name_label.text = axis.to_upper()
+		name_label.text = String(axis_labels.get(axis, axis.to_upper()))
 		name_label.custom_minimum_size = Vector2(92.0, 0.0)
 		name_label.add_theme_font_size_override("font_size", 10)
 		name_label.add_theme_color_override("font_color", MUTED)

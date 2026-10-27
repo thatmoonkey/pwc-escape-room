@@ -72,8 +72,8 @@ func rule() -> ScreenState:
 	return self
 
 
-func option(id: String, label: String, hint: String = "", tone: String = "normal") -> ScreenState:
-	options.append({"id": id, "label": label, "hint": hint, "tone": tone})
+func option(id: String, label: String, hint: String = "", tone: String = "normal", icon: String = "") -> ScreenState:
+	options.append({"id": id, "label": label, "hint": hint, "tone": tone, "icon": icon})
 	return self
 
 

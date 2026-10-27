@@ -48,8 +48,8 @@ const SYSTEM_NAMES := {
 	"navigation": "NAVIGATION",
 	"life_support": "LIFE SUPPORT",
 	"comms": "COMMS",
-	"cargo": "CARGO / RESOURCES",
-	"engineering": "ENGINEERING / DOORS",
+	"cargo": "CARGO",
+	"engineering": "ENGINEERING",
 }
 
 ## The five fixed lessons that used to be the debrief are GONE with the
@@ -73,10 +73,11 @@ static var run_started: bool = false
 static var run_running: bool = false
 
 ## One autonomy placement per decision, keyed by system id:
-##   { level, level_index, guardrail, guardrail_label, owner, owner_label }
-## The owner is part of the placement, not an attachment to it: the role that
-## answers for the outcome is saved, restored and read back with the level it was
-## placed at, so a resumed session keeps the accountability record intact.
+##   { level, level_index }
+## The level is the whole decision: who runs it afterwards is derived from the
+## level itself (OperatingModel.who_runs_it), not stored as a second pick.
+## Saves written by the three-pick model carry guardrail/owner fields too -
+## they load fine and the extras are simply never read.
 ## There is no per-option record any more. A decision is placed once and
 ## replaced if the crew revise it, and a decision with no entry here is ABSENT
 ## from the score rather than scored at zero.
@@ -180,18 +181,15 @@ static func has_mandate() -> bool:
 # --- Placements ---------------------------------------------------------------
 
 
-## ONE autonomy placement for one decision: the level it sits at, the single
-## guardrail attached to it, and the named role that owns the outcome. Recording
+## ONE autonomy placement for one decision: the level it sits at. Recording
 ## a placement again REPLACES it, because a crew that reconsiders is doing what
 ## the model asks of them and a retry is never a penalty.
 ##
-## TWO THINGS ARE REFUSED RATHER THAN STORED. A placement made with no mandate on
+## ONE THING IS REFUSED RATHER THAN STORED. A placement made with no mandate on
 ## the record has nothing to be judged against, so it is refused instead of
-## quietly defaulting to one. A placement above human-only that names no owner is
-## refused too, because a placement with nobody accountable for it is exactly
-## what the control plane exists to gate. A refusal leaves whatever was already
-## on the record untouched.
-static func record_placement(system_id: String, level_id: String, guardrail_id: String, guardrail_label: String = "", owner_id: String = "") -> void:
+## quietly defaulting to one. A refusal leaves whatever was already on the
+## record untouched.
+static func record_placement(system_id: String, level_id: String) -> void:
 	if not SYSTEMS.has(system_id):
 		## The helm and the kiosk are not scored decisions. The helm is where the
 		## run ends and the kiosk is where it is read back.
@@ -203,25 +201,10 @@ static func record_placement(system_id: String, level_id: String, guardrail_id: 
 	if not OperatingModel.is_declared():
 		push_warning("Placement refused for '%s': no mandate is on the record, so a placement could not be judged against anything." % system_id)
 		return
-	var owner: String = owner_id
-	if OperatingModel.owner_required_for(level_id):
-		if not OperatingModel.has_owner_role(system_id, owner):
-			push_warning("Placement refused for '%s': %s needs a named accountable owner, and '%s' is not one of this decision's roles." % [
-				system_id, OperatingModel.level_short(level_id), owner])
-			return
-	else:
-		## Human-only. The operator is the owner by definition, so no separate
-		## choice is asked for and none is invented here.
-		owner = OperatingModel.OPERATOR_ROLE
 	placements[system_id] = {
 		"level": level_id,
 		"level_index": level_index,
-		"guardrail": guardrail_id,
-		"guardrail_label": guardrail_label if guardrail_label != "" else guardrail_id.to_upper(),
-		"owner": owner,
-		"owner_label": OperatingModel.owner_label(system_id, owner),
 	}
-	OperatingModel.set_placement_owner(system_id, owner)
 	save()
 
 
@@ -245,25 +228,6 @@ static func placement_level(system_id: String) -> float:
 		return -1.0
 	var record: Dictionary = placements[system_id]
 	return float(record.get("level_index", -1))
-
-
-## The named role that owns a placed decision: the id for the record, and the
-## label for anything a person reads. A decision that is not placed has no owner
-## to report, which is a different thing from a placement with no owner - that
-## cannot be stored in the first place.
-static func placement_owner(system_id: String) -> String:
-	var record: Dictionary = placement(system_id)
-	return String(record.get("owner", ""))
-
-
-static func placement_owner_label(system_id: String) -> String:
-	var record: Dictionary = placement(system_id)
-	if record.is_empty():
-		return "NOT PLACED"
-	var label: String = String(record.get("owner_label", ""))
-	if label != "":
-		return label
-	return OperatingModel.owner_label(system_id, String(record.get("owner", "")))
 
 
 static func decisions_placed() -> int:
@@ -306,7 +270,7 @@ static func mark_restored(system_id: String) -> void:
 	restored[system_id] = true
 	# log_override persists, so the restored flag and its log entry land in one
 	# write and can never drift apart across a restart.
-	log_override("%s placed on the operating model" % display_name(system_id))
+	log_override("Call made: %s" % display_name(system_id))
 
 
 static func display_name(system_id: String) -> String:
@@ -407,30 +371,19 @@ static func load_data() -> void:
 		_restore_placements()
 
 
-## Re-reads the restored placements through the owner rule, and re-notes each
-## owner into OperatingModel so the model and the save agree after a load.
-##
-## A save written before the owner rule carries placements with no accountable
-## owner on file. The rule is that a placement above human-only cannot be on the
-## record without one, so those are DROPPED rather than restored incomplete - and
-## the decision is left OPEN again, because a record with nobody accountable for
-## it is worse than asking for the decision twice. Nothing else is touched.
+## Keeps only placements whose level is still a level. A save from the
+## three-pick model loads whole: its guardrail and owner fields ride along
+## unread, and who runs the decision is derived from its level like any other.
 static func _restore_placements() -> void:
 	var kept: Dictionary = {}
 	for system_id in SYSTEMS:
 		if not placements.has(system_id):
 			continue
 		var record: Dictionary = placements[system_id]
-		var level_id: String = String(record.get("level", ""))
-		var owner_id: String = String(record.get("owner", ""))
-		if OperatingModel.owner_required_for(level_id) and not OperatingModel.has_owner_role(system_id, owner_id):
-			push_warning("Restored placement for '%s' names no accountable owner. It is not restored, and the decision is open again." % system_id)
+		if OperatingModel.level_index(String(record.get("level", ""))) < 0:
+			push_warning("Restored placement for '%s' names no known level. It is not restored, and the decision is open again." % system_id)
 			restored.erase(system_id)
 			continue
-		if owner_id == "":
-			owner_id = OperatingModel.OPERATOR_ROLE
-		record["owner"] = owner_id
-		record["owner_label"] = OperatingModel.owner_label(system_id, owner_id)
-		OperatingModel.set_placement_owner(system_id, owner_id)
+		record["level_index"] = OperatingModel.level_index(String(record["level"]))
 		kept[system_id] = record
 	placements = kept

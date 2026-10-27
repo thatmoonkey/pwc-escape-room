@@ -252,20 +252,16 @@ static func placement_line(system_id: String) -> String:
 	if placement.is_empty():
 		return "NOT PLACED"
 	var level_id: String = String(placement.get("level", ""))
-	var guardrail: String = String(placement.get("guardrail_label", ""))
-	if guardrail == "":
-		guardrail = String(placement.get("guardrail", "")).to_upper()
-	return "PLACED AT %s   +   %s   |   OWNER   %s" % [
-		OperatingModel.level_label(level_id), guardrail, GameState.placement_owner_label(system_id)]
+	return "PLACED AT   %s" % OperatingModel.level_label(level_id)
 
 
-## Who answers for a placed decision. It is part of the record rather than an
-## extra, because a placement that hands work to the model and names nobody is
-## the thing the control plane exists to prevent.
-static func owner_line(system_id: String) -> String:
-	if not GameState.has_placement(system_id):
-		return "ACCOUNTABLE OWNER   none yet - this decision is not placed."
-	return "ACCOUNTABLE OWNER   %s" % GameState.placement_owner_label(system_id)
+## Who runs the decision at the placed level. Derived from the level, not
+## stored, so the record can never disagree with the console that set it.
+static func who_runs_line(system_id: String) -> String:
+	var placement: Dictionary = GameState.placement(system_id)
+	if placement.is_empty():
+		return "WHO RUNS IT   nobody yet - this decision is not placed."
+	return "WHO RUNS IT   %s" % OperatingModel.who_runs_it(String(placement.get("level", "")))
 
 
 ## One line for the debrief: what was placed here and how it was judged.
@@ -281,12 +277,12 @@ static func consistency_phrase(system_id: String) -> String:
 	if value < 0.0:
 		return "no mandate on the record to measure it against"
 	if value >= 0.9:
-		return "it follows from the mandate on the record"
+		return "it matches what you promised"
 	if value >= 0.75:
-		return "it broadly follows from the mandate on the record"
+		return "it mostly matches what you promised"
 	if value >= 0.5:
-		return "it sits away from the mandate on the record"
-	return "it does not follow from the mandate on the record"
+		return "it drifts from what you promised"
+	return "it goes against what you promised"
 
 
 static func coherence_phrase(system_id: String) -> String:
@@ -294,16 +290,16 @@ static func coherence_phrase(system_id: String) -> String:
 	if value < 0.0:
 		return "nothing to weigh it against"
 	if value >= 0.9:
-		return "it is defensible for what this decision can cost"
+		return "the control fits what this call can cost"
 	if value >= 0.75:
-		return "it is broadly proportionate to what this decision can cost"
+		return "the control roughly fits what this call can cost"
 	if value >= 0.5:
-		return "it strains against what this decision can cost"
-	return "it is out of proportion to what this decision can cost"
+		return "the control strains against what this call can cost"
+	return "the control is out of proportion to what this call can cost"
 
 
 ## Which way a placement misses, in plain words. The direction is the lesson:
-## too much oversight spends attention, too little spends margin.
+## too much oversight spends crew time, too little spends safety.
 static func proportionality_line(system_id: String) -> String:
 	var placement: Dictionary = GameState.placement(system_id)
 	if placement.is_empty():
@@ -313,33 +309,34 @@ static func proportionality_line(system_id: String) -> String:
 	if defended < 0.0:
 		return ""
 	var tag: Dictionary = OperatingModel.decision_tag(system_id)
-	var weight: String = "%s consequence, %s" % [
-		String(tag.get("consequence_word", "")), String(tag.get("reversibility_word", ""))]
+	var weight: String = "%s stakes, %s to undo" % [
+		String(tag.get("consequence_word", "")).to_lower(),
+		String(tag.get("reversibility_word", "")).to_lower()]
 	if absf(level - defended) <= COHERENCE_TOLERANCE:
-		return "Proportionate: %s is what this decision weighs." % weight
+		return "Right-sized: %s, and that is about how much control it needs." % weight
 	if level > defended:
-		return "Over-controlled: %s, and the placement keeps a person on it anyway. That spends crew attention the mandate did not ask for." % weight
-	return "Under-controlled: %s, and the placement hands it to the model. That takes exposure the mandate did not authorise." % weight
+		return "More control than it needs: %s, and a person stays on it anyway. That costs crew time." % weight
+	return "Less control than it needs: %s, and it was handed over anyway. That is risk nobody had to take." % weight
 
 
-## The reflection: what was placed, whether it follows from the mandate, and
-## whether it is defensible for the decision's own weight. This is what the
-## reflection card and the decision's read-back screen print.
+## The reflection: what was placed, what it means in practice, and whether it
+## fits the mandate and the stakes. This is what the reflection card and the
+## decision's read-back screen print.
 static func reflection_lines(system_id: String) -> Array[String]:
 	var out: Array[String] = []
 	if not GameState.has_placement(system_id):
-		out.append("NOT PLACED   -   this decision has not been placed on the operating model yet.")
-		out.append("It records nothing in either direction until it is placed.")
+		out.append("NOT PLACED   -   nobody has made this call yet.")
+		out.append("It scores nothing in either direction until you do.")
 		return out
 	if not OperatingModel.is_declared():
-		out.append("NO MANDATE   -   a placement is on the record with nothing declared to measure it against.")
+		out.append("NO MANDATE   -   this call is on the record, but nothing was declared to judge it against.")
 		return out
 	out.append(placement_line(system_id))
-	out.append(owner_line(system_id))
-	out.append("CONSISTENCY  %d percent   -   %s." % [percent(consistency(system_id)), consistency_phrase(system_id)])
-	out.append("COHERENCE    %d percent   -   %s." % [percent(coherence(system_id)), coherence_phrase(system_id)])
+	out.append(who_runs_line(system_id))
+	out.append("MATCHES YOUR MANDATE  %d percent   -   %s." % [percent(consistency(system_id)), consistency_phrase(system_id)])
+	out.append("FITS THE STAKES       %d percent   -   %s." % [percent(coherence(system_id)), coherence_phrase(system_id)])
 	out.append(proportionality_line(system_id))
-	out.append("JUDGED AGAINST   %s" % OperatingModel.mandate_line())
+	out.append("YOUR MANDATE   %s" % OperatingModel.mandate_line())
 	return out
 
 
@@ -351,6 +348,6 @@ static func reflection_text(system_id: String) -> String:
 ## the string itself.
 static func summary_line() -> String:
 	if placed_count() == 0:
-		return "PLACEMENT SCORE   no decisions placed yet"
-	return "PLACEMENT SCORE   %d / %d   across %d of %d decisions" % [
+		return "SCORE   no calls made yet"
+	return "SCORE   %d / %d   across %d of %d decisions" % [
 		total(), max_total(), placed_count(), GameState.SYSTEMS.size()]
