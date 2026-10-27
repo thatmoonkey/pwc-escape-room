@@ -258,8 +258,8 @@ render_priority = 0
 shader = ExtResource("5_6igdp")
 shader_parameter/albedo_texture = ExtResource("6_mwhub")
 shader_parameter/emission_texture = ExtResource("7_rla27")
-shader_parameter/tint_low = Color(0.72, 0.71, 0.69, 1)
-shader_parameter/tint_high = Color(0.91, 0.90, 0.88, 1)
+shader_parameter/tint_low = Color(0.50, 0.495, 0.48, 1)
+shader_parameter/tint_high = Color(0.72, 0.71, 0.70, 1)
 shader_parameter/glow_tint = Color(0.99, 0.38, 0.05, 1)
 shader_parameter/exposure_gain = 1.0
 shader_parameter/seam_floor = 0.05
@@ -1596,36 +1596,36 @@ shape = SubResource("BoxShape3D_7303k")
 
 [node name="Spine_A" type="OmniLight3D" parent="Lights" unique_id=2000083884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.61, 10.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Spine_B" type="OmniLight3D" parent="Lights" unique_id=1070970634]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.61, -3.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Spine_C" type="OmniLight3D" parent="Lights" unique_id=2084122545]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.61, -17.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Junction" type="OmniLight3D" parent="Lights" unique_id=102929840]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.61, 3.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="NavRoom" type="OmniLight3D" parent="Lights" unique_id=1285631110]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 3.61, 10.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 script = ExtResource("10_0flfi")
@@ -1633,8 +1633,8 @@ system_id = "navigation"
 
 [node name="CommsRoom" type="OmniLight3D" parent="Lights" unique_id=19497405]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, 3.61, 10.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 script = ExtResource("10_0flfi")
@@ -1642,8 +1642,8 @@ system_id = "comms"
 
 [node name="LifeRoom" type="OmniLight3D" parent="Lights" unique_id=1490975585]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, 3.61, -3.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 script = ExtResource("10_0flfi")
