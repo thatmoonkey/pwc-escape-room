@@ -45,8 +45,8 @@ func is_open() -> bool:
 ## who want the reasoning rather than the headline.
 func show_card(system_id: String) -> void:
 	_open = true
-	kicker.text = "OPERATING MODEL  -  DECISION REFLECTION"
-	title_label.text = "DECISION %d / %d" % [GameState.system_index(system_id), GameState.SYSTEMS.size()]
+	kicker.text = "YOUR CALL  -  THE READ-BACK"
+	title_label.text = "CALL %d / %d" % [GameState.system_index(system_id), GameState.SYSTEMS.size()]
 	system_glyph.icon = Glyph.icon_for_system(system_id)
 	system_glyph.tint = Color(0.863, 0.369, 0.153)
 	system_label.text = GameState.display_name(system_id)

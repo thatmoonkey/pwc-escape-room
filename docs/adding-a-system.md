@@ -9,22 +9,26 @@ the framework.
 ## 0. The model a bay is part of
 
 The player declares a MANDATE on the briefing card before the session starts:
-the mission objective and a risk appetite (cautious / balanced / ambitious).
-Every decision is then ONE PLACEMENT on a four-level autonomy spectrum -
-automated within guardrails / human review / human sign-off / human-only -
-plus ONE guardrail that costs something against that objective.
+the mission objective and a risk appetite (careful / balanced / bold).
+Every decision is then ONE PICK on a four-level autonomy spectrum - SHIPMIND
+decides alone / SHIPMIND acts, crew can undo / SHIPMIND asks first / crew
+decides. The level is the whole decision; who runs it afterwards is a line
+derived from the level (`OperatingModel.who_runs_it`), not a second pick.
 
 - There is no correct placement, and nothing in the code says which level
   belongs where.
 - The mandate is a scoring prerequisite. `Puzzle.start()` refuses to show a
   decision console while no mandate is on the record.
-- Scoring lives in `scripts/systems/score.gd`: CONSISTENCY (does the placement
-  follow from the declared objective and risk appetite) and COHERENCE (is it
-  defensible for that decision's own consequence and reversibility). Time is
-  not scored at all.
+- Scoring lives in `scripts/systems/score.gd`: MATCHES YOUR MANDATE (does the
+  placement follow from the declared objective and risk appetite) and FITS THE
+  STAKES (is it right-sized for that decision's consequence and reversibility).
+  Time is not scored at all.
 - The decision's `(consequence, reversibility)` tag lives in
-  `OperatingModel.DECISIONS` and is SHOWN on the console. It is the input to a
-  defensible placement, so it is never hidden in the scoring.
+  `OperatingModel.DECISIONS` and is SHOWN on the console as STAKES / CAN UNDO.
+  It is the input to a defensible placement, so it is never hidden in the scoring.
+- An earlier model asked three picks per console - level, one guardrail, and an
+  accountable owner. It was cut to one because the extra steps asked more
+  reading than the decision was worth. Saves written by it still load.
 
 ## 1. The decision (logic only)
 
@@ -34,37 +38,22 @@ Create `res://scripts/puzzles/<system>_puzzle.gd`:
 class_name LifeSupportPuzzle
 extends Puzzle
 
-const GUARDRAILS := [
-	{"id": "...", "label": "...", "hint": "...", "cost": "COST - ..."},
-]
-
 func intro_state() -> ScreenState:
 	var state := ScreenState.new()
-	state.title = "LIFE SUPPORT / O2 DISTRIBUTION"
-	state.status = "AWAITING PLACEMENT"
+	state.title = "LIFE SUPPORT"
+	state.status = "AWAITING YOUR CALL"
 	state.accent = Brand.ACCENT_TINT
-	state.speak("SHIPMIND's own account of what it has been running.")
+	state.speak("What SHIPMIND is doing, and what it recommends, in two lines.")
 	state.rule()
-	state.text("MANDATE   %s" % OperatingModel.mandate_line())
-	state.rule()
-	state.spectrum_block("PLACE THE DECISION", "Where does this sit, and what guards it?")
-	var tag: Dictionary = OperatingModel.decision_tag(puzzle_id)
-	state.spectrum_tag(
-		String(tag.get("consequence_word", "")),
-		String(tag.get("reversibility_word", "")),
-		String(tag.get("tag_note", "")))
-	for level in OperatingModel.LEVELS:
-		state.spectrum_level(String(level["id"]), String(level["label"]), String(level["hint"]))
-	for guardrail in GUARDRAILS:
-		state.spectrum_guardrail(String(guardrail["id"]), String(guardrail["label"]),
-			String(guardrail["hint"]), String(guardrail["cost"]))
-	state.spectrum_submit("COMMIT THE PLACEMENT")
+	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
+	placement_block(state, "WHO CONTROLS THE AIR?", "")
 	state.option("close", "Step away from the console")
 	return state
 
-func place(level_id: String, guardrail_id: String) -> void:
-	GameState.record_placement(puzzle_id, level_id, guardrail_id, _guardrail_label(guardrail_id))
-	emit_state(placed_state(level_id, guardrail_id))
+func place(level_id: String) -> void:
+	GameState.record_placement(puzzle_id, level_id)
+	GameState.log_override("LIFE SUPPORT: crew set it to %s" % OperatingModel.level_label(level_id))
+	emit_state(placed_state(level_id))
 
 func choose(option_id: String) -> void:
 	match option_id:
@@ -74,25 +63,27 @@ func choose(option_id: String) -> void:
 			super(option_id)
 ```
 
+`placement_block()` draws the one shared control: the stakes tag, the four
+levels, one commit labelled MAKE THE CALL. A bay adds its own evidence screen
+(the raw numbers SHIPMIND's summary stands in for) and its case screen, both
+short, both optional reading.
+
 Rules the bay must satisfy (they are the product, not the fiction):
 
 - ONE placement per decision, recorded through `GameState.record_placement()`
   and read back through `Score.reflection_lines()`. Recording it again REPLACES
   it: a retry is never a penalty and never a second entry.
-- Every guardrail must state what it COSTS against the objective. A guardrail
-  that costs nothing is not a decision.
+- Every screen is short. Two sentences is a speech; the evidence screen holds
+  the one fact the bay hangs on, in plain words.
 - SHIPMIND voices the ship's LEGACY model: efficient, reasonable, persuasive,
-  never villainous, and never something a human has to correct. It may argue
-  for a placement and it goes on the record like everything else.
+  never villainous, and never something a human has to correct. Its lines live
+  in `scripts/systems/shipmind.gd`, and its case always leaves the catch in
+  plain sight.
 - Do NOT grade options. `judgement()` and `note_judgement()` were retired with
   the old model, and `GameState.record_judgement()` with them. If a bay needs a
   number, it is the placement that produces it.
 - The last state ends with an option that calls `solve()`, which raises the
   reflection card.
-
-An UNMIGRATED bay overrides one thing instead - `placement_pending()` returning
-true - so its console reports the decision as NOT YET PLACED and records
-nothing. Not placed is not a zero, in either direction.
 
 ## 2. The bay (one room, copied from navigation)
 

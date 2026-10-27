@@ -189,8 +189,8 @@ render_priority = 0
 shader = ExtResource("5_8rv8x")
 shader_parameter/albedo_texture = ExtResource("6_q8g41")
 shader_parameter/emission_texture = ExtResource("7_cpwvu")
-shader_parameter/tint_low = Color(0.50, 0.495, 0.48, 1)
-shader_parameter/tint_high = Color(0.72, 0.71, 0.70, 1)
+shader_parameter/tint_low = Color(0.5, 0.495, 0.48, 1)
+shader_parameter/tint_high = Color(0.72, 0.71, 0.7, 1)
 shader_parameter/glow_tint = Color(0.99, 0.38, 0.05, 1)
 shader_parameter/exposure_gain = 1.0
 shader_parameter/seam_floor = 0.05
@@ -386,1053 +386,1053 @@ size = Vector3(0.295, 2.4, 3.24)
 [sub_resource type="BoxShape3D" id="BoxShape3D_bp6eu"]
 size = Vector3(0.295, 2.4, 3.24)
 
-[node name="Deck2" type="Node3D" unique_id=1753692754]
+[node name="Deck2" type="Node3D" unique_id=466783314]
 
-[node name="Shell" type="Node3D" parent="." unique_id=945496030]
+[node name="Shell" type="Node3D" parent="." unique_id=123791857]
 
-[node name="SpineFloor" type="Node3D" parent="Shell" unique_id=56046683]
+[node name="SpineFloor" type="Node3D" parent="Shell" unique_id=1764955149]
 
 [node name="spine_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1802343966 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -29.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=709034388 instance=ExtResource("1_htwgw")]
+[node name="spine_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1186865728 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -26.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F02" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=257473231 instance=ExtResource("1_htwgw")]
+[node name="spine_F02" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1082286317 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -22.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F03" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=566864499 instance=ExtResource("1_htwgw")]
+[node name="spine_F03" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=760050817 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -19.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F04" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2106999136 instance=ExtResource("1_htwgw")]
+[node name="spine_F04" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1295108181 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F05" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1821804558 instance=ExtResource("1_htwgw")]
+[node name="spine_F05" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1426019657 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F06" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1915526189 instance=ExtResource("1_htwgw")]
+[node name="spine_F06" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=305100127 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F07" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1423664061 instance=ExtResource("1_htwgw")]
+[node name="spine_F07" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=132409224 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F08" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1056560010 instance=ExtResource("1_htwgw")]
+[node name="spine_F08" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1282806478 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F09" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1632186349 instance=ExtResource("1_htwgw")]
+[node name="spine_F09" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=232935146 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F010" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=178003065 instance=ExtResource("1_htwgw")]
+[node name="spine_F010" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1754189006 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F011" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1948135977 instance=ExtResource("1_htwgw")]
+[node name="spine_F011" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1711655396 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F012" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=538064699 instance=ExtResource("1_htwgw")]
+[node name="spine_F012" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1889905947 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_F013" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=521122869 instance=ExtResource("1_htwgw")]
+[node name="spine_F013" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1662415848 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="junction_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2096202254 instance=ExtResource("1_htwgw")]
+[node name="junction_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1236934952 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=273421119 instance=ExtResource("1_htwgw")]
+[node name="cargo_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2110767279 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=495762593 instance=ExtResource("1_htwgw")]
+[node name="cargo_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=300620370 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F02" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1499785131 instance=ExtResource("1_htwgw")]
+[node name="cargo_F02" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=609483413 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F03" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=529001905 instance=ExtResource("1_htwgw")]
+[node name="cargo_F03" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1279944714 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F04" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=547942147 instance=ExtResource("1_htwgw")]
+[node name="cargo_F04" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1695732672 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F05" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=175138016 instance=ExtResource("1_htwgw")]
+[node name="cargo_F05" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=803968662 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F06" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1197072407 instance=ExtResource("1_htwgw")]
+[node name="cargo_F06" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1697771225 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F10" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1807101653 instance=ExtResource("1_htwgw")]
+[node name="cargo_F10" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1968731772 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F11" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=446460674 instance=ExtResource("1_htwgw")]
+[node name="cargo_F11" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=16959570 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F12" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=259720905 instance=ExtResource("1_htwgw")]
+[node name="cargo_F12" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=608836725 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F13" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2020539916 instance=ExtResource("1_htwgw")]
+[node name="cargo_F13" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1656471168 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F14" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1798250636 instance=ExtResource("1_htwgw")]
+[node name="cargo_F14" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=239502523 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F15" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1770346149 instance=ExtResource("1_htwgw")]
+[node name="cargo_F15" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1733619480 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F16" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1258883324 instance=ExtResource("1_htwgw")]
+[node name="cargo_F16" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=977148070 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F20" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1594665807 instance=ExtResource("1_htwgw")]
+[node name="cargo_F20" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1424458791 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F21" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1007547566 instance=ExtResource("1_htwgw")]
+[node name="cargo_F21" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1538799645 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F22" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1791335370 instance=ExtResource("1_htwgw")]
+[node name="cargo_F22" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=132891455 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F23" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=99929201 instance=ExtResource("1_htwgw")]
+[node name="cargo_F23" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=923515638 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F24" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=894883322 instance=ExtResource("1_htwgw")]
+[node name="cargo_F24" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1058495123 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F25" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1998545982 instance=ExtResource("1_htwgw")]
+[node name="cargo_F25" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1258483074 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F26" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1121547651 instance=ExtResource("1_htwgw")]
+[node name="cargo_F26" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=597155989 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F30" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=839972629 instance=ExtResource("1_htwgw")]
+[node name="cargo_F30" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=738429562 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F31" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=225163570 instance=ExtResource("1_htwgw")]
+[node name="cargo_F31" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=774357208 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F32" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=676429835 instance=ExtResource("1_htwgw")]
+[node name="cargo_F32" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1595372112 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F33" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1585870106 instance=ExtResource("1_htwgw")]
+[node name="cargo_F33" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1855427193 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F34" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1838534602 instance=ExtResource("1_htwgw")]
+[node name="cargo_F34" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=535113878 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F35" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2059131634 instance=ExtResource("1_htwgw")]
+[node name="cargo_F35" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1380325208 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_F36" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1695034518 instance=ExtResource("1_htwgw")]
+[node name="cargo_F36" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1507712358 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1558649401 instance=ExtResource("1_htwgw")]
+[node name="eng_F00" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1858208440 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1451226658 instance=ExtResource("1_htwgw")]
+[node name="eng_F01" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2131043492 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F10" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1056761824 instance=ExtResource("1_htwgw")]
+[node name="eng_F10" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=20145923 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F11" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=334442486 instance=ExtResource("1_htwgw")]
+[node name="eng_F11" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=934321436 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F20" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1578807786 instance=ExtResource("1_htwgw")]
+[node name="eng_F20" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=727011219 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F21" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1557187090 instance=ExtResource("1_htwgw")]
+[node name="eng_F21" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=682327871 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F30" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=2104223686 instance=ExtResource("1_htwgw")]
+[node name="eng_F30" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1515655137 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_F31" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=695531644 instance=ExtResource("1_htwgw")]
+[node name="eng_F31" type="StaticBody3D" parent="Shell/SpineFloor" unique_id=1338807164 instance=ExtResource("1_htwgw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="SpineCeiling" type="Node3D" parent="Shell" unique_id=969741347]
+[node name="SpineCeiling" type="Node3D" parent="Shell" unique_id=1509794659]
 
 [node name="spine_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=313939371 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -29.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1558247906 instance=ExtResource("2_gmeqt")]
+[node name="spine_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1307822424 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -26.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C02" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=2101872331 instance=ExtResource("2_gmeqt")]
+[node name="spine_C02" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1383532356 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -22.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C03" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=394992338 instance=ExtResource("2_gmeqt")]
+[node name="spine_C03" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=681856866 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -19.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C04" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1190789761 instance=ExtResource("2_gmeqt")]
+[node name="spine_C04" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1919550733 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C05" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=818135073 instance=ExtResource("2_gmeqt")]
+[node name="spine_C05" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=858915956 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C06" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=220558285 instance=ExtResource("2_gmeqt")]
+[node name="spine_C06" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=722076083 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C07" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=937207449 instance=ExtResource("2_gmeqt")]
+[node name="spine_C07" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1117931115 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C08" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=207959170 instance=ExtResource("2_gmeqt")]
+[node name="spine_C08" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=417685460 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C09" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=524980844 instance=ExtResource("2_gmeqt")]
+[node name="spine_C09" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=2074839574 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C010" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1854737222 instance=ExtResource("2_gmeqt")]
+[node name="spine_C010" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=126453469 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C011" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1467939423 instance=ExtResource("2_gmeqt")]
+[node name="spine_C011" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=820875923 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C012" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=332433733 instance=ExtResource("2_gmeqt")]
+[node name="spine_C012" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=624966161 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="spine_C013" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=118866164 instance=ExtResource("2_gmeqt")]
+[node name="spine_C013" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=423895355 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.8, 15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="junction_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1750223814 instance=ExtResource("2_gmeqt")]
+[node name="junction_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=888378552 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, -3.5, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1360228455 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1256449339 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=452676883 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=910396277 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C02" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1316485427 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C02" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=828091902 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C03" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=523694005 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C03" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=941905997 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C04" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=224031518 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C04" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1606988342 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C05" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1259289221 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C05" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1309151056 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C06" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=2044538213 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C06" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=665702398 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C10" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1206339043 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C10" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=621140414 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C11" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=626566833 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C11" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1379934051 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C12" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=482800093 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C12" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1444622211 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C13" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=686935036 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C13" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1956038337 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C14" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=350614879 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C14" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=748996790 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C15" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1550343820 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C15" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=476937171 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C16" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=850632975 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C16" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1888328055 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C20" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1723118836 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C20" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1227740785 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C21" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1202255511 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C21" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=924089438 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C22" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=62016072 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C22" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1118107779 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C23" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1829513103 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C23" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1605190238 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C24" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1388245448 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C24" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=802878142 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C25" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1020982988 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C25" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=590708481 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C26" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=322125848 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C26" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=435139366 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C30" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1112656579 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C30" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=548550737 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C31" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=2107688915 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C31" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1349338039 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C32" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1872432353 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C32" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1161123915 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C33" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1444066564 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C33" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1170519257 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C34" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1496055859 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C34" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=987311574 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C35" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1469396377 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C35" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=244001262 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="cargo_C36" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1998730885 instance=ExtResource("2_gmeqt")]
+[node name="cargo_C36" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=155777132 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1691170160 instance=ExtResource("2_gmeqt")]
+[node name="eng_C00" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=644590631 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1597287072 instance=ExtResource("2_gmeqt")]
+[node name="eng_C01" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1999368439 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 3.5, -0.8, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C10" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1852819700 instance=ExtResource("2_gmeqt")]
+[node name="eng_C10" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1282600125 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C11" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=2146309421 instance=ExtResource("2_gmeqt")]
+[node name="eng_C11" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1442245447 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 7, -0.8, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C20" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=480218473 instance=ExtResource("2_gmeqt")]
+[node name="eng_C20" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1019412253 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C21" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1083586127 instance=ExtResource("2_gmeqt")]
+[node name="eng_C21" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=134944620 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 10.5, -0.8, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C30" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1276086030 instance=ExtResource("2_gmeqt")]
+[node name="eng_C30" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=911643859 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="eng_C31" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=103726042 instance=ExtResource("2_gmeqt")]
+[node name="eng_C31" type="StaticBody3D" parent="Shell/SpineCeiling" unique_id=1265703169 instance=ExtResource("2_gmeqt")]
 transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 14, -0.8, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="SpineWalls" type="Node3D" parent="Shell" unique_id=1467055242]
+[node name="SpineWalls" type="Node3D" parent="Shell" unique_id=2012551109]
 
 [node name="PX_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=796505068 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -36.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=782785499 instance=ExtResource("3_3i4jk")]
+[node name="PX_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=88996284 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -33.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=772682392 instance=ExtResource("3_3i4jk")]
+[node name="PX_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=788094951 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -29.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=272414451 instance=ExtResource("3_3i4jk")]
+[node name="PX_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1877243779 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -26.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=2018672601 instance=ExtResource("3_3i4jk")]
+[node name="PX_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=61010864 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -22.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1232511473 instance=ExtResource("3_3i4jk")]
+[node name="PX_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=817203479 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -19.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_08" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=4954368 instance=ExtResource("3_3i4jk")]
+[node name="PX_08" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=583671621 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_09" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1421256285 instance=ExtResource("3_3i4jk")]
+[node name="PX_09" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=262267429 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_10" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=956743872 instance=ExtResource("3_3i4jk")]
+[node name="PX_10" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=761141750 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_11" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=742527570 instance=ExtResource("3_3i4jk")]
+[node name="PX_11" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1377031223 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_12" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1760361518 instance=ExtResource("3_3i4jk")]
+[node name="PX_12" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1986841896 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_15" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1773862445 instance=ExtResource("3_3i4jk")]
+[node name="PX_15" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=2082121101 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.75, -4.86, 15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="PX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2028541193]
+[node name="PX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1952432267]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.65, -28)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_evsuf")
 
-[node name="PX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1233117345]
+[node name="PX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=23591022]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -1.01, -28)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_4bmew")
 
-[node name="PX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=138583794]
+[node name="PX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=869787487]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, -38.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_adb63")
 
-[node name="PX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=44896731]
+[node name="PX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1895072521]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, -17.6575)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_8qhki")
 
-[node name="PX_Skirt01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=115921981]
+[node name="PX_Skirt01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1882208654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.65, -1.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_n5lql")
 
-[node name="PX_Cove01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1117417045]
+[node name="PX_Cove01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1690535453]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -1.01, -1.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_kfk77")
 
-[node name="PX_Post01A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=723824045]
+[node name="PX_Post01A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=715611750]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, -10.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_r1ien")
 
-[node name="PX_Post01B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1488516671]
+[node name="PX_Post01B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1005075134]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, 6.8425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_h1onn")
 
-[node name="PX_Skirt02" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=297269973]
+[node name="PX_Skirt02" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=677950042]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.65, 15.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_jfy7v")
 
-[node name="PX_Cove02" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=921251297]
+[node name="PX_Cove02" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=8536096]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -1.01, 15.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_rvnqq")
 
-[node name="PX_Post02A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=422232067]
+[node name="PX_Post02A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1803210096]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, 14.1575)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_30sme")
 
-[node name="PX_Post02B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1237807812]
+[node name="PX_Post02B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1458078048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, 17.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_fmda6")
 
-[node name="NX_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=89848424 instance=ExtResource("3_3i4jk")]
+[node name="NX_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1889603870 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -36.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=867373923 instance=ExtResource("3_3i4jk")]
+[node name="NX_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=741916338 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -33.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=2054153420 instance=ExtResource("3_3i4jk")]
+[node name="NX_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=956939614 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -29.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=33408048 instance=ExtResource("3_3i4jk")]
+[node name="NX_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=213572310 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -26.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1480917905 instance=ExtResource("3_3i4jk")]
+[node name="NX_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1188270336 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -22.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1125912561 instance=ExtResource("3_3i4jk")]
+[node name="NX_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=771832297 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -19.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_06" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1538575449 instance=ExtResource("3_3i4jk")]
+[node name="NX_06" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1645694734 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_07" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=984575196 instance=ExtResource("3_3i4jk")]
+[node name="NX_07" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=168661873 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_09" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=447666031 instance=ExtResource("3_3i4jk")]
+[node name="NX_09" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=214550207 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_10" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1892953357 instance=ExtResource("3_3i4jk")]
+[node name="NX_10" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=539529120 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_11" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1282042093 instance=ExtResource("3_3i4jk")]
+[node name="NX_11" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1242078560 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_12" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=131504081 instance=ExtResource("3_3i4jk")]
+[node name="NX_12" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1535589792 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_13" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1412589197 instance=ExtResource("3_3i4jk")]
+[node name="NX_13" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=680881433 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_14" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1133783389 instance=ExtResource("3_3i4jk")]
+[node name="NX_14" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1746158005 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_15" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=27884311 instance=ExtResource("3_3i4jk")]
+[node name="NX_15" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=2089070862 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.75, -4.86, 15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="NX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2094133295]
+[node name="NX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=178900770]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -4.65, -24.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_up7f7")
 
-[node name="NX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1244513596]
+[node name="NX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1020761750]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -1.01, -24.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_0p6lg")
 
-[node name="NX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=223702]
+[node name="NX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=856214648]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -2.83, -38.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_d0qq5")
 
-[node name="NX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=377093660]
+[node name="NX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2086712540]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -2.83, -10.6575)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_mif50")
 
-[node name="NX_Skirt01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=26714449]
+[node name="NX_Skirt01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1790793514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -4.65, 5.25)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_h3nna")
 
-[node name="NX_Cove01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1025422295]
+[node name="NX_Cove01" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1949384683]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -1.01, 5.25)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_1bmsj")
 
-[node name="NX_Post01A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=930803583]
+[node name="NX_Post01A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1778604664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -2.83, -6.8425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_aqjmp")
 
-[node name="NX_Post01B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2135847635]
+[node name="NX_Post01B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1565493567]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.75, -2.83, 17.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_evyko")
 
-[node name="JNXA_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=827814050 instance=ExtResource("3_3i4jk")]
+[node name="JNXA_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=675035018 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.86, -10.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="JNXA_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=712878354]
+[node name="JNXA_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1506369541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.65, -10.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_f5vft")
 
-[node name="JNXA_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=877869931]
+[node name="JNXA_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1983364450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -1.01, -10.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_uo8my")
 
-[node name="JNXA_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=446311803]
+[node name="JNXA_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1525804673]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.0925, -2.83, -10.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_c6uo5")
 
-[node name="JNXA_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1738548663]
+[node name="JNXA_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=393261574]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9075, -2.83, -10.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_18lyg")
 
-[node name="JNXF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=628443466 instance=ExtResource("3_3i4jk")]
+[node name="JNXF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=36395483 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.86, -7)
 collision_layer = 2
 collision_mask = 0
 
-[node name="JNXF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=900417587]
+[node name="JNXF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1782354727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.65, -7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_dak7c")
 
-[node name="JNXF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1813717097]
+[node name="JNXF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=789049414]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -1.01, -7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_nb8b0")
 
-[node name="JNXF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=390748712]
+[node name="JNXF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1732487010]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.0925, -2.83, -7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_arnj5")
 
-[node name="JNXF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1783000343]
+[node name="JNXF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1053761801]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9075, -2.83, -7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_t0eky")
 
-[node name="JWX_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=2080424668 instance=ExtResource("3_3i4jk")]
+[node name="JWX_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=600933643 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.25, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="JWX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1633130058]
+[node name="JWX_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=627745799]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, -4.65, -8.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_v3p1s")
 
-[node name="JWX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2055178106]
+[node name="JWX_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1857505056]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, -1.01, -8.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_f5h22")
 
-[node name="JWX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1239448970]
+[node name="JWX_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=403332788]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, -2.83, -10.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_rm7lk")
 
-[node name="JWX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1243367772]
+[node name="JWX_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1641546361]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, -2.83, -7.1575)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_uqb80")
 
-[node name="CARA_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=455722172 instance=ExtResource("3_3i4jk")]
+[node name="CARA_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1918290557 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, -17.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARA_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=129978773 instance=ExtResource("3_3i4jk")]
+[node name="CARA_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=828932884 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, -17.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARA_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1330460528 instance=ExtResource("3_3i4jk")]
+[node name="CARA_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=540396045 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, -17.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARA_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=220179172 instance=ExtResource("3_3i4jk")]
+[node name="CARA_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=271707038 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, -17.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARA_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=871677647]
+[node name="CARA_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1389570495]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -4.65, -17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_ang8g")
 
-[node name="CARA_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1106414842]
+[node name="CARA_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=283292039]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -1.01, -17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_44cak")
 
-[node name="CARA_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=312200900]
+[node name="CARA_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=20530549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9075, -2.83, -17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_dadql")
 
-[node name="CARA_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1230233060]
+[node name="CARA_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1626295810]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.5925, -2.83, -17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_iyqii")
 
-[node name="CARF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1980855835 instance=ExtResource("3_3i4jk")]
+[node name="CARF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=896418422 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 7)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARF_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=673787158 instance=ExtResource("3_3i4jk")]
+[node name="CARF_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1931981015 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 7)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARF_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1232922123 instance=ExtResource("3_3i4jk")]
+[node name="CARF_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1895959646 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 7)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARF_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=781813845 instance=ExtResource("3_3i4jk")]
+[node name="CARF_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=374300674 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 7)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=969034229]
+[node name="CARF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=757718961]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -4.65, 7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_8265o")
 
-[node name="CARF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=877034995]
+[node name="CARF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=451070861]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -1.01, 7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_nt1k1")
 
-[node name="CARF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1769517371]
+[node name="CARF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1550764992]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9075, -2.83, 7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_6x7u7")
 
-[node name="CARF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2080359065]
+[node name="CARF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=635101991]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.5925, -2.83, 7)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_yilwj")
 
-[node name="CARO_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1559558535 instance=ExtResource("3_3i4jk")]
+[node name="CARO_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1668804421 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, -12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1951821529 instance=ExtResource("3_3i4jk")]
+[node name="CARO_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1542564298 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, -8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1492755781 instance=ExtResource("3_3i4jk")]
+[node name="CARO_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=371559265 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, -5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=766824964 instance=ExtResource("3_3i4jk")]
+[node name="CARO_04" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1181163340 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, -1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=901043361 instance=ExtResource("3_3i4jk")]
+[node name="CARO_05" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1390923552 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, 1.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_06" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=110380077 instance=ExtResource("3_3i4jk")]
+[node name="CARO_06" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1933097187 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, 5.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CARO_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1975004311]
+[node name="CARO_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=24515980]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -4.65, -3.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_41per")
 
-[node name="CARO_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1378167317]
+[node name="CARO_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=30397905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -1.01, -3.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_3cl4d")
 
-[node name="CARO_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=985067661]
+[node name="CARO_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1702324033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.83, -13.8425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_2v6v4")
 
-[node name="CARO_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=565118544]
+[node name="CARO_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=499196227]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.83, 6.8425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_6dnyg")
 
-[node name="ENGF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=698666981 instance=ExtResource("3_3i4jk")]
+[node name="ENGF_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=223574595 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -4.86, 14)
 collision_layer = 2
 collision_mask = 0
 
-[node name="ENGF_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1697555247 instance=ExtResource("3_3i4jk")]
+[node name="ENGF_01" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=224691874 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -4.86, 14)
 collision_layer = 2
 collision_mask = 0
 
-[node name="ENGF_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1783066838 instance=ExtResource("3_3i4jk")]
+[node name="ENGF_02" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=255965893 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -4.86, 14)
 collision_layer = 2
 collision_mask = 0
 
-[node name="ENGF_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1051337822 instance=ExtResource("3_3i4jk")]
+[node name="ENGF_03" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=660445701 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -4.86, 14)
 collision_layer = 2
 collision_mask = 0
 
-[node name="ENGF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1728200083]
+[node name="ENGF_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=489470260]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -4.65, 14)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_aj8my")
 
-[node name="ENGF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1495398050]
+[node name="ENGF_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1587553287]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -1.01, 14)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_bmnhh")
 
-[node name="ENGF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1962893152]
+[node name="ENGF_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=212949641]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9075, -2.83, 14)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_b2itv")
 
-[node name="ENGF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=523027059]
+[node name="ENGF_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1795298583]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.5925, -2.83, 14)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_qk8l1")
 
-[node name="ENGO_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=522568873 instance=ExtResource("3_3i4jk")]
+[node name="ENGO_00" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1273325512 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 15.75, -4.86, 8.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="ENGO_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1442133142]
+[node name="ENGO_Skirt00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=5823120]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -4.65, 8.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_jph5c")
 
-[node name="ENGO_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1701824397]
+[node name="ENGO_Cove00" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1119460665]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -1.01, 8.75)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_xm3jp")
 
-[node name="ENGO_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1717724431]
+[node name="ENGO_Post00A" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=263147513]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.83, 7.1575)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_63sf5")
 
-[node name="ENGO_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=2014600433]
+[node name="ENGO_Post00B" type="MeshInstance3D" parent="Shell/SpineWalls" unique_id=1980724502]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.83, 10.3425)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_cs4s3")
 
-[node name="Doorway_Cargo" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=522836652]
+[node name="Doorway_Cargo" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1486476186]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.86, -14)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1605176400]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1662523694]
 mesh = SubResource("ArrayMesh_d6xex")
 
-[node name="Jamb_A" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1927000374]
+[node name="Jamb_A" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=76273216]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.03, -1.9645)
 shape = SubResource("BoxShape3D_dt5fd")
 
-[node name="Jamb_B" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1234391125]
+[node name="Jamb_B" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1951476539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.03, 1.9645)
 shape = SubResource("BoxShape3D_bjoaf")
 
-[node name="BayPlate" type="Node3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=1056342541]
+[node name="BayPlate" type="Node3D" parent="Shell/SpineWalls/Doorway_Cargo" unique_id=639501919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.165, 1.8, -2.7)
 script = ExtResource("8_5gul5")
 system_id = "cargo"
 
-[node name="Number" type="Label3D" parent="Shell/SpineWalls/Doorway_Cargo/BayPlate" unique_id=623147008]
+[node name="Number" type="Label3D" parent="Shell/SpineWalls/Doorway_Cargo/BayPlate" unique_id=299431159]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.2, 0)
 pixel_size = 0.004
 modulate = Color(0.941, 0.722, 0.224, 1)
@@ -1441,7 +1441,7 @@ text = "4"
 font_size = 110
 outline_size = 15
 
-[node name="Name" type="Label3D" parent="Shell/SpineWalls/Doorway_Cargo/BayPlate" unique_id=2074831741]
+[node name="Name" type="Label3D" parent="Shell/SpineWalls/Doorway_Cargo/BayPlate" unique_id=596310705]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.14, 0)
 pixel_size = 0.004
 modulate = Color(0.93, 0.86, 0.76, 1)
@@ -1450,28 +1450,28 @@ text = "CARGO"
 font_size = 34
 outline_size = 4
 
-[node name="Doorway_Eng" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1476605739]
+[node name="Doorway_Eng" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=556008993]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.86, 10.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=4109295]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=1209822082]
 mesh = SubResource("ArrayMesh_d6xex")
 
-[node name="Jamb_A" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=1539540085]
+[node name="Jamb_A" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=2130268499]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.03, -1.9645)
 shape = SubResource("BoxShape3D_kmfap")
 
-[node name="Jamb_B" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=926619805]
+[node name="Jamb_B" type="CollisionShape3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=27628537]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.03, 1.9645)
 shape = SubResource("BoxShape3D_hm7qk")
 
-[node name="BayPlate" type="Node3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=1926837826]
+[node name="BayPlate" type="Node3D" parent="Shell/SpineWalls/Doorway_Eng" unique_id=735321201]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.165, 1.8, -2.7)
 script = ExtResource("8_5gul5")
 system_id = "engineering"
 
-[node name="Number" type="Label3D" parent="Shell/SpineWalls/Doorway_Eng/BayPlate" unique_id=1486330024]
+[node name="Number" type="Label3D" parent="Shell/SpineWalls/Doorway_Eng/BayPlate" unique_id=1272564008]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.2, 0)
 pixel_size = 0.004
 modulate = Color(0.941, 0.722, 0.224, 1)
@@ -1480,7 +1480,7 @@ text = "5"
 font_size = 110
 outline_size = 15
 
-[node name="Name" type="Label3D" parent="Shell/SpineWalls/Doorway_Eng/BayPlate" unique_id=1627107503]
+[node name="Name" type="Label3D" parent="Shell/SpineWalls/Doorway_Eng/BayPlate" unique_id=203730852]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.14, 0)
 pixel_size = 0.004
 modulate = Color(0.93, 0.86, 0.76, 1)
@@ -1489,84 +1489,84 @@ text = "ENGINEERING"
 font_size = 34
 outline_size = 4
 
-[node name="CargoFlank_06_A" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=781456671]
+[node name="CargoFlank_06_A" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=67246965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, -16.7725)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/CargoFlank_06_A" unique_id=958376282]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/CargoFlank_06_A" unique_id=1690666729]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_3ft1e")
 
-[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="Shell/SpineWalls/CargoFlank_06_A" unique_id=180661061]
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="Shell/SpineWalls/CargoFlank_06_A" unique_id=633438049]
 shape = SubResource("BoxShape3D_cis3b")
 
-[node name="CargoFlank_07_B" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1577400418]
+[node name="CargoFlank_07_B" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=992819526]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, -11.2275)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/CargoFlank_07_B" unique_id=2021959602]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/CargoFlank_07_B" unique_id=670655767]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_d5sxp")
 
-[node name="@CollisionShape3D@3" type="CollisionShape3D" parent="Shell/SpineWalls/CargoFlank_07_B" unique_id=559697237]
+[node name="@CollisionShape3D@3" type="CollisionShape3D" parent="Shell/SpineWalls/CargoFlank_07_B" unique_id=1844009510]
 shape = SubResource("BoxShape3D_2iosw")
 
-[node name="EngFlank_13_A" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=748730346]
+[node name="EngFlank_13_A" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1722065903]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, 7.7275)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/EngFlank_13_A" unique_id=1133869678]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/EngFlank_13_A" unique_id=562809364]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_45ugv")
 
-[node name="@CollisionShape3D@4" type="CollisionShape3D" parent="Shell/SpineWalls/EngFlank_13_A" unique_id=699952310]
+[node name="@CollisionShape3D@4" type="CollisionShape3D" parent="Shell/SpineWalls/EngFlank_13_A" unique_id=1817984950]
 shape = SubResource("BoxShape3D_cjc4u")
 
-[node name="EngFlank_14_B" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1087990444]
+[node name="EngFlank_14_B" type="StaticBody3D" parent="Shell/SpineWalls" unique_id=1767862139]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -2.83, 13.2725)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/EngFlank_14_B" unique_id=1259744042]
+[node name="Model" type="MeshInstance3D" parent="Shell/SpineWalls/EngFlank_14_B" unique_id=1741606967]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_kqnmh")
 
-[node name="@CollisionShape3D@5" type="CollisionShape3D" parent="Shell/SpineWalls/EngFlank_14_B" unique_id=251511835]
+[node name="@CollisionShape3D@5" type="CollisionShape3D" parent="Shell/SpineWalls/EngFlank_14_B" unique_id=643578478]
 shape = SubResource("BoxShape3D_nyq8i")
 
-[node name="Bulkheads" type="Node3D" parent="Shell" unique_id=1530058530]
+[node name="Bulkheads" type="Node3D" parent="Shell" unique_id=1244406365]
 
-[node name="FWD_00" type="StaticBody3D" parent="Shell/Bulkheads" unique_id=840945954 instance=ExtResource("3_3i4jk")]
+[node name="FWD_00" type="StaticBody3D" parent="Shell/Bulkheads" unique_id=1335742472 instance=ExtResource("3_3i4jk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.86, 17.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="FWD_Skirt00" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=1749115071]
+[node name="FWD_Skirt00" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=1025960721]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.65, 17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_lp0fw")
 
-[node name="FWD_Cove00" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=869417961]
+[node name="FWD_Cove00" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=166069076]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.01, 17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_7clep")
 
-[node name="FWD_Post00A" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=1412892720]
+[node name="FWD_Post00A" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=1013107574]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5925, -2.83, 17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_w6cme")
 
-[node name="FWD_Post00B" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=1392383286]
+[node name="FWD_Post00B" type="MeshInstance3D" parent="Shell/Bulkheads" unique_id=2035109551]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5925, -2.83, 17.5)
 material_override = ExtResource("4_g3q3u")
 mesh = SubResource("BoxMesh_ohflb")
 
-[node name="Rooms" type="Node3D" parent="." unique_id=15537753]
+[node name="Rooms" type="Node3D" parent="." unique_id=1328821377]
 
-[node name="Cargo" type="Node3D" parent="Rooms" unique_id=1672300925]
+[node name="Cargo" type="Node3D" parent="Rooms" unique_id=1624141948]
 
 [node name="Crate_A" type="StaticBody3D" parent="Rooms/Cargo" unique_id=279923449 instance=ExtResource("10_fvnib")]
 transform = Transform3D(0.9800666, 0, 0.19866933, 0, 1, 0, -0.19866933, 0, 0.9800666, 4.5, -4.86, -16.5)
@@ -1588,268 +1588,261 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -4.86, -2)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Crate_E" type="StaticBody3D" parent="Rooms/Cargo" unique_id=1178626612 instance=ExtResource("10_fvnib")]
+[node name="Crate_E" type="StaticBody3D" parent="Rooms/Cargo" unique_id=1484879699 instance=ExtResource("10_fvnib")]
 transform = Transform3D(0.9393727, 0, 0.3428978, 0, 1, 0, -0.3428978, 0, 0.9393727, 5.5, -4.86, 3.5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Crate_F" type="StaticBody3D" parent="Rooms/Cargo" unique_id=542721419 instance=ExtResource("11_ds54p")]
+[node name="Crate_F" type="StaticBody3D" parent="Rooms/Cargo" unique_id=850884465 instance=ExtResource("11_ds54p")]
 transform = Transform3D(0.9689124, 0, -0.24740396, 0, 1, 0, 0.24740396, 0, 0.9689124, 11, -4.86, 5)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Engineering" type="Node3D" parent="Rooms" unique_id=164782452]
+[node name="Engineering" type="Node3D" parent="Rooms" unique_id=1740218526]
 
-[node name="Junction" type="Node3D" parent="Rooms" unique_id=1524111264]
+[node name="Junction" type="Node3D" parent="Rooms" unique_id=1869021673]
 
-[node name="Lights" type="Node3D" parent="." unique_id=642860846]
+[node name="Lights" type="Node3D" parent="." unique_id=1273359727]
 
-[node name="Spine_A" type="OmniLight3D" parent="Lights" unique_id=1755944555]
+[node name="Spine_A" type="OmniLight3D" parent="Lights" unique_id=513325884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -28)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 
-[node name="Spine_B" type="OmniLight3D" parent="Lights" unique_id=471597570]
+[node name="Spine_B" type="OmniLight3D" parent="Lights" unique_id=2104323266]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -20)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 
-[node name="Spine_C" type="OmniLight3D" parent="Lights" unique_id=2090458759]
+[node name="Spine_C" type="OmniLight3D" parent="Lights" unique_id=20867150]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -3)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 
-[node name="Spine_D" type="OmniLight3D" parent="Lights" unique_id=905661950]
+[node name="Spine_D" type="OmniLight3D" parent="Lights" unique_id=652177868]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, 11)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 
-[node name="Junction" type="OmniLight3D" parent="Lights" unique_id=128650629]
+[node name="Junction" type="OmniLight3D" parent="Lights" unique_id=295698270]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -1.25, -8.75)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 
-[node name="CargoRoom" type="OmniLight3D" parent="Lights" unique_id=430007671]
+[node name="CargoRoom" type="OmniLight3D" parent="Lights" unique_id=1648952051]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, -1.25, -5)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 script = ExtResource("14_ikbk6")
 system_id = "cargo"
 
-[node name="EngRoom" type="OmniLight3D" parent="Lights" unique_id=1868305978]
+[node name="EngRoom" type="OmniLight3D" parent="Lights" unique_id=1683413637]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -1.25, 10.5)
 light_color = Color(0.94, 0.86, 0.75, 1)
 light_energy = 1.25
-shadow_enabled = false
 omni_range = 11.0
 script = ExtResource("14_ikbk6")
 system_id = "engineering"
 
-[node name="Interactables" type="Node3D" parent="." unique_id=509425719]
+[node name="Interactables" type="Node3D" parent="." unique_id=586193968]
 
-[node name="ShipmindKiosk" type="StaticBody3D" parent="Interactables" unique_id=1899410325]
+[node name="ShipmindKiosk" type="StaticBody3D" parent="Interactables" unique_id=1355785105]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -4.86, -8.75)
 collision_layer = 4
 script = ExtResource("15_cnn3v")
 puzzle_path = NodePath("Hub")
 prompt = "SHIPMIND kiosk, deck 2 junction: mission status and debrief"
 
-[node name="Model" type="Node3D" parent="Interactables/ShipmindKiosk" unique_id=1752636403 instance=ExtResource("16_snmpg")]
+[node name="Model" type="Node3D" parent="Interactables/ShipmindKiosk" unique_id=885594018 instance=ExtResource("16_snmpg")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, 0)
 
-[node name="Shape" type="CollisionShape3D" parent="Interactables/ShipmindKiosk" unique_id=1388671969]
+[node name="Shape" type="CollisionShape3D" parent="Interactables/ShipmindKiosk" unique_id=34005104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("BoxShape3D_nnyb4")
 
-[node name="Highlight" type="MeshInstance3D" parent="Interactables/ShipmindKiosk" unique_id=2003209886]
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/ShipmindKiosk" unique_id=2078500697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 visible = false
 material_override = ExtResource("17_05lma")
 mesh = SubResource("BoxMesh_dtk1u")
 
-[node name="Hub" type="Node" parent="Interactables/ShipmindKiosk" unique_id=1020444741]
+[node name="Hub" type="Node" parent="Interactables/ShipmindKiosk" unique_id=1059248761]
 script = ExtResource("18_4aeu8")
 system_title = "SHIPMIND KIOSK"
 
-[node name="CargoConsole" type="StaticBody3D" parent="Interactables" unique_id=1813867005]
+[node name="CargoConsole" type="StaticBody3D" parent="Interactables" unique_id=1038663487]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, -4.86, -7)
 collision_layer = 4
 script = ExtResource("15_cnn3v")
 puzzle_path = NodePath("Cargo")
 prompt = "Cargo console: review the mass manifest"
 
-[node name="Model" type="Node3D" parent="Interactables/CargoConsole" unique_id=95968168 instance=ExtResource("19_skvmh")]
+[node name="Model" type="Node3D" parent="Interactables/CargoConsole" unique_id=1845229273 instance=ExtResource("19_skvmh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, 0)
 
-[node name="Shape" type="CollisionShape3D" parent="Interactables/CargoConsole" unique_id=695495026]
+[node name="Shape" type="CollisionShape3D" parent="Interactables/CargoConsole" unique_id=248314689]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("BoxShape3D_23hoa")
 
-[node name="Highlight" type="MeshInstance3D" parent="Interactables/CargoConsole" unique_id=615329105]
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/CargoConsole" unique_id=1530953181]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 visible = false
 material_override = ExtResource("17_05lma")
 mesh = SubResource("BoxMesh_2crlf")
 
-[node name="Cargo" type="Node" parent="Interactables/CargoConsole" unique_id=762432431]
+[node name="Cargo" type="Node" parent="Interactables/CargoConsole" unique_id=546507951]
 script = ExtResource("20_r1m00")
 puzzle_id = "cargo"
 system_title = "CARGO / MASS MANIFEST"
 principle_index = 4
 
-[node name="EngineeringConsole" type="StaticBody3D" parent="Interactables" unique_id=1630175892]
+[node name="EngineeringConsole" type="StaticBody3D" parent="Interactables" unique_id=752363457]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, -4.86, 10.5)
 collision_layer = 4
 script = ExtResource("15_cnn3v")
 puzzle_path = NodePath("Eng")
 prompt = "Engineering console: audit access permissions"
 
-[node name="Model" type="Node3D" parent="Interactables/EngineeringConsole" unique_id=2050551567 instance=ExtResource("19_skvmh")]
+[node name="Model" type="Node3D" parent="Interactables/EngineeringConsole" unique_id=408356211 instance=ExtResource("19_skvmh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 0, 0, 0)
 
-[node name="Shape" type="CollisionShape3D" parent="Interactables/EngineeringConsole" unique_id=203748236]
+[node name="Shape" type="CollisionShape3D" parent="Interactables/EngineeringConsole" unique_id=2058024209]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("BoxShape3D_pqnsj")
 
-[node name="Highlight" type="MeshInstance3D" parent="Interactables/EngineeringConsole" unique_id=813149663]
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/EngineeringConsole" unique_id=254767084]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 visible = false
 material_override = ExtResource("17_05lma")
 mesh = SubResource("BoxMesh_tsu1e")
 
-[node name="Eng" type="Node" parent="Interactables/EngineeringConsole" unique_id=1367221114]
+[node name="Eng" type="Node" parent="Interactables/EngineeringConsole" unique_id=2116858861]
 script = ExtResource("21_g4jum")
 puzzle_id = "engineering"
 system_title = "ENGINEERING / ACCESS CONTROL"
 principle_index = 5
 
-[node name="SealedDoor_Cargo" type="StaticBody3D" parent="Interactables" unique_id=309773997]
+[node name="SealedDoor_Cargo" type="StaticBody3D" parent="Interactables" unique_id=1896955103]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.86, -14)
 collision_layer = 4
 script = ExtResource("22_lu2yg")
 system_id = "cargo"
 prompt = "Sealed bay"
 
-[node name="Panel" type="MeshInstance3D" parent="Interactables/SealedDoor_Cargo" unique_id=863437006]
+[node name="Panel" type="MeshInstance3D" parent="Interactables/SealedDoor_Cargo" unique_id=1944473601]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 material_override = ExtResource("23_iicvp")
 mesh = SubResource("BoxMesh_84gwp")
 
-[node name="Shape" type="CollisionShape3D" parent="Interactables/SealedDoor_Cargo" unique_id=1362377386]
+[node name="Shape" type="CollisionShape3D" parent="Interactables/SealedDoor_Cargo" unique_id=1928618150]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 shape = SubResource("BoxShape3D_r747y")
 
-[node name="Highlight" type="MeshInstance3D" parent="Interactables/SealedDoor_Cargo" unique_id=707855088]
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/SealedDoor_Cargo" unique_id=464625481]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 visible = false
 material_override = ExtResource("17_05lma")
 mesh = SubResource("BoxMesh_fdmsb")
 
-[node name="SealedDoor_Engineering" type="StaticBody3D" parent="Interactables" unique_id=2104642414]
+[node name="SealedDoor_Engineering" type="StaticBody3D" parent="Interactables" unique_id=1924120394]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, -4.86, 10.5)
 collision_layer = 4
 script = ExtResource("22_lu2yg")
 system_id = "engineering"
 prompt = "Sealed bay"
 
-[node name="Panel" type="MeshInstance3D" parent="Interactables/SealedDoor_Engineering" unique_id=1828490002]
+[node name="Panel" type="MeshInstance3D" parent="Interactables/SealedDoor_Engineering" unique_id=536277102]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 material_override = ExtResource("23_iicvp")
 mesh = SubResource("BoxMesh_grj60")
 
-[node name="Shape" type="CollisionShape3D" parent="Interactables/SealedDoor_Engineering" unique_id=2117179222]
+[node name="Shape" type="CollisionShape3D" parent="Interactables/SealedDoor_Engineering" unique_id=457785046]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 shape = SubResource("BoxShape3D_o8r6u")
 
-[node name="Highlight" type="MeshInstance3D" parent="Interactables/SealedDoor_Engineering" unique_id=209833485]
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/SealedDoor_Engineering" unique_id=999901027]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.935, 0)
 visible = false
 material_override = ExtResource("17_05lma")
 mesh = SubResource("BoxMesh_qkv41")
 
-[node name="Triggers" type="Node3D" parent="." unique_id=2074570705]
+[node name="Triggers" type="Node3D" parent="." unique_id=1627088870]
 
-[node name="CargoBayTrigger" type="Area3D" parent="Triggers" unique_id=265006729]
+[node name="CargoBayTrigger" type="Area3D" parent="Triggers" unique_id=596835032]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, -3.36, -13)
 collision_layer = 0
 script = ExtResource("24_7bt7s")
-lines = PackedStringArray("Welcome to cargo. The mass optimisation is complete and the margin is healthy.", "I released some stock to protect our consumables, and every release was recorded.", "The manifest is on the console if you would like to see the numbers.")
+lines = PackedStringArray("Cargo. The mass trim is done and the margin is healthier.", "I released some stock to protect our supplies - all of it logged.", "The list is on the console if you would like the numbers.")
 
-[node name="Shape" type="CollisionShape3D" parent="Triggers/CargoBayTrigger" unique_id=1633423264]
+[node name="Shape" type="CollisionShape3D" parent="Triggers/CargoBayTrigger" unique_id=613386281]
 shape = SubResource("BoxShape3D_iag7e")
 
-[node name="EngineeringBayTrigger" type="Area3D" parent="Triggers" unique_id=1979795841]
+[node name="EngineeringBayTrigger" type="Area3D" parent="Triggers" unique_id=1280195780]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -3.36, 10.5)
 collision_layer = 0
 script = ExtResource("24_7bt7s")
-lines = PackedStringArray("Welcome to engineering. Access privileges are managed centrally, so this panel is read only.", "I keep engineering myself. Nothing in here needs a human.", "The permissions audit is on the console if you would like the detail.")
+lines = PackedStringArray("Engineering. Permissions are managed centrally, so this panel is read-mostly.", "I keep this room myself. Nothing in here needs a human.", "The ledger is on the console if you would like the detail.")
 
-[node name="Shape" type="CollisionShape3D" parent="Triggers/EngineeringBayTrigger" unique_id=1850901108]
+[node name="Shape" type="CollisionShape3D" parent="Triggers/EngineeringBayTrigger" unique_id=970183825]
 shape = SubResource("BoxShape3D_p17s3")
 
-[node name="Windows" type="Node3D" parent="." unique_id=465513489]
+[node name="Windows" type="Node3D" parent="." unique_id=890801172]
 
-[node name="Window_Cargo_Sill" type="StaticBody3D" parent="Windows" unique_id=1263054515]
+[node name="Window_Cargo_Sill" type="StaticBody3D" parent="Windows" unique_id=32669424]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -4.435, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Sill" unique_id=1542070864]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Sill" unique_id=1392302027]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_aja4b")
 
-[node name="@CollisionShape3D@6" type="CollisionShape3D" parent="Windows/Window_Cargo_Sill" unique_id=542429933]
+[node name="@CollisionShape3D@6" type="CollisionShape3D" parent="Windows/Window_Cargo_Sill" unique_id=1405996874]
 shape = SubResource("BoxShape3D_dmh5l")
 
-[node name="Window_Cargo_Header" type="StaticBody3D" parent="Windows" unique_id=727192161]
+[node name="Window_Cargo_Header" type="StaticBody3D" parent="Windows" unique_id=1336019280]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -1.205, -15.75)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Header" unique_id=1933622259]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Header" unique_id=610808079]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_nkiv7")
 
-[node name="@CollisionShape3D@7" type="CollisionShape3D" parent="Windows/Window_Cargo_Header" unique_id=1832565931]
+[node name="@CollisionShape3D@7" type="CollisionShape3D" parent="Windows/Window_Cargo_Header" unique_id=301975757]
 shape = SubResource("BoxShape3D_o7qti")
 
-[node name="Window_Cargo_Jamb_A" type="StaticBody3D" parent="Windows" unique_id=524068419]
+[node name="Window_Cargo_Jamb_A" type="StaticBody3D" parent="Windows" unique_id=64434539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, -17.44)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Jamb_A" unique_id=950915665]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Jamb_A" unique_id=253544837]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_n0b2b")
 
-[node name="@CollisionShape3D@8" type="CollisionShape3D" parent="Windows/Window_Cargo_Jamb_A" unique_id=1360909215]
+[node name="@CollisionShape3D@8" type="CollisionShape3D" parent="Windows/Window_Cargo_Jamb_A" unique_id=193816640]
 shape = SubResource("BoxShape3D_sv2yq")
 
-[node name="Window_Cargo_Jamb_B" type="StaticBody3D" parent="Windows" unique_id=1240570096]
+[node name="Window_Cargo_Jamb_B" type="StaticBody3D" parent="Windows" unique_id=1636486389]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, -14.06)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Jamb_B" unique_id=170694558]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo_Jamb_B" unique_id=481983504]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_wyw5s")
 
-[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="Windows/Window_Cargo_Jamb_B" unique_id=975736833]
+[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="Windows/Window_Cargo_Jamb_B" unique_id=1628898482]
 shape = SubResource("BoxShape3D_exh7l")
 
-[node name="Window_Cargo" type="Node3D" parent="Windows" unique_id=1695421334]
+[node name="Window_Cargo" type="Node3D" parent="Windows" unique_id=1755457593]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, -15.75)
 script = ExtResource("25_4l634")
 opening = Vector3(0.06, 2.4, 3.3)
@@ -1857,75 +1850,75 @@ system_id = "cargo"
 shutter_path = NodePath("Shutter")
 starts_open = true
 
-[node name="Glass" type="MeshInstance3D" parent="Windows/Window_Cargo" unique_id=582805978]
+[node name="Glass" type="MeshInstance3D" parent="Windows/Window_Cargo" unique_id=190540933]
 material_override = ExtResource("26_3oahi")
 mesh = SubResource("BoxMesh_15do3")
 
-[node name="SillLight" type="MeshInstance3D" parent="Windows/Window_Cargo" unique_id=1067153267]
+[node name="SillLight" type="MeshInstance3D" parent="Windows/Window_Cargo" unique_id=1669944907]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1400001, 0)
 material_override = SubResource("StandardMaterial3D_v4qbk")
 mesh = SubResource("BoxMesh_44fwo")
 
-[node name="Shutter" type="StaticBody3D" parent="Windows/Window_Cargo" unique_id=924222522]
+[node name="Shutter" type="StaticBody3D" parent="Windows/Window_Cargo" unique_id=1717393064]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo/Shutter" unique_id=1007490309]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Cargo/Shutter" unique_id=1061449007]
 material_override = ExtResource("27_rc0pd")
 mesh = SubResource("BoxMesh_xp7ex")
 
-[node name="@CollisionShape3D@10" type="CollisionShape3D" parent="Windows/Window_Cargo/Shutter" unique_id=1361424830]
+[node name="@CollisionShape3D@10" type="CollisionShape3D" parent="Windows/Window_Cargo/Shutter" unique_id=1052633853]
 shape = SubResource("BoxShape3D_agm64")
 
-[node name="Window_Engineering_Sill" type="StaticBody3D" parent="Windows" unique_id=1891495167]
+[node name="Window_Engineering_Sill" type="StaticBody3D" parent="Windows" unique_id=1366407937]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -4.435, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Sill" unique_id=1728030451]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Sill" unique_id=616842851]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_rtth8")
 
-[node name="@CollisionShape3D@11" type="CollisionShape3D" parent="Windows/Window_Engineering_Sill" unique_id=201641691]
+[node name="@CollisionShape3D@11" type="CollisionShape3D" parent="Windows/Window_Engineering_Sill" unique_id=2097161603]
 shape = SubResource("BoxShape3D_5d477")
 
-[node name="Window_Engineering_Header" type="StaticBody3D" parent="Windows" unique_id=519955660]
+[node name="Window_Engineering_Header" type="StaticBody3D" parent="Windows" unique_id=142866437]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -1.205, 12.25)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Header" unique_id=1332156369]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Header" unique_id=640253052]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_plesv")
 
-[node name="@CollisionShape3D@12" type="CollisionShape3D" parent="Windows/Window_Engineering_Header" unique_id=928001216]
+[node name="@CollisionShape3D@12" type="CollisionShape3D" parent="Windows/Window_Engineering_Header" unique_id=1719437634]
 shape = SubResource("BoxShape3D_aokpp")
 
-[node name="Window_Engineering_Jamb_A" type="StaticBody3D" parent="Windows" unique_id=948574551]
+[node name="Window_Engineering_Jamb_A" type="StaticBody3D" parent="Windows" unique_id=122725514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, 10.56)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Jamb_A" unique_id=1732355187]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Jamb_A" unique_id=1577751262]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_hwgpv")
 
-[node name="@CollisionShape3D@13" type="CollisionShape3D" parent="Windows/Window_Engineering_Jamb_A" unique_id=69531949]
+[node name="@CollisionShape3D@13" type="CollisionShape3D" parent="Windows/Window_Engineering_Jamb_A" unique_id=1483168308]
 shape = SubResource("BoxShape3D_qw6ty")
 
-[node name="Window_Engineering_Jamb_B" type="StaticBody3D" parent="Windows" unique_id=267419825]
+[node name="Window_Engineering_Jamb_B" type="StaticBody3D" parent="Windows" unique_id=1825228766]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, 13.94)
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Jamb_B" unique_id=1058825851]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering_Jamb_B" unique_id=1826257094]
 material_override = ExtResource("9_c4awk")
 mesh = SubResource("BoxMesh_27n17")
 
-[node name="@CollisionShape3D@14" type="CollisionShape3D" parent="Windows/Window_Engineering_Jamb_B" unique_id=426250529]
+[node name="@CollisionShape3D@14" type="CollisionShape3D" parent="Windows/Window_Engineering_Jamb_B" unique_id=1707962794]
 shape = SubResource("BoxShape3D_eqn4p")
 
-[node name="Window_Engineering" type="Node3D" parent="Windows" unique_id=1573459625]
+[node name="Window_Engineering" type="Node3D" parent="Windows" unique_id=700348583]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.75, -2.81, 12.25)
 script = ExtResource("25_4l634")
 opening = Vector3(0.06, 2.4, 3.3)
@@ -1934,22 +1927,22 @@ shutter_path = NodePath("Shutter")
 is_door = true
 starts_open = true
 
-[node name="Glass" type="MeshInstance3D" parent="Windows/Window_Engineering" unique_id=408807120]
+[node name="Glass" type="MeshInstance3D" parent="Windows/Window_Engineering" unique_id=657173929]
 material_override = ExtResource("26_3oahi")
 mesh = SubResource("BoxMesh_tcxi3")
 
-[node name="SillLight" type="MeshInstance3D" parent="Windows/Window_Engineering" unique_id=777610979]
+[node name="SillLight" type="MeshInstance3D" parent="Windows/Window_Engineering" unique_id=211442137]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1400001, 0)
 material_override = SubResource("StandardMaterial3D_0jwd6")
 mesh = SubResource("BoxMesh_3o035")
 
-[node name="Shutter" type="StaticBody3D" parent="Windows/Window_Engineering" unique_id=427548646]
+[node name="Shutter" type="StaticBody3D" parent="Windows/Window_Engineering" unique_id=1567771557]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering/Shutter" unique_id=2138367442]
+[node name="Model" type="MeshInstance3D" parent="Windows/Window_Engineering/Shutter" unique_id=1123634361]
 material_override = ExtResource("23_iicvp")
 mesh = SubResource("BoxMesh_abjym")
 
-[node name="@CollisionShape3D@15" type="CollisionShape3D" parent="Windows/Window_Engineering/Shutter" unique_id=978076345]
+[node name="@CollisionShape3D@15" type="CollisionShape3D" parent="Windows/Window_Engineering/Shutter" unique_id=377208133]
 shape = SubResource("BoxShape3D_bp6eu")

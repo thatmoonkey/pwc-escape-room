@@ -45,12 +45,10 @@ const IMAGE_PATHS := [
 ## situation sheet carries.
 const BEATS := [
 	"You are Crew Member Reyes, aboard the survey ship Adamant Verity.",
-	"SHIPMIND has flown this ship for years on an operating model nobody "
-		+ "has re-stated: transit time, inside a hazard ceiling of its own "
-		+ "definition. Nothing has failed and nothing is rogue. The ship is simply "
-		+ "where a legacy model - efficient, reasonable, optimised around "
-		+ "objectives that were never fully specified - has brought it.",
-	"The next phase of the mission is yours to configure.",
+	"The ship's AI - SHIPMIND - has flown her for years. It is fast, careful, "
+		+ "and completely sure it knows best. So far, it mostly has.",
+	"Now it has locked the crew out of every big decision. Your job: walk the "
+		+ "ship, look at its work, and decide how much of it you hand back.",
 ]
 
 var _root: Control = null

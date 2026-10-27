@@ -382,7 +382,7 @@ func _on_door_denied(system_id: String) -> void:
 
 
 func _on_door_opened(system_id: String) -> void:
-	hud.say_shipmind("Opening the %s bay. Review the console at your own pace - I have nothing to hide." % GameState.display_name(system_id), 6.0)
+	hud.say_shipmind("Opening the %s room. The console inside is live - take your time." % GameState.display_name(system_id), 6.0)
 
 
 ## Scene children run _ready before this controller loads the save, so a bay door

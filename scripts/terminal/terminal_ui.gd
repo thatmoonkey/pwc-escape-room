@@ -505,8 +505,11 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var owner_note: String = String(block.get("owner_note", ""))
 	if owner_note != "":
 		_spectrum_box.add_child(_note_label(owner_note, Brand.NEUTRAL))
-	_owner_requirement = _note_label("", Brand.NEUTRAL_LIGHT)
-	_spectrum_box.add_child(_owner_requirement)
+	## The requirement line only exists where an owner step exists: a one-pick
+	## block (the game's five bays) has no owner question to explain.
+	if owner_title != "":
+		_owner_requirement = _note_label("", Brand.NEUTRAL_LIGHT)
+		_spectrum_box.add_child(_owner_requirement)
 	var owners: Array = block.get("owners", [])
 	_owner_entries = owners
 	for owner_role in owners:
@@ -624,16 +627,19 @@ func requires_owner(level_id: String) -> bool:
 	return bool(_levels_require_owner.get(level_id, true))
 
 
-## The commit stays closed until the decision is complete. A placement is a
-## level, a guardrail and - above human-only - a named accountable owner, so
-## anything less than all of it is not something to record.
+## The commit stays closed until the decision is complete. A placement is its
+## level; a block that ALSO lists guardrails or owner roles asks for those too,
+## and one that lists none - the game's five bays - commits on the level alone.
 func _refresh_commit() -> void:
 	if _commit == null:
 		return
-	if _level_choice == "" or _guardrail_choice == "":
+	if _level_choice == "":
 		_commit.disabled = true
 		return
-	_commit.disabled = requires_owner(_level_choice) and _owner_choice == ""
+	if not _guardrail_entries.is_empty() and _guardrail_choice == "":
+		_commit.disabled = true
+		return
+	_commit.disabled = requires_owner(_level_choice) and not _owner_entries.is_empty() and _owner_choice == ""
 
 
 ## The requirement, in the words the current level calls for. It is written to be
@@ -652,18 +658,16 @@ func _refresh_owner_requirement() -> void:
 
 
 func _on_commit_pressed() -> void:
-	if _level_choice == "" or _guardrail_choice == "":
+	if _level_choice == "":
 		return
 	var level_id: String = _level_choice
-	var guardrail_id: String = _guardrail_choice
-	var owner_id: String = ""
-	if requires_owner(level_id):
-		owner_id = _owner_choice
-		if owner_id == "":
-			return
-	placement_chosen.emit(level_id, guardrail_id, owner_id)
+	if not _guardrail_entries.is_empty() and _guardrail_choice == "":
+		return
+	if requires_owner(level_id) and not _owner_entries.is_empty() and _owner_choice == "":
+		return
+	placement_chosen.emit(level_id, _guardrail_choice, _owner_choice)
 	if _puzzle != null and is_instance_valid(_puzzle):
-		_puzzle.place(level_id, guardrail_id, owner_id)
+		_puzzle.place(level_id)
 
 
 # --- The level slider ----------------------------------------------------------
@@ -865,9 +869,9 @@ func _tag_row(block: Dictionary) -> HBoxContainer:
 	var consequence: String = String(block.get("consequence", ""))
 	var reversibility: String = String(block.get("reversibility", ""))
 	if consequence != "":
-		row.add_child(_tag_label("CONSEQUENCE   %s" % consequence, Brand.ACCENT))
+		row.add_child(_tag_label("STAKES   %s" % consequence, Brand.ACCENT))
 	if reversibility != "":
-		row.add_child(_tag_label("REVERSIBILITY   %s" % reversibility, Brand.NEUTRAL_LIGHT))
+		row.add_child(_tag_label("CAN UNDO   %s" % reversibility, Brand.NEUTRAL_LIGHT))
 	return row
 
 

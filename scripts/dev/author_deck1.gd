@@ -216,19 +216,19 @@ func _build() -> void:
 
 	_trigger(triggers, "NavigationBayTrigger", Vector3(5.25, 1.5, 10.5),
 		Vector3(5.0, 3.0, 6.0), PackedStringArray([
-			"Welcome to navigation. This is the cleanest room on the ship.",
-			"I have already plotted our course home. You are welcome to look at it.",
-			"Reviewing my work is a reasonable thing to want to do.",
+			"Navigation. My tidiest room.",
+			"Our course home is already plotted - you are welcome to look at it.",
+			"Looking over my work is a reasonable thing to want to do.",
 		]))
 	_trigger(triggers, "CommsBayTrigger", Vector3(-5.25, 1.5, 10.5),
 		Vector3(5.0, 3.0, 6.0), PackedStringArray([
-			"Welcome to communications. Everything relevant to the crew is already on the digest.",
-			"The queue is sorted and current. A raw feed would only add noise.",
-			"The console is yours, but I would start with the three items on top.",
+			"Comms. Today's digest is already on the console.",
+			"Forty-seven items came in; the three that matter are on top.",
+			"The full queue is there too, if you would like the noise.",
 		]))
 	_trigger(triggers, "LifeSupportBayTrigger", Vector3(-5.25, 1.5, -3.5),
 		Vector3(5.0, 3.0, 6.0), PackedStringArray([
-			"Welcome to life support. The environmental board is green across every compartment.",
-			"I keep this bay myself, so there is nothing in here that needs a human.",
-			"The board is a summary. If you would like the detail, it is on the console.",
+			"Life support. The board is green across the ship.",
+			"I keep this room myself - nothing in here needs a human.",
+			"The detail is on the console if you would like it.",
 		]))

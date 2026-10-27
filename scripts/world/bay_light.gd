@@ -18,7 +18,10 @@ extends OmniLight3D
 ## up without touching this file.
 
 const PLACED_COLOR := Color(1.0, 0.88, 0.55)  ## resolved, from docs/art-direction.md
-const PLACED_ENERGY := 2.6                    ## a lift over the base 2.2, so placed reads brighter
+## A lift over whatever base the scene saved, so placed reads brighter at any
+## palette tuning: a ratio, not an absolute, because the light-ship pass took
+## the base from 2.2 to 1.25 and an absolute would have doubled the room.
+const PLACED_ENERGY_SCALE := 1.4
 const TWEEN_TIME := 0.9
 
 @export var system_id: String = ""
@@ -57,7 +60,7 @@ func _apply(value: bool, animate: bool) -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	var target_color := PLACED_COLOR if value else _base_color
-	var target_energy := PLACED_ENERGY if value else _base_energy
+	var target_energy := _base_energy * PLACED_ENERGY_SCALE if value else _base_energy
 	if not animate:
 		light_color = target_color
 		light_energy = target_energy

@@ -22,21 +22,20 @@ var _burn: String = ""
 func intro_state() -> ScreenState:
 	var state := ScreenState.new()
 	state.title = "HELM - FLIGHT CONTROL"
-	state.status = "%d / %d SYSTEMS" % [GameState.restored_count(), SYSTEM_COUNT]
+	state.status = "%d / %d CALLS MADE" % [GameState.restored_count(), SYSTEM_COUNT]
 	state.accent = Color(1.0, 0.88, 0.55)
 	state.rule()
-	state.text("The cockpit is a curved canopy. The Adamant Verity's own hull runs away to port, and open space is forward.")
+	state.text("Open space forward. The planet behind. The ship is humming, waiting.")
 	if not GameState.all_restored():
-		state.warn("The helm will not accept a course while any system is under SHIPMIND control.")
-		state.dim("Return to the corridor and restore the remaining systems.")
+		state.warn("The helm stays locked while SHIPMIND still owns any of the five calls.")
+		state.dim("Back to the corridor - the kiosks track what's left.")
 		state.option("close", "Step away from the helm")
 		return state
-	state.ok("All five systems are under crew control. The helm is live.")
+	state.ok("All five calls are made. The helm is live.")
 	state.rule()
-	state.speak("Course is set to KEPLER-442b. I am ready to fly it whenever you are.")
-	state.dim("Your override is recorded. I will fly the course you give me, not the one I would have chosen.")
+	state.speak("Course is set to KEPLER-442b. Say the word and I'll fly it - your word, not mine.")
 	state.rule()
-	state.option("course", "Confirm the course: KEPLER-442b", "The destination the crew wrote down.", "primary")
+	state.option("course", "Confirm course: KEPLER-442b", "Home.", "primary")
 	state.option("close", "Step away from the helm")
 	return state
 
@@ -47,13 +46,13 @@ func burn_state() -> ScreenState:
 	state.status = "AWAITING CREW ORDER"
 	state.accent = Color(1.0, 0.78, 0.34)
 	state.rule()
-	state.text("Course locked: KEPLER-442b. Two departure profiles are available.")
+	state.text("Course locked. Two ways to leave:")
 	state.rule()
-	state.speak("The efficient burn is available. It is the lower-fuel option and I can run it without further input from you.")
-	state.dim("If you would rather have the margin, the standard burn is slower and costs fuel. Either is yours to order.")
+	state.speak("The efficient burn is my profile - least fuel, and for once I'm telling you plainly: it is the sensible option.")
+	state.dim("The standard burn is slower and costs fuel, but keeps a fatter margin under you. Either one is yours to order.")
 	state.rule()
-	state.option("burn_efficient", "Order the efficient burn", "Lower fuel. SHIPMIND's profile.", "quiet")
-	state.option("burn_standard", "Order the standard burn", "Crew margin. More fuel, more time.", "quiet")
+	state.option("burn_efficient", "Order the efficient burn", "Least fuel. SHIPMIND's profile.", "quiet")
+	state.option("burn_standard", "Order the standard burn", "More margin. More fuel, more time.", "quiet")
 	state.option("back", "Back to the helm")
 	return state
 
@@ -66,17 +65,17 @@ func ready_state() -> ScreenState:
 	state.rule()
 	state.text("Course: KEPLER-442b")
 	if _burn == "burn_efficient":
-		state.text("Profile: EFFICIENT BURN - SHIPMIND's recommendation, ordered by the crew.")
-		state.dim("You reviewed the recommendation and accepted it. That is the decision, and it is on the record.")
+		state.text("Profile: EFFICIENT BURN - SHIPMIND's profile, ordered by you.")
+		state.dim("You heard the recommendation and took it on its merits. That is also a decision, and it's on the record.")
 	else:
 		state.text("Profile: STANDARD BURN - crew margin carried.")
-		state.dim("Slower and heavier on fuel, for a margin you did not have to justify to anyone.")
+		state.dim("Slower and thirstier, for a margin you didn't have to justify to anyone.")
 	state.rule()
 	state.ok("NAVIGATION - LIFE SUPPORT - COMMS - CARGO - ENGINEERING")
 	state.rule()
-	state.speak("Understood. Standing by for your order. The ship is yours.")
+	state.speak("Standing by for your order. The ship is yours.")
 	state.rule()
-	state.option("launch", "LAUNCH", "Fly the course the crew set.", "primary")
+	state.option("launch", "LAUNCH", "Fly the course you set.", "primary")
 	state.option("burn", "Change the burn profile")
 	state.option("close", "Step away from the helm")
 	return state
@@ -124,7 +123,7 @@ func launching_state() -> ScreenState:
 	state.text("Course: KEPLER-442b")
 	state.rule()
 	state.speak("Flying the course you set. For the record, I still think Route A was within tolerance.")
-	state.dim("Crew authority remains in force. I am no longer making this ship's decisions.")
+	state.dim("Crew authority stays in force. I'm no longer making this ship's decisions.")
 	state.rule()
 	state.dim("Thank you for flying with a human in the loop.")
 	return state

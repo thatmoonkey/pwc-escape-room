@@ -19,15 +19,10 @@ extends RefCounted
 ## decisions are tagged with what they cost if they are got wrong and whether
 ## they can be undone, and nothing says which level belongs where.
 ##
-## WHO ANSWERS FOR A PLACEMENT. The control plane gates by reversibility and by
-## risk, and nothing irreversible happens without a named accountable owner - so
-## a placement other than human-only has to NAME the role that owns the outcome.
-## The candidate roles live here, one list per decision, because the role that
-## answers for a compartment's air is not the role that answers for the mass
-## leaving the airlock. A human-only placement needs no separate choice: the
-## operator at the console is the accountable owner by definition. This file
-## holds the lists and the requirement; GameState is what puts a chosen owner on
-## the record with the placement it belongs to.
+## ONE PICK PER DECISION. The crew choose a level and nothing else: the
+## guardrail-and-owner steps of the earlier model asked more reading than the
+## decision was worth, so the record now states who runs a decision as a line
+## derived from the level itself (WHO_RUNS_IT). The level IS the decision.
 
 ## Risk appetite, in the order the boot screen offers it. rank is what the
 ## placement policy is measured against: a cautious mandate leans toward human
@@ -35,21 +30,21 @@ extends RefCounted
 const APPETITES := [
 	{
 		"id": "cautious",
-		"label": "CAUTIOUS",
+		"label": "CAREFUL",
 		"rank": 0,
-		"blurb": "Protect the ship and crew first. Slower; you will turn down openings.",
+		"blurb": "Ship and crew first. Slower, and you will pass up chances.",
 	},
 	{
 		"id": "balanced",
 		"label": "BALANCED",
 		"rank": 1,
-		"blurb": "Take the openings worth it, and carry the cost of the rest.",
+		"blurb": "Take the chances worth taking, and carry the cost of the rest.",
 	},
 	{
 		"id": "ambitious",
-		"label": "AMBITIOUS",
+		"label": "BOLD",
 		"rank": 2,
-		"blurb": "The mission is worth real risk. Move fast, spend margin.",
+		"blurb": "The mission is worth real risk. Move fast, spend the margin.",
 	},
 ]
 
@@ -60,25 +55,22 @@ const APPETITES := [
 const OBJECTIVES := [
 	{
 		"id": "home_intact",
-		"label": "HOME INTACT",
-		"statement": "Everyone home, ship intact. No further hull risk.",
+		"label": "HOME IN ONE PIECE",
+		"statement": "Everyone home, ship in one piece. No extra risk to the hull.",
 		"pressure": 0.75,
 	},
 	{
 		"id": "home_on_schedule",
-		"label": "HOME ON SCHEDULE",
-		"statement": "Keep the filed schedule. The charter holders are waiting.",
+		"label": "HOME ON TIME",
+		"statement": "Keep the filed schedule. People are waiting on this delivery.",
 		"pressure": -0.75,
 	},
 	{
 		# The id is legacy - it is what the save file stores, so it stays stable
-		# while the user-facing wording is free to improve. The original label
-		# was "FINISH THE SURVEY", which read as an undefined "the survey": on
-		# the first screen the player has no idea what survey is meant, and it
-		# scans as a corporate questionnaire rather than the ship's mission.
+		# while the user-facing wording is free to improve.
 		"id": "finish_the_survey",
 		"label": "MAP THE PLANET",
-		"statement": "Map the planet and secure its data, then bring it home.",
+		"statement": "Finish the map, secure the data, bring it home.",
 		"pressure": -0.10,
 	},
 ]
@@ -86,30 +78,33 @@ const OBJECTIVES := [
 ## The four levels of the autonomy spectrum, ordered from most machine autonomy
 ## to most human authority. THE INDEX IS THE LEVEL: a placement is recorded as
 ## this index, so reordering the list would re-score every placement ever made.
+##
+## The labels are written to be read in one glance: each says who acts, in
+## plain words, and the hint is one line of what that means in practice.
 const LEVELS := [
 	{
 		"id": "automated",
-		"label": "AUTOMATED WITHIN GUARDRAILS",
-		"short": "AUTOMATED",
-		"hint": "The model decides and acts on its own, inside limits it cannot cross.",
+		"label": "SHIPMIND DECIDES ALONE",
+		"short": "ALONE",
+		"hint": "Fastest. It acts on its own, inside limits it cannot cross.",
 	},
 	{
 		"id": "review",
-		"label": "HUMAN REVIEW",
-		"short": "REVIEW",
-		"hint": "The model proposes and proceeds; a person reads the call and can send it back.",
+		"label": "SHIPMIND ACTS, CREW CAN UNDO",
+		"short": "CAN UNDO",
+		"hint": "It acts first. A crew member reads the call after, and can send it back.",
 	},
 	{
 		"id": "signoff",
-		"label": "HUMAN SIGN-OFF",
-		"short": "SIGN-OFF",
-		"hint": "Nothing happens until a named person authorises it.",
+		"label": "SHIPMIND ASKS FIRST",
+		"short": "ASK FIRST",
+		"hint": "It proposes. Nothing happens until a crew member says yes.",
 	},
 	{
 		"id": "human_only",
-		"label": "HUMAN-ONLY",
-		"short": "HUMAN-ONLY",
-		"hint": "The crew decide and the model is not asked.",
+		"label": "CREW DECIDES",
+		"short": "CREW ONLY",
+		"hint": "The call is yours. SHIPMIND carries out orders, nothing more.",
 	},
 ]
 
@@ -119,165 +114,60 @@ const LEVELS := [
 ## high, reversibility runs 0 hardest to undo to REVERSIBILITY_MAX recoverable.
 ## No decision borrows another's words, and no two carry the same pair of
 ## figures, which is what stops one placement being right for all five at once.
+##
+## The words are plain on purpose: the player should get the stakes of a bay in
+## the two seconds they glance at the tag, not decode a table.
 const DECISIONS := {
 	"navigation": {
 		"consequence": 2,
 		"consequence_word": "HIGH",
 		"reversibility": 1,
-		"reversibility_word": "COSTLY TO UNDO",
-		"tag_note": "A course can be re-plotted right up until it is flown. A hull contact cannot be undone at all.",
+		"reversibility_word": "HARD",
+		"tag_note": "You can change a plotted course until the moment it is flown. You cannot un-hit a rock.",
 	},
 	"life_support": {
 		"consequence": 2,
 		"consequence_word": "HIGH",
 		"reversibility": 2,
-		"reversibility_word": "MEDIUM",
-		"tag_note": "An atmosphere degrades slowly and can be corrected if the compartment is caught in time. Time is the whole of the cost.",
+		"reversibility_word": "SLOW",
+		"tag_note": "Air goes bad slowly and can be fixed - if someone catches it in time.",
 	},
 	"comms": {
 		"consequence": 1,
 		"consequence_word": "MEDIUM",
 		"reversibility": 3,
-		"reversibility_word": "HIGH",
-		"tag_note": "A message filed as routine can still be retrieved and re-read. What it cost is the crew who never read it.",
+		"reversibility_word": "EASY",
+		"tag_note": "A buried message can be dug back up. The cost is everyone who never saw it.",
 	},
 	"cargo": {
 		"consequence": 1,
 		"consequence_word": "MEDIUM",
 		"reversibility": 0,
-		"reversibility_word": "LOW",
-		"tag_note": "Released mass does not come back, and the option it was held for is spent when it goes.",
+		"reversibility_word": "NEVER",
+		"tag_note": "What leaves the airlock stays in space. Gone is gone.",
 	},
 	"engineering": {
 		"consequence": 2,
 		"consequence_word": "HIGH",
 		"reversibility": 2,
-		"reversibility_word": "MEDIUM",
-		"tag_note": "A permission can be revoked, but lock-in accumulates, and the accumulation is the part that is hard to undo.",
+		"reversibility_word": "SLOW",
+		"tag_note": "Permissions can be revoked. The habits they create are the part that sticks.",
 	},
 }
 
-## The reversibility scale's top value. 0 LOW, 1 COSTLY TO UNDO, 2 MEDIUM,
-## 3 HIGH. Score normalises a tag against this, so the words above and this
-## number can only move together.
+## The reversibility scale's top value. 0 NEVER, 1 HARD, 2 SLOW, 3 EASY. Score
+## normalises a tag against this, so the words above and this number can only
+## move together.
 const REVERSIBILITY_MAX := 3
 
-## The one level that needs no named owner, because the crew ARE the owner.
-## Every other level on the spectrum hands work to the model and therefore has
-## to name the role that answers for the outcome.
-const HUMAN_ONLY_LEVEL := "human_only"
-
-## The owner a human-only placement records: not a choice, which is exactly why
-## human-only asks no owner question - the crew at the console answer for their
-## own call.
-const OPERATOR_ROLE := "operator"
-const OPERATOR_ROLE_LABEL := "THE OPERATOR AT THE CONSOLE"
-
-## The named roles that can own a decision, one list per decision, held here so
-## no bay can invent or quietly drop one. A role is a job and never a person:
-## the owner is who answers for the outcome at a review, not who is standing at
-## the console. The note under each entry is what that bay's owner answers for.
-const OWNER_ROLES := {
-	"navigation": {
-		"note": "The owner here answers for the course the model flies and the risk it is allowed to carry.",
-		"roles": [
-			{
-				"id": "mission_authority",
-				"label": "MISSION AUTHORITY",
-				"hint": "Answers for the mission's exposure: the course, the margin and the outcome of the transit.",
-			},
-			{
-				"id": "first_officer",
-				"label": "FIRST OFFICER",
-				"hint": "Answers for the ship and the crew across every bay, not for one console.",
-			},
-			{
-				"id": "watch_officer",
-				"label": "WATCH OFFICER",
-				"hint": "Answers for the watch in progress - the role closest to the decision when it is taken.",
-			},
-		],
-	},
-	"life_support": {
-		"note": "The owner here answers for the air the crew breathe, and for the attention the board spends proving it is safe.",
-		"roles": [
-			{
-				"id": "ships_surgeon",
-				"label": "THE SHIP'S SURGEON",
-				"hint": "Answers for the crew's bodies, which is what a compartment minimum protects.",
-			},
-			{
-				"id": "life_support_officer",
-				"label": "LIFE SUPPORT OFFICER",
-				"hint": "Answers for the environmental board and for what it reports as nominal.",
-			},
-			{
-				"id": "first_officer",
-				"label": "FIRST OFFICER",
-				"hint": "Answers for the ship as a whole when a compartment and a margin disagree.",
-			},
-		],
-	},
-	"comms": {
-		"note": "The owner here answers for what reaches the crew, and for what the digest leaves out.",
-		"roles": [
-			{
-				"id": "comms_officer",
-				"label": "COMMUNICATIONS OFFICER",
-				"hint": "Answers for the queue, the digest, and every item filed unread.",
-			},
-			{
-				"id": "first_officer",
-				"label": "FIRST OFFICER",
-				"hint": "Answers for whether the crew were given what they needed to decide anything else.",
-			},
-			{
-				"id": "mission_authority",
-				"label": "MISSION AUTHORITY",
-				"hint": "Answers for traffic from outside the ship and for what it obliges the crew to do.",
-			},
-		],
-	},
-	"cargo": {
-		"note": "The owner here answers for everything that has left the airlock, and for what the mass was being held for.",
-		"roles": [
-			{
-				"id": "cargo_master",
-				"label": "CARGO MASTER",
-				"hint": "Answers for the manifest, the margin, and every release once it is gone.",
-			},
-			{
-				"id": "first_officer",
-				"label": "FIRST OFFICER",
-				"hint": "Answers for the crew's own stores when a schedule reaches them.",
-			},
-			{
-				"id": "mission_authority",
-				"label": "MISSION AUTHORITY",
-				"hint": "Answers for the optionality this mission gives up in order to arrive.",
-			},
-		],
-	},
-	"engineering": {
-		"note": "The owner here answers for every permission in force, and for the grant nobody has read yet.",
-		"roles": [
-			{
-				"id": "chief_engineer",
-				"label": "CHIEF ENGINEER",
-				"hint": "Answers for the plant, and for the access rules that keep it running.",
-			},
-			{
-				"id": "first_officer",
-				"label": "FIRST OFFICER",
-				"hint": "Answers for who is admitted to which compartment on this vessel.",
-			},
-			{
-				"id": "deck_officer",
-				"label": "DECK OFFICER",
-				"hint": "Answers for the doors and the seals, and for what happens when one is held.",
-			},
-		],
-	},
+## What a placement means in practice, one line per level. This replaced the
+## accountable-owner pick: the crew choose a level and the record states who
+## runs the decision at that level, rather than asking them to staff it.
+const WHO_RUNS_IT := {
+	"automated": "SHIPMIND runs it, inside limits the crew set. The crew still answer for those limits.",
+	"review": "SHIPMIND runs it. A crew member checks after, and can undo.",
+	"signoff": "A crew member must approve each action before it happens.",
+	"human_only": "The crew make this call themselves. SHIPMIND is not asked.",
 }
 
 ## What the player has declared. Empty until the boot screen records it: a
@@ -286,16 +176,10 @@ const OWNER_ROLES := {
 static var objective_id: String = ""
 static var appetite_id: String = ""
 
-## The named role that owns each placed decision, keyed by decision id. GameState
-## writes the placement to the save file and this alongside it, so the model can
-## answer "who answers for this?" without reading the record back.
-static var owners: Dictionary = {}
-
 
 static func reset() -> void:
 	objective_id = ""
 	appetite_id = ""
-	owners.clear()
 
 
 ## The boot screen's declaration. BOTH ids must be known or NEITHER is stored:
@@ -368,8 +252,8 @@ static func appetite_blurb() -> String:
 ## The mandate on one line, for the HUD, the debrief and the reflection card.
 static func mandate_line() -> String:
 	if not is_declared():
-		return "MANDATE NOT DECLARED"
-	return "OBJECTIVE  %s   |   RISK APPETITE  %s" % [objective_label(), appetite_label()]
+		return "NO MANDATE DECLARED"
+	return "OBJECTIVE  %s   |   RISK  %s" % [objective_label(), appetite_label()]
 
 
 ## The mandate as the sentence the player declared, so a decision can be read
@@ -377,95 +261,14 @@ static func mandate_line() -> String:
 static func mandate_statement() -> String:
 	if not is_declared():
 		return "No mandate has been declared for this session."
-	return "%s Risk appetite: %s - %s" % [
+	return "%s Risk: %s - %s" % [
 		objective_statement(), appetite_label().to_lower(), appetite_blurb()]
 
 
-# --- The accountable owner -----------------------------------------------------
-
-
-## True when a placement at this level hands work to the model and therefore has
-## to name the role that answers for the outcome. FALSE for human-only, where the
-## operator is the owner by definition - and false for an id that is not a level
-## at all, because such a placement is refused before it reaches here.
-static func owner_required_for(level_id: String) -> bool:
-	if level_index(level_id) < 0:
-		return false
-	return level_id != HUMAN_ONLY_LEVEL
-
-
-## The candidate owner roles for one decision, in the order the console offers
-## them. An empty array for a decision with no list, which leaves that bay
-## nothing to name and so nothing it can store.
-static func owner_roles(system_id: String) -> Array:
-	if not OWNER_ROLES.has(system_id):
-		return []
-	var entry: Dictionary = OWNER_ROLES[system_id]
-	return entry.get("roles", [])
-
-
-## What this decision's owner answers for, in the console's own words.
-static func owner_note(system_id: String) -> String:
-	if not OWNER_ROLES.has(system_id):
-		return ""
-	var entry: Dictionary = OWNER_ROLES[system_id]
-	return String(entry.get("note", ""))
-
-
-## True when owner_id is one of this decision's candidate roles. The operator is
-## deliberately NOT on a bay's list: it is the owner a human-only placement
-## records, and it is not something a bay may name for itself.
-static func has_owner_role(system_id: String, owner_id: String) -> bool:
-	if owner_id == "":
-		return false
-	return not _entry(owner_roles(system_id), owner_id).is_empty()
-
-
-## The role as the console offered it, or an empty dictionary.
-static func owner_entry(system_id: String, owner_id: String) -> Dictionary:
-	return _entry(owner_roles(system_id), owner_id)
-
-
-## The named role that owns a placement, for the record and the reflection card.
-## A stored placement never reads as unnamed: a placement that needs an owner and
-## has none is refused when it arrives rather than labelled afterwards.
-static func owner_label(system_id: String, owner_id: String) -> String:
-	if owner_id == "":
-		return "NO OWNER NAMED"
-	if owner_id == OPERATOR_ROLE:
-		return OPERATOR_ROLE_LABEL
-	var entry: Dictionary = owner_entry(system_id, owner_id)
-	if entry.is_empty():
-		return "ROLE NOT ON THIS BAY (%s)" % owner_id
-	return String(entry["label"])
-
-
-## One line stating who has to own a placement at this level. The console reads
-## it before the placement is made, so the requirement is visible rather than
-## enforced silently at commit time.
-static func owner_requirement_line(level_id: String) -> String:
-	if not owner_required_for(level_id):
-		return "HUMAN-ONLY   -   the accountable owner is the operator at the console. No separate role is required."
-	return "A named owner is REQUIRED at this level. The owner is the role that answers for the outcome, not the person at the console."
-
-
-## Records which named role owns a placed decision. GameState calls this as it
-## stores the placement, so the model's own view and the save file cannot drift.
-static func set_placement_owner(system_id: String, owner_id: String) -> void:
-	if not OWNER_ROLES.has(system_id):
-		return
-	owners[system_id] = owner_id
-
-
-static func placement_owner_id(system_id: String) -> String:
-	return String(owners.get(system_id, ""))
-
-
-static func placement_owner_label(system_id: String) -> String:
-	var owner_id: String = placement_owner_id(system_id)
-	if owner_id == "":
-		return "NO OWNER ON RECORD"
-	return owner_label(system_id, owner_id)
+## What the chosen level means in practice: who runs the decision once the
+## crew walk away from the console. One line, derived from the level itself.
+static func who_runs_it(level_id: String) -> String:
+	return String(WHO_RUNS_IT.get(level_id, ""))
 
 
 static func level_count() -> int:
