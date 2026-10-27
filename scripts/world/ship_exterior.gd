@@ -4,9 +4,9 @@ extends Node3D
 ## Everything outside the windows, in one place.
 ##
 ## Placed at the ship's origin, so the outside world lines up correctly whichever
-## window the crew member looks through: the same planet is in the same
-## direction from every bay, which is what makes the ship feel like one vessel
-## rather than five rooms with five separate backdrops.
+## window the crew member looks through: the same field passes every bay, which
+## is what makes the ship feel like one vessel rather than five rooms with five
+## separate backdrops.
 ##
 ## The station is DOCKED rather than distant. It sits off the port side with its
 ## long axis parallel to the corridor, its hull about 8 m beyond the port bay
@@ -14,21 +14,18 @@ extends Node3D
 ## look out at a station on the horizon - they look out at the structure they are
 ## standing in, which is the point of the change.
 ##
-## Adapted from the user's space_window_test_v2 prototype - the sun cycle, planet
-## orbit, cloud rotation and debris pass are that prototype's pipeline, promoted
-## from a SubViewport test into the real world.
+## The sky itself is a shader (res://shaders/deep_space.gdshader) on
+## station.tscn's Environment: black space with the soft swirls of distant
+## galaxies refracting light, computed rather than photographed - it costs no
+## texture memory and its density can be tuned by hand.
 ##
-## The starfield background deliberately lives on station.tscn's Environment
-## rather than here, so the ship keeps a single environment and its fog, glow and
-## SSAO are untouched by this node.
+## The ship reads as moving. A near-star field drifts slowly past the windows
+## (not warp speed - a quiet rate of knots), and rocks spawn ahead of the ship
+## and drift past until they are recycled behind it, in one loop.
 
-const EARTH_SCENE := "res://assets/exterior/earth.glb"
 const STATION_SCENE := "res://assets/exterior/low-poly_space_station_-_3december.glb"
 
 @export var orbit_period: float = 240.0
-@export var earth_radius: float = 45.0
-@export var earth_distance: float = 190.0
-@export var earth_height: float = -20.0
 ## Docked, not distant. At this scale the hull runs the whole length of the
 ## corridor and passes about 8 m off the port bay windows.
 @export var station_scale: float = 5.0
@@ -37,7 +34,16 @@ const STATION_SCENE := "res://assets/exterior/low-poly_space_station_-_3december
 ## station no longer rotates: it is bolted to the ship, and a hull turning under
 ## fixed structural arms reads as clipping.
 @export var station_rotation_degrees: Vector3 = Vector3(0.0, 0.0, 0.0)
-@export var close_debris_period: float = 80.0
+## The drifting field outside the windows. The ship reads as moving: stars
+## pass slowly (a near-star field, not warp lines) and rocks spawn ahead of
+## the ship and drift past until they are recycled behind it, in one loop.
+@export var drift_speed: float = 6.5
+@export var star_count: int = 240
+@export var star_radius: float = 26.0
+@export var star_length: float = 160.0
+@export var rock_count: int = 14
+@export var rock_radius: float = 15.0
+@export var rock_length: float = 150.0
 
 ## WHERE THE DOCKING ARMS STOP, and the one number that matters about them.
 ##
@@ -60,37 +66,34 @@ const ARM_STOP_X := -16.6
 const ARM_Z: Array[float] = [-3.5, -5.5, -7.5]
 
 var _sun_pivot: Node3D = null
-var _earth_pivot: Node3D = null
-var _clouds: Node3D = null
 var _station: Node3D = null
-var _close_debris: MeshInstance3D = null
+var _stars: MultiMeshInstance3D = null
+var _star_offsets: PackedVector3Array = []
+var _star_speeds: PackedFloat32Array = []
+var _rocks: Array[MeshInstance3D] = []
+var _rock_speeds: PackedFloat32Array = []
 var _time: float = 0.0
 
 
 func _ready() -> void:
 	_build_sun()
-	_build_earth()
 	_build_station()
 	_build_docking_arms()
-	_build_far_debris()
-	_build_close_debris()
+	_build_star_field()
+	_build_drifting_rocks()
 
 
 func _process(delta: float) -> void:
 	_time += delta
 	var angle: float = (_time / maxf(orbit_period, 1.0)) * TAU
 
-	# The sun sweeps the whole scene, so the terminator walks across the planet
-	# and the station drops into shadow over orbit_period.
+	# The sun sweeps the whole scene, so the terminator walks across the
+	# station's hull over orbit_period. No planet: the sky is deep space.
 	if _sun_pivot != null:
 		_sun_pivot.rotation.y = angle
-	# The planet orbits the ship the other way, so it drifts past each window.
-	if _earth_pivot != null:
-		_earth_pivot.rotation.y = -angle
-	if _clouds != null:
-		_clouds.rotate_y(delta * 0.02)
 
-	_update_close_debris()
+	_update_star_field(delta)
+	_update_drifting_rocks(delta)
 
 
 # --- Sun ----------------------------------------------------------------------
@@ -105,39 +108,6 @@ func _build_sun() -> void:
 	sun.light_energy = 0.45
 	sun.shadow_enabled = false
 	_sun_pivot.add_child(sun)
-
-
-# --- Planet -------------------------------------------------------------------
-
-func _build_earth() -> void:
-	var scene: PackedScene = load(EARTH_SCENE) as PackedScene
-	if scene == null:
-		push_warning("ShipExterior: could not load %s" % EARTH_SCENE)
-		return
-	_earth_pivot = Node3D.new()
-	_earth_pivot.name = "EarthPivot"
-	add_child(_earth_pivot)
-	var earth: Node3D = scene.instantiate()
-	_earth_pivot.add_child(earth)
-
-	# Normalise the imported model to earth_radius whatever it was authored at,
-	# then recentre it on the target, because a Sketchfab pivot is rarely at the
-	# middle of the model.
-	var bounds: AABB = _merged_bounds(earth)
-	var half: float = maxf(bounds.size.x, maxf(bounds.size.y, bounds.size.z)) * 0.5
-	var factor: float = 1.0
-	if half > 0.001:
-		factor = earth_radius / half
-	earth.scale = Vector3.ONE * factor
-	var target := Vector3(earth_distance, earth_height, 0.0)
-	earth.position = target - bounds.get_center() * factor
-
-	_clouds = _find_by_name(earth, "nuages")
-	if _clouds == null:
-		_clouds = _find_by_name(earth, "cloud")
-	var animation := _find_animation_player(earth)
-	if animation != null and animation.has_animation("Take 001"):
-		animation.play("Take 001")
 
 
 # --- Station ------------------------------------------------------------------
@@ -218,69 +188,110 @@ func _build_docking_arms() -> void:
 		box.position.z, box.position.z + box.size.z])
 
 
-# --- Debris -------------------------------------------------------------------
+# --- The drifting field -------------------------------------------------------
 
-## The field the navigation bay argues about, pushed well out and given a dark
-## rock finish. Without a material these boxes took the default white, and 160
-## white boxes lit by the sun read as a cloud of floating lights rather than as
-## debris - which is how they were reported. Dark, small and far away reads as
-## rock; that is the whole difference.
-func _build_far_debris() -> void:
+## The near-star field. A few hundred dim points in a band around the ship,
+## drifting slowly past the windows so the ship reads as moving. One MultiMesh
+## for the whole field - one draw call, no per-star nodes.
+##
+## They run on both sides, but the port side thins out where the station hull
+## fills the view, so the field never fights the docking arms.
+func _build_star_field() -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	var rock := BoxMesh.new()
-	rock.size = Vector3(0.9, 0.6, 0.75)
+	rng.seed = 31
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.14, 0.14)
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.035, 0.032, 0.03)
-	material.roughness = 1.0
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(0.92, 0.94, 1.0)
+	material.emission_enabled = true
+	material.emission = Color(0.92, 0.94, 1.0)
+	material.emission_energy_multiplier = 0.6
 	var multi := MultiMesh.new()
 	multi.transform_format = MultiMesh.TRANSFORM_3D
-	multi.mesh = rock
-	var count: int = 160
-	multi.instance_count = count
-	for index in count:
-		var angle: float = rng.randf() * TAU
-		var radius: float = rng.randf_range(420.0, 700.0)
-		var transform := Transform3D(
-			Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)),
-			Vector3(cos(angle) * radius, rng.randf_range(-60.0, 60.0), sin(angle) * radius))
-		transform.basis = transform.basis.scaled(Vector3.ONE * rng.randf_range(2.0, 7.0))
-		multi.set_instance_transform(index, transform)
-	var band := MultiMeshInstance3D.new()
-	band.name = "FarDebris"
-	band.multimesh = multi
-	band.material_override = material
-	add_child(band)
+	multi.mesh = quad
+	multi.instance_count = star_count
+	_star_offsets.resize(star_count)
+	_star_speeds.resize(star_count)
+	for i in star_count:
+		_star_offsets[i] = _field_point(rng, star_radius, star_length, true)
+		_star_speeds[i] = rng.randf_range(0.6, 1.4)
+		multi.set_instance_transform(i, Transform3D(Basis(), _star_offsets[i]))
+	_stars = MultiMeshInstance3D.new()
+	_stars.name = "StarField"
+	_stars.multimesh = multi
+	_stars.material_override = material
+	add_child(_stars)
 
 
-func _build_close_debris() -> void:
-	var rock := BoxMesh.new()
-	rock.size = Vector3(1.4, 0.9, 1.1)
+## The rocks: a sparse handful of dark shapes drifting past the windows, each
+## on its own line so they pass at different heights and speeds. Spawned ahead
+## of the ship and recycled behind it, in one loop.
+func _build_drifting_rocks() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.07, 0.062, 0.058)
+	material.albedo_color = Color(0.045, 0.042, 0.04)
 	material.roughness = 1.0
-	_close_debris = MeshInstance3D.new()
-	_close_debris.name = "CloseDebris"
-	_close_debris.mesh = rock
-	_close_debris.material_override = material
-	add_child(_close_debris)
-	_update_close_debris()
+	for i in rock_count:
+		var rock := MeshInstance3D.new()
+		rock.name = "DriftRock_%d" % i
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(
+			rng.randf_range(0.8, 2.4),
+			rng.randf_range(0.5, 1.4),
+			rng.randf_range(0.7, 1.9))
+		rock.mesh = mesh
+		rock.material_override = material
+		rock.rotation = Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)
+		rock.position = _field_point(rng, rock_radius, rock_length, false)
+		add_child(rock)
+		_rocks.append(rock)
+		_rock_speeds.append(rng.randf_range(0.8, 1.3))
 
 
-## A tumbling rock that drifts past the starboard windows every few minutes - the
-## K-7 field the navigation bay argues about, seen from inside.
-##
-## It runs on the starboard side because the station now fills the port side, and
-## a rock crossing the docking arms would read as clipping rather than as debris.
-func _update_close_debris() -> void:
-	if _close_debris == null:
+## One point in the drift band. `sparse_port` is true for the stars: the band
+## is full everywhere, but thins on the port side where the station hull fills
+## the view - so nothing drifts through the docking arms or the hull.
+func _field_point(rng: RandomNumberGenerator, radius: float, length: float,
+		sparse_port: bool) -> Vector3:
+	var x: float
+	if sparse_port and rng.randf() < 0.35:
+		# The station fills port; a star here would read as inside the hull.
+		x = rng.randf_range(-radius * 0.4, radius * 0.4)
+	else:
+		x = rng.randf_range(-radius, radius)
+		if absf(x) < 4.0:
+			x = signf(x if x != 0.0 else 1.0) * rng.randf_range(4.0, radius)
+	return Vector3(x, rng.randf_range(-radius * 0.45, radius * 0.45),
+		rng.randf_range(-length, length * 0.5))
+
+
+## The drift: everything moves -Z (the ship reads as flying forward, +Z). A
+## point that passes behind the ship's stern is wrapped to the far front, so
+## the field never thins and never accumulates.
+func _update_star_field(delta: float) -> void:
+	if _stars == null:
 		return
-	var phase: float = fmod(_time, close_debris_period) / maxf(close_debris_period, 1.0)
-	var from := Vector3(26.0, -4.0, -48.0)
-	var to := Vector3(26.0, 9.0, 48.0)
-	_close_debris.position = from.lerp(to, phase)
-	_close_debris.rotation = Vector3(_time * 0.7, _time * 0.5, _time * 0.3)
-	_close_debris.scale = Vector3.ONE * (0.5 + 0.8 * sin(phase * PI))
+	var multi := _stars.multimesh
+	for i in _star_offsets.size():
+		var p: Vector3 = _star_offsets[i]
+		p.z -= drift_speed * _star_speeds[i] * delta
+		if p.z < -star_length:
+			p.z += star_length * 1.5
+		_star_offsets[i] = p
+		multi.set_instance_transform(i, Transform3D(Basis(), p))
+
+
+func _update_drifting_rocks(delta: float) -> void:
+	for i in _rocks.size():
+		var rock := _rocks[i]
+		rock.position.z -= drift_speed * _rock_speeds[i] * delta
+		rock.rotation += Vector3(0.21, 0.13, 0.09) * delta
+		if rock.position.z < -rock_length:
+			rock.position.z += rock_length * 1.5
+			rock.position.x = randf_range(-rock_radius, rock_radius)
+			rock.position.y = randf_range(-rock_radius * 0.4, rock_radius * 0.4)
 
 
 # --- Helpers ------------------------------------------------------------------
