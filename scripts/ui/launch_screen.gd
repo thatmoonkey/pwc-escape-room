@@ -475,11 +475,17 @@ func _controls_rows() -> Dictionary:
 				"text": "look - drag anywhere on the right of the screen."},
 			{"icon": "check", "lead": "TAP",
 				"text": "interact - tap a console, or use the round button."},
+			{"icon": "chevron", "lead": "SPRINT",
+				"text": "the toggle on the left - hold the corridor pace up."},
+			{"icon": "chevron", "lead": "JUMP",
+				"text": "the button beside interact - a small hop."},
 		]
 	else:
 		rows = [
 			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse or trackpad: look."},
 			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
+			{"icon": "chevron", "lead": "SHIFT", "text": "sprint - hold it down the long corridors."},
+			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one. Some crew just need to know."},
 			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, switch input mode, or return here."},
 		]
 	rows.append({"text": "Switch between desktop, mobile and VR with the chips in the "

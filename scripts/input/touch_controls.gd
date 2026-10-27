@@ -21,6 +21,8 @@ extends CanvasLayer
 @onready var stick: Control = $Root/Stick
 @onready var knob: Panel = $Root/Stick/Knob
 @onready var interact_button: Button = $Root/InteractButton
+@onready var jump_button: Button = $Root/JumpButton
+@onready var sprint_button: Button = $Root/SprintButton
 
 const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", "move_back"]
 
@@ -37,6 +39,15 @@ func _ready() -> void:
 	_refresh_visibility()
 	if root.visible:
 		interact_button.pressed.connect(func() -> void: InputRouter.queue_interact())
+		# Jump is an edge and sprint is a hold, so the buttons drive the same
+		# InputMap actions the keyboard and the stick already feed.
+		jump_button.button_down.connect(func() -> void: Input.action_press("jump"))
+		jump_button.button_up.connect(func() -> void: Input.action_release("jump"))
+		sprint_button.toggled.connect(func(on: bool) -> void:
+			if on:
+				Input.action_press("sprint")
+			else:
+				Input.action_release("sprint"))
 
 
 ## The station controller's mode switch. On a desktop the override also lets
@@ -79,8 +90,9 @@ func _input(event: InputEvent) -> void:
 
 
 func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
-	if interact_button.get_global_rect().has_point(position):
-		return
+	for button: Button in [interact_button, jump_button, sprint_button]:
+		if button.get_global_rect().has_point(position):
+			return
 	if pressed:
 		if position.x < get_viewport().get_visible_rect().size.x * 0.45 and _move_touch == -1:
 			_move_touch = index
@@ -141,11 +153,17 @@ func _action(action: StringName, pressed: bool) -> void:
 
 
 ## Left pressed after a deactivation would walk the crew into a wall forever.
+## The sprint toggle is reset too, so the button's look cannot outlive the
+## action it was feeding.
 func _release_all() -> void:
 	_move_touch = -1
 	_look_touch = -1
 	stick.visible = false
 	_set_move(Vector2.ZERO)
+	Input.action_release("jump")
+	Input.action_release("sprint")
+	if sprint_button != null and sprint_button.button_pressed:
+		sprint_button.set_pressed_no_signal(false)
 
 
 func _exit_tree() -> void:

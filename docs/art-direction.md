@@ -8,11 +8,18 @@ end of an alert scale, so every surface reads as something that is switched on.
 
 | Token | Hex | Where it lives |
 |---|---|---|
+| Warm Platinum | `#B2ACA4` | Wall panels, ceilings, crate bodies - the ship's silver base |
 | Spicy Paprika | `#DC5E27` | Kicker text, terminal rule bar, sill lighting, the papaya accent light |
 | Brick Red | `#AD2323` | Sealed door bodies, deep alert fills |
 | Burnt Tangerine | `#D04026` | Alert/danger text and borders, step numerals, button edges |
-| Sunflower Gold | `#F0B839` | Attention text, HUD border, resolved state, primary button |
+| Sunflower Gold | `#F0B839` | Attention text, HUD border, resolved state, primary button, glow strips |
 | White | `#FFFFFF` | Headline text only |
+
+The ship's base is a warm platinum silver - a silver with the red-brown taken
+out of it, not a cool grey - and the strong reds ride ON it as accents: doors,
+hazard strips, alert fills. The red is the exception, which is what makes it
+read. A wall panel is platinum; a door is brick red; gold is the light that
+runs along the join between them.
 
 Grounds are a warm near-black rather than a neutral one: panels sit on
 `Color(0.06, 0.032, 0.022)`, not on grey or blue-black.
@@ -40,15 +47,17 @@ without touching a scene. The filenames are historical (`accent_cyan.tres`
 holds gold, `panel_blue.tres` holds warm off-white); they are kept because
 scenes and scripts reference them by path.
 
-- `wall_upper.tres` - the wall panels themselves, Brick Red `#AD2323`. This is
-  the material painted onto every kit wall module, so it is the colour the whole
+- `wall_upper.tres` - the wall panels themselves, Warm Platinum. This is the
+  material painted onto every kit wall module, so it is the colour the whole
   corridor reads as
 - `wall_lower.tres` - the base band laid against those panels: the same hue
-  taken down to `#4F1010`, so the maroon wall stays the dominant tone
-- `panel_light.tres` - ceiling slab, warm off-white
+  taken down to a near-black neutral, so the wall reads as platinum with a
+  dark skirt
+- `panel_light.tres` - ceiling slab, warm off-white platinum
 - `panel_blue.tres` - secondary panel with a low warm emission
 - `floor_dark.tres`, `trim_black.tres` - warm near-black ground and trim
-- `door_locked.tres` - sealed door, brick red with a dull ember emission
+- `door_locked.tres` - sealed door, brick red with a dull ember emission. The
+  doors are the ship's main red accent against the silver walls
 - `accent_amber.tres`, `accent_cyan.tres` - the two accent strips
 - `screen_cyan.tres` - console screen fill, gold emission
 - `highlight.tres` - the aim highlight on interactables
@@ -77,10 +86,10 @@ kit's wall module is a single full-height panel, so the lower tone is a separate
 thin slab laid flat against the panel's inner face, built by `_wainscot()` at
 `WAINSCOT_H` = 1.05 m.
 
-The two materials were the wrong way round to begin with: `wall_upper.tres` held
-pure white and `wall_lower.tres` held the brick red, so the corridor read as
-white walls with a maroon skirting. The panel material is the one the room reads
-as, so that is the one that carries the brick red.
+The two materials read as one wall treatment: platinum panels over a near-black
+skirting band. The panel material is the one the room reads as, so it is the
+one that carries the wall colour.
+
 Which of the wall's two faces is the inner one is derived per run rather than
 assumed, so the same rule is correct for walls whose inner faces point along
 three different axes.
@@ -107,6 +116,10 @@ keeps its warm light no matter how dark space gets. Keep it that way.
 - ASCII punctuation only, in every file.
 - No cool blue or green anywhere in the interior. If a new system needs a
   status colour, use the scale above.
+- Red is an accent, not a base: walls and floors are the platinum and
+  near-black ramp, and the brick/tangerine reds belong to doors, alert fills
+  and hazard detail. If a surface the size of a wall panel is asking to be
+  red, the palette is drifting.
 - Every interactable has to be legible at a glance: accents are for state, and
   text carries the meaning even in a screenshot with the colour stripped out.
 - A `.tres` carries no comment lines. A comment inside one is not skipped - the

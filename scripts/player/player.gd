@@ -1,11 +1,15 @@
 class_name Player
 extends CharacterBody3D
 
-## The crew member. First person, no jump, no crouch - it is a ship, not a
-## shooter. Reads only InputMap actions and InputRouter, so the touch layer and
-## the XR rig drive the exact same body.
+## The crew member. First person: no crouch - it is a ship, not a shooter. A
+## jump and a sprint are kept because the first thing anyone does in a
+## corridor is test how mobile they are, and a crew that cannot hop feels
+## heavier than the ship is. Reads only InputMap actions and InputRouter, so
+## the touch layer and the XR rig drive the exact same body.
 
 @export var walk_speed: float = 3.4
+@export var sprint_speed: float = 5.6
+@export var jump_height: float = 0.85
 @export var acceleration: float = 12.0
 @export var look_scale: float = 1.0
 @export var bob_strength: float = 0.03
@@ -59,12 +63,25 @@ func _apply_movement(delta: float) -> void:
 	var direction: Vector3 = (transform.basis * Vector3(input.x, 0.0, input.y))
 	direction.y = 0.0
 	direction = direction.normalized()
+	# Sprint lifts the cap, not the response: the crew still gets the same
+	# accel curve, so the burst of speed reads as a stride, not as a stutter.
+	var target: float = sprint_speed \
+		if Input.is_action_pressed("sprint") and direction.length_squared() > 0.001 \
+		else walk_speed
 	if direction.length_squared() > 0.001:
-		velocity.x = lerpf(velocity.x, direction.x * walk_speed, acceleration * delta)
-		velocity.z = lerpf(velocity.z, direction.z * walk_speed, acceleration * delta)
+		velocity.x = lerpf(velocity.x, direction.x * target, acceleration * delta)
+		velocity.z = lerpf(velocity.z, direction.z * target, acceleration * delta)
 	else:
 		velocity.x = lerpf(velocity.x, 0.0, acceleration * delta)
 		velocity.z = lerpf(velocity.z, 0.0, acceleration * delta)
+	_apply_jump()
+
+
+func _apply_jump() -> void:
+	# Jump height set by the launch velocity, not by an impulse: the crew
+	# should clear a threshold rail at most, not leap a deck plate.
+	if is_on_floor() and Input.is_action_just_pressed("jump"):
+		velocity.y = sqrt(2.0 * _gravity * jump_height)
 
 
 func _apply_bob(delta: float) -> void:
