@@ -8,7 +8,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/principle_card.tscn" id="6_card"]
 [ext_resource type="PackedScene" path="res://scenes/ui/touch_controls.tscn" id="7_touch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dev_reset_menu.tscn" id="8_devreset"]
-[ext_resource type="PackedScene" path="res://scenes/ui/launch_screen.tscn" id="9_launch"]
+[ext_resource type="PackedScene" path="res://scenes/ui/intro_screen.tscn" id="9_intro"]
+[ext_resource type="PackedScene" path="res://scenes/ui/launch_screen.tscn" id="10_launch"]
 
 [node name="Main" type="Node3D" unique_id=2043222375]
 script = ExtResource("1_game")
@@ -31,7 +32,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 16)
 
 [node name="DevResetMenu" parent="UI" unique_id=623413578 instance=ExtResource("8_devreset")]
 
-[node name="LaunchScreen" parent="UI" unique_id=1832670445 instance=ExtResource("9_launch")]
+[node name="IntroScreen" parent="UI" unique_id=1832670445 instance=ExtResource("9_intro")]
+
+[node name="LaunchScreen" parent="UI" unique_id=1832670446 instance=ExtResource("10_launch")]
 
 [node name="Sfx" type="Node" parent="." unique_id=2125099373]
 

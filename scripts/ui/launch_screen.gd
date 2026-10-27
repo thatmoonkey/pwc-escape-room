@@ -105,6 +105,14 @@ func show_screen() -> void:
 	_request_fit()
 
 
+## Tucks the card away without ending the session. The narrative intro plays
+## in front of it, and the station controller brings the card back with
+## show_screen() once the story has been told.
+func hide_screen() -> void:
+	_open = false
+	_root.visible = false
+
+
 ## Re-reads the record. The station controller calls this AFTER it has loaded
 ## the save, because this card's own _ready fires before that does.
 func refresh_from_state() -> void:

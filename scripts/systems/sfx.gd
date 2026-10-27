@@ -85,6 +85,20 @@ static func stop_music() -> void:
 	_stop_loop(MUSIC_GROUP)
 
 
+## The music switch on the launch card. A mute is a preference, not a stop:
+## the bed's state is remembered here, so a mute survives a bed that never
+## started, and unmuting brings the soundtrack back at the mix level.
+static var music_muted: bool = false
+
+
+static func toggle_music_muted() -> void:
+	music_muted = not music_muted
+	if music_muted:
+		_stop_loop(MUSIC_GROUP)
+	else:
+		play_music()
+
+
 ## Start a looping bed. Safe to call more than once: a call while it is already
 ## playing does nothing, which keeps it seamless across a scene reload.
 static func _start_loop(group: String, path: String, level: float) -> void:
