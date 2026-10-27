@@ -40,7 +40,8 @@ static func boot_state() -> Array[String]:
 	if sealed.is_empty():
 		return [
 			"Welcome back. All five systems are under crew control.",
-			"Plot the course home at the kiosk beside you whenever you are ready.",
+			"The bridge door at the forward end of the upper deck is unlocked - the helm is through it.",
+			"The kiosk beside you holds the session record whenever you want it.",
 		]
 	return [
 		"Welcome back. I have restored the record of your last session.",
@@ -84,18 +85,22 @@ static func denial(system_id: String) -> String:
 
 
 ## Said over the PA the moment a system comes back under crew control, so the
-## player always knows what changed and what is still ahead of them.
+## player always knows what changed and what is still ahead of them. Every
+## line names the next bay the way the doorway plates do - number, then name -
+## so what the PA says and what the wall says are one system.
 static func system_restored(system_id: String) -> String:
 	var remaining: int = GameState.SYSTEMS.size() - GameState.restored_count()
 	if remaining <= 0:
-		return "%s is under crew control. All five systems are yours. Plot the course home at the kiosk when you are ready." % GameState.display_name(system_id)
+		return "%s is under crew control. All five systems are yours. The bridge door at the forward end of the upper deck is unlocked - the helm is through it." % GameState.display_name(system_id)
 	var next_bay: String = ""
 	for id in GameState.SYSTEMS:
 		if GameState.is_integrated(id) and not GameState.is_restored(id):
-			next_bay = GameState.display_name(id)
+			next_bay = id
 			break
 	if next_bay != "":
-		return "%s is under crew control. I have logged the transfer. %d systems remain; the %s bay console is live." % [GameState.display_name(system_id), remaining, next_bay]
+		return "%s is under crew control. I have logged the transfer. %d systems remain; bay %d, %s, has a live console." % [
+			GameState.display_name(system_id), remaining,
+			GameState.system_index(next_bay), GameState.display_name(next_bay)]
 	return "%s is under crew control. I have logged the transfer. %d systems remain under my control." % [GameState.display_name(system_id), remaining]
 
 

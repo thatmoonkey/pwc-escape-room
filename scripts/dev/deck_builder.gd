@@ -398,7 +398,13 @@ func _box(size: Vector3, pos: Vector3) -> CollisionShape3D:
 
 ## An even warm light. One per room, high, so a room reads as lit space rather
 ## than as a dark corridor with a glow in it.
-func _light(parent: Node3D, node_name: String, pos: Vector3) -> void:
+##
+## A light that names a bay (`system_id`) is a BayLight: it turns to the
+## palette's resolved gold once that bay's decision is placed, so a room the
+## crew have finished reads as finished from inside it (see bay_light.gd).
+## The spine and junction lights stay plain - they light circulation, not a
+## decision.
+func _light(parent: Node3D, node_name: String, pos: Vector3, system_id: String = "") -> void:
 	var light := OmniLight3D.new()
 	light.name = node_name
 	light.position = pos
@@ -406,6 +412,9 @@ func _light(parent: Node3D, node_name: String, pos: Vector3) -> void:
 	light.light_energy = 2.2
 	light.omni_range = 9.0
 	light.shadow_enabled = true
+	if system_id != "":
+		light.set_script(load(S_BAY_LIGHT))
+		light.set("system_id", system_id)
 	parent.add_child(light)
 	light.owner = _root
 
@@ -434,6 +443,8 @@ const P_DESK := "res://assets/library/shooter-scifi/sci-fi-computer-desk-console
 const S_CONSOLE := "res://scripts/interact/console_interactable.gd"
 const S_TRIGGER := "res://scripts/world/bay_trigger.gd"
 const S_DOOR := "res://scripts/world/locked_door.gd"
+const S_BAY_PLATE := "res://scripts/world/bay_plate.gd"
+const S_BAY_LIGHT := "res://scripts/world/bay_light.gd"
 const M_HIGHLIGHT := "res://materials/highlight.tres"
 const M_DOOR := "res://materials/door_locked.tres"
 ## The finish a closed window's shutter carries. Deliberately not the wall's own
@@ -481,6 +492,17 @@ const DOOR_PROMPT := "Sealed bay"
 ## The clear opening between the two jambs, which is what a door has to fill.
 const CLEAR_W := DOOR_W - JAMB_W * 2.0
 
+## THE BAY PLATE. A number plate beside each doorway, so the corridors stop
+## reading as a run of identical openings (see bay_plate.gd for what it says).
+## Three numbers place it: proud of the wall's corridor face (the wall is
+## 0.1475 half thick, so 0.165 clears it), beside the opening (the doorway
+## frame ends 2.045 from the door's centre and the flank wall runs on to 3.5),
+## and at eye height. `side` is which flank - the approach side, the one the
+## crew read it from - and is stated per doorway by the layout.
+const PLATE_PROUD := 0.165
+const PLATE_Z := 2.7
+const PLATE_Y := 1.8
+
 ## The doorway frame's mesh, read out of the prefab once and reused.
 var _frame: Mesh = null
 
@@ -499,7 +521,8 @@ func _opening(centre: float) -> Array:
 ## active box underneath it. Either way the room comes back sealed. So the frame's
 ## MESH is taken from the prefab and given a body of its own whose collision is the
 ## two uprights. Nothing about the prefab on disk is touched.
-func _doorway(parent: Node3D, x: float, z: float, node_name: String) -> void:
+func _doorway(parent: Node3D, x: float, z: float, node_name: String,
+		system_id: String = "", plate_side: float = 0.0) -> void:
 	var body := StaticBody3D.new()
 	body.name = node_name
 	body.position = Vector3(x, _floor_y, z)
@@ -516,8 +539,26 @@ func _doorway(parent: Node3D, x: float, z: float, node_name: String) -> void:
 		jamb.name = "Jamb_A" if edge < 0.0 else "Jamb_B"
 		body.add_child(jamb)
 	parent.add_child(body)
+	if system_id != "" and plate_side != 0.0:
+		_plate(body, system_id, plate_side)
 	_own(body)
 	_count["Doorway_01.tscn"] = int(_count.get("Doorway_01.tscn", 0)) + 1
+
+
+## One bay number plate beside a doorway (see bay_plate.gd for what it renders
+## and how it faces itself). `side` is which way along the wall the plate
+## stands from the door's centre: -1.0 the aft flank, +1.0 the forward one -
+## the approach side, the side the crew read it from. Which wall face is the
+## corridor's is read from the doorway's own X, so the same call serves both
+## sides of the ship and both decks.
+func _plate(doorway: Node3D, system_id: String, side: float) -> void:
+	var plate := Node3D.new()
+	plate.name = "BayPlate"
+	plate.set_script(load(S_BAY_PLATE))
+	plate.set("system_id", system_id)
+	var inboard: float = signf(doorway.position.x)
+	plate.position = Vector3(-inboard * PLATE_PROUD, PLATE_Y, side * PLATE_Z)
+	doorway.add_child(plate)
 
 
 ## Fills the wall either side of a doorway, because the frame is narrower than the

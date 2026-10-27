@@ -87,7 +87,9 @@ const P_CRATE_B := "res://scenes/prefabs/interior/Crate_02.tscn"
 const P_CRATE_C := "res://scenes/prefabs/interior/Crate_03.tscn"
 const P_CRATE_D := "res://scenes/prefabs/interior/Crate_04.tscn"
 
-const KIOSK_PROMPT := "SHIPMIND kiosk: mission status and debrief"
+## The kiosks are two terminals wired to the same read-only kiosk, so the
+## prompt is what tells them apart: it names the terminal's own junction.
+const KIOSK_PROMPT := "SHIPMIND kiosk, deck 2 junction: mission status and debrief"
 const CARGO_PROMPT := "Cargo console: review the mass manifest"
 const ENG_PROMPT := "Engineering console: audit access permissions"
 
@@ -153,8 +155,11 @@ func _build() -> void:
 	## open: the deck runs on into the stairwell landing. See the header.
 	_wall_run_x(bulkheads, DECK2_FWD, FLOOR_Y, -SPINE_X, SPINE_X, [], "FWD")
 
-	_doorway(walls, SPINE_X, CARGO_DOOR_Z, "Doorway_Cargo")
-	_doorway(walls, SPINE_X, ENG_DOOR_Z, "Doorway_Eng")
+	## Both bays are walked to from aft - the crew come down the stairwell into
+	## this deck's aft end and work forward - so both plates stand on the aft
+	## flank of their doorway.
+	_doorway(walls, SPINE_X, CARGO_DOOR_Z, "Doorway_Cargo", "cargo", -1.0)
+	_doorway(walls, SPINE_X, ENG_DOOR_Z, "Doorway_Eng", "engineering", -1.0)
 
 	## The wall either side of each bay door, which the 4.089 m frame does not
 	## reach across the 7.0 m the panels leave. Without it a bay has a 1.4555 m
@@ -176,8 +181,8 @@ func _build() -> void:
 	_light(lights, "Spine_C", Vector3(0.0, CEIL_Y - 0.45, -3.0))
 	_light(lights, "Spine_D", Vector3(0.0, CEIL_Y - 0.45, 11.0))
 	_light(lights, "Junction", Vector3(-3.5, CEIL_Y - 0.45, -8.75))
-	_light(lights, "CargoRoom", Vector3(8.0, CEIL_Y - 0.45, -5.0))
-	_light(lights, "EngRoom", Vector3(8.75, CEIL_Y - 0.45, 10.5))
+	_light(lights, "CargoRoom", Vector3(8.0, CEIL_Y - 0.45, -5.0), "cargo")
+	_light(lights, "EngRoom", Vector3(8.75, CEIL_Y - 0.45, 10.5), "engineering")
 
 	## A second SHIPMIND terminal. A crew member two decks down still has to be
 	## spoken to, and the AI is not going to make them climb back up for it.

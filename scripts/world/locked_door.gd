@@ -39,13 +39,18 @@ func refresh_from_state() -> void:
 		_set_open(true, false)
 
 
+## Every prompt carries the bay number the doorway plates show, so the number
+## a crew member reads on the wall is the same number the kiosk and the PA
+## use for that bay.
 func get_prompt() -> String:
 	var label: String = GameState.display_name(system_id)
 	if GameState.is_restored(system_id):
-		return "%s bay - open" % label
+		return "Bay %d, %s - open" % [GameState.system_index(system_id), label]
 	if not GameState.is_integrated(system_id):
-		return "%s bay - sealed, console not commissioned" % label
-	return "%s bay - sealed, review the console" % label
+		return "Bay %d, %s - sealed, console not commissioned" % [
+			GameState.system_index(system_id), label]
+	return "Bay %d, %s - sealed, review the console" % [
+		GameState.system_index(system_id), label]
 
 
 func can_interact(_by: Node) -> bool:

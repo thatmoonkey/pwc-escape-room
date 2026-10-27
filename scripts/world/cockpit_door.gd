@@ -1,7 +1,7 @@
 class_name CockpitDoor
 extends LockedDoor
 
-## The helm doorway at the aft end of the corridor.
+## The helm doorway at the forward end of the corridor.
 ##
 ## It reuses LockedDoor's presentation - the panel hides, the collision disables,
 ## the door sound plays - but the gate is a different question. A bay door opens

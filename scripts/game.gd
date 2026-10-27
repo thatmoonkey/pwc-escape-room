@@ -368,6 +368,7 @@ func _on_puzzle_solved(system_id: String) -> void:
 		GameState.mark_restored(system_id)
 	hud.refresh_objective()
 	_open_system_window(system_id)
+	_set_bay_light(system_id)
 	if terminal.is_open():
 		terminal.close()
 	principle_card.show_card(system_id)
@@ -397,6 +398,20 @@ func _apply_saved_world_state() -> void:
 		var wall := node as WindowWall
 		if wall != null:
 			wall.refresh_from_state()
+	for node in get_tree().get_nodes_in_group("bay_light"):
+		var light := node as BayLight
+		if light != null:
+			light.refresh_from_state()
+
+
+## A bay whose decision is placed turns its room light over to the crew, so a
+## finished room reads as finished from inside it. The doorway plates carry
+## the bay's number; this carries its state.
+func _set_bay_light(system_id: String) -> void:
+	for node in get_tree().get_nodes_in_group("bay_light"):
+		var light := node as BayLight
+		if light != null and light.system_id == system_id:
+			light.set_placed(GameState.is_restored(system_id))
 
 
 ## A puzzle's own _ready also fires before the save is in memory, so a decision

@@ -54,7 +54,9 @@ const WIN_LIFE_Z := -1.75
 const NAV_PROMPT := "Navigation console: plot a course"
 const LIFE_PROMPT := "Life support console: verify the environmental board"
 const COMMS_PROMPT := "Comms console: review the incoming queue"
-const KIOSK_PROMPT := "SHIPMIND kiosk: mission status and debrief"
+## The kiosks are two terminals wired to the same read-only kiosk, so the
+## prompt is what tells them apart: it names the terminal's own junction.
+const KIOSK_PROMPT := "SHIPMIND kiosk, deck 1 junction: mission status and debrief"
 
 
 func _ready() -> void:
@@ -131,9 +133,14 @@ func _build() -> void:
 	## gate in the middle of it. The `Bulkheads` group is kept as the place a
 	## future deck's end wall would go.
 
-	_doorway(walls, SPINE_X, NAV_DOOR_Z, "Doorway_Nav")
-	_doorway(walls, -SPINE_X, COMMS_DOOR_Z, "Doorway_Comms")
-	_doorway(walls, -SPINE_X, LIFE_DOOR_Z, "Doorway_Life")
+	## Each doorway carries its bay plate on the approach side: navigation and
+	## comms are walked to from the junction, which is aft of them, while life
+	## support hangs off the junction's own aft wall, so its approach is from
+	## forward. Navigation's plate is the only one its bay will ever have - it
+	## was left open, with no door at all.
+	_doorway(walls, SPINE_X, NAV_DOOR_Z, "Doorway_Nav", "navigation", -1.0)
+	_doorway(walls, -SPINE_X, COMMS_DOOR_Z, "Doorway_Comms", "comms", -1.0)
+	_doorway(walls, -SPINE_X, LIFE_DOOR_Z, "Doorway_Life", "life_support", 1.0)
 
 	## The wall either side of each doorway, which the 4.089 m frame does not
 	## reach across the 7.0 m the panels leave. Without this every bay has a
@@ -158,9 +165,9 @@ func _build() -> void:
 	_light(lights, "Spine_B", Vector3(0.0, H - 0.45, -3.5))
 	_light(lights, "Spine_C", Vector3(0.0, H - 0.45, -17.5))
 	_light(lights, "Junction", Vector3(0.0, H - 0.45, JUNC_FWD * 0.5))
-	_light(lights, "NavRoom", Vector3(5.25, H - 0.45, 10.5))
-	_light(lights, "CommsRoom", Vector3(-5.25, H - 0.45, 10.5))
-	_light(lights, "LifeRoom", Vector3(-5.25, H - 0.45, LIFE_DOOR_Z))
+	_light(lights, "NavRoom", Vector3(5.25, H - 0.45, 10.5), "navigation")
+	_light(lights, "CommsRoom", Vector3(-5.25, H - 0.45, 10.5), "comms")
+	_light(lights, "LifeRoom", Vector3(-5.25, H - 0.45, LIFE_DOOR_Z), "life_support")
 
 	## The SHIPMIND kiosk stands in the junction, off the spine so the crew walk
 	## past it, and the navigation console sits in the navigation room.

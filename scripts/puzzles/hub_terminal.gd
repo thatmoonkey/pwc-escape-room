@@ -62,16 +62,19 @@ func status_state() -> ScreenState:
 			state.warn("[ ] %s - not yet placed, bay sealed" % label)
 	state.rule()
 	if GameState.all_restored():
-		state.ok("All five decisions are placed. The bridge door is unlocked.")
-		state.option("plot_home", "Where do I fly from here?", "The helm is aft, through the bridge door.", "primary")
+		state.ok("All five decisions are placed. The bridge door at the forward end of this deck is unlocked.")
+		state.option("plot_home", "Where do I fly from here?", "The helm is forward, through the bridge door.", "primary")
 	else:
+		## The id, not the display name: the line names the bay the way the
+		## doorway plates do, which needs the number the id maps to.
 		var next_bay: String = ""
 		for system_id in GameState.SYSTEMS:
 			if GameState.is_integrated(system_id) and not GameState.is_restored(system_id):
-				next_bay = GameState.display_name(system_id)
+				next_bay = system_id
 				break
 		if next_bay != "":
-			state.text("NEXT DECISION   %s bay. The console there is live - walk in and place it." % next_bay)
+			state.text("NEXT DECISION   Bay %d, %s. The console there is live - walk in and place it." % [
+				GameState.system_index(next_bay), GameState.display_name(next_bay)])
 			state.dim("Every bay on this vessel now has a live console. Place the remaining decisions to unlock the course home.")
 		else:
 			state.dim("The remaining bays are sealed: their consoles are not commissioned in this build. Their decisions stand on the record as NOT PLACED, and the [DEV] option previews the full session record.")
