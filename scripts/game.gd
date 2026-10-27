@@ -56,8 +56,8 @@ func _ready() -> void:
 	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
 	if launch != null:
 		## The card's own _ready fired before this controller loaded the save, so
-		## it is re-read here: without this a resumed session would open with an
-		## empty callsign and no mandate on a record that holds both.
+		## it is re-read here: without this a resumed session would open with no
+		## mandate on a record that holds one.
 		launch.refresh_from_state()
 	if intro != null:
 		## The readout strip stays dark while the story is up, and the mandate
@@ -65,6 +65,7 @@ func _ready() -> void:
 		hud.visible = false
 		if launch != null:
 			launch.hide_screen()
+			launch.intro_requested.connect(_on_intro_requested)
 		intro.finished.connect(_on_intro_finished)
 	elif launch != null:
 		## The readout strip stays dark while the card is up: it would only
@@ -105,6 +106,18 @@ func _on_main_menu_requested() -> void:
 		return
 	launch_screen.show_screen()
 	hud.visible = false
+
+
+## The crew asked for the story again from the mandate card. The card steps
+## aside - so Enter cannot begin the session underneath the telling - and the
+## narrative plays over everything until it hands back.
+func _on_intro_requested() -> void:
+	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
+	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
+	if intro != null:
+		if launch != null:
+			launch.hide_screen()
+		intro.replay()
 
 
 ## The run starts here. The clock begins at the moment the crew takes the ship,
