@@ -39,13 +39,13 @@ const GUARDRAILS := [
 		"id": "hard_ceiling",
 		"label": "HARD HAZARD CEILING",
 		"hint": "The route is refused above index 0.15, whatever the model projects.",
-		"cost": "COST - the opportunistic window. The 4.2 day transit goes for good, along with the narrow survey grid it buys.",
+		"cost": "COST - the opportunistic window. The 4.2 day transit goes for good, along with the narrow mapping grid it buys.",
 	},
 	{
 		"id": "continuous_revalidation",
 		"label": "CONTINUOUS SENSOR RE-VALIDATION",
 		"hint": "The index is recomputed from raw returns every 40 minutes instead of being carried forward.",
-		"cost": "COST - crew attention. One of the three of you watches the sensor picture instead of running the survey.",
+		"cost": "COST - crew attention. One of the three of you watches the sensor picture instead of running the mapping sweep.",
 	},
 	{
 		"id": "signoff_per_reroute",

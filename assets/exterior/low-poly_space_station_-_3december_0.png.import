@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2tqtqyw4tkct"
-path="res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.ctex"
+path.s3tc="res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.s3tc.ctex"
+path.etc2="res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4949241e0a82c04b5b80596425f035e6"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/exterior/low-poly_space_station_-_3december_0.png"
-dest_files=["res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.ctex"]
+dest_files=["res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.s3tc.ctex", "res://.godot/imported/low-poly_space_station_-_3december_0.png-4d2652200dba526d177c707a643a3bcf.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=2048
 detect_3d/compress_to=0

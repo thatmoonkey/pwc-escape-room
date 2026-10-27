@@ -13,6 +13,8 @@ const DESKTOP_RIG_PATH := "res://scenes/player/player.tscn"
 @onready var hud: HUD = $UI/HUD
 @onready var terminal: TerminalUI = $UI/TerminalUI
 @onready var principle_card: PrincipleCard = $UI/PrincipleCard
+@onready var launch_screen: LaunchScreen = $UI/LaunchScreen
+@onready var pause_menu: PauseMenu = $UI/PauseMenu
 
 var _player: Node3D = null
 var _pending_pa: String = ""
@@ -39,7 +41,10 @@ func _ready() -> void:
 	principle_card.closed.connect(_on_overlay_closed)
 	hud.refresh_objective()
 	# Two beds for the whole experience, started here and left running: the room
-	# tone under everything, the soundtrack over it.
+	# tone under everything, the soundtrack over it. The mixer's saved state is
+	# read back first, so the beds launch at the level the crew left behind -
+	# music muted stays muted, a fader parked at 40% stays parked there.
+	Sfx.load_settings()
 	Sfx.play_ambience()
 	Sfx.play_music()
 	await get_tree().process_frame
@@ -61,6 +66,23 @@ func _ready() -> void:
 		launch.begun.connect(_on_session_begin)
 	else:
 		_on_session_begin()
+	## The in-run menu is wired here rather than in the menu itself, because
+	## "back to the title card" is the controller's job: it owns the launch
+	## screen and the session state.
+	if pause_menu != null:
+		pause_menu.main_menu_requested.connect(_on_main_menu_requested)
+		if hud != null:
+			hud.menu_requested.connect(pause_menu.open)
+
+
+## Back to the title card. The run's clock stays stopped (the menu already
+## paused it), the launch screen re-opens with the record shown, and the crew
+## re-enters by pressing BEGIN - the same door they used the first time.
+func _on_main_menu_requested() -> void:
+	if launch_screen == null:
+		return
+	launch_screen.show_screen()
+	hud.visible = false
 
 
 ## The run starts here. The clock begins at the moment the crew takes the ship,
@@ -169,8 +191,12 @@ func _restore_desktop_environment() -> void:
 
 ## The same hand-back the launch screen does on BEGIN: whoever owns the
 ## "input_layer" group decides whether the cursor may be captured, and in a
-## touch or XR mode it will decline on its own.
+## touch or XR mode it will decline on its own. Refused while an overlay owns
+## the input - a mode flip inside the pause menu must not capture the cursor
+## out from under the menu the player is using.
 func _grab_cursor_back() -> void:
+	if InputRouter.ui_blocking:
+		return
 	for node in get_tree().get_nodes_in_group("input_layer"):
 		if node.has_method("grab_mouse"):
 			node.grab_mouse()

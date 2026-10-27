@@ -75,6 +75,18 @@ var _levels_require_owner: Dictionary = {}
 ## discovered when the commit is refused.
 var _owner_requirement: Label = null
 var _commit: Button = null
+## The placement control's own state beyond the three ids: the entries each
+## section was drawn from, so a press can find the option it belongs to and
+## reveal its detail block; the detail panels themselves ([panel, kicker,
+## body], one per section, hidden until that section's option is chosen); and
+## the spectrum track the level stops ride on.
+var _level_entries: Array = []
+var _guardrail_entries: Array = []
+var _owner_entries: Array = []
+var _level_detail: Array = []
+var _guardrail_detail: Array = []
+var _owner_detail: Array = []
+var _track: SpectrumTrack = null
 
 
 func _ready() -> void:
@@ -257,8 +269,6 @@ func _make_option_button(entry: Dictionary) -> Button:
 ## guardrail are two different choices, and sharing a group would make picking a
 ## guardrail clear the level.
 func _draw_spectrum(block: Dictionary) -> void:
-	var level_group := ButtonGroup.new()
-	level_group.allow_unpress = false
 	var guardrail_group := ButtonGroup.new()
 	guardrail_group.allow_unpress = false
 	var owner_group := ButtonGroup.new()
@@ -275,16 +285,16 @@ func _draw_spectrum(block: Dictionary) -> void:
 	_spectrum_box.add_child(_gap(6))
 
 	var levels: Array = block.get("levels", [])
-	for entry in levels:
-		var level: Dictionary = entry
+	_level_entries = levels
+	for level in levels:
 		## Which levels need an owner is the block's own statement, and the
 		## default is the strict one: a level that does not say gets asked for an
 		## owner rather than being let through.
 		_levels_require_owner[String(level.get("id", ""))] = bool(level.get("requires_owner", true))
-		var button: Button = BrandTokens.choice_button(
-			level_group, String(level.get("label", "")), String(level.get("hint", "")))
-		button.pressed.connect(_on_level_pressed.bind(String(level.get("id", ""))))
-		_spectrum_box.add_child(button)
+	_spectrum_box.add_child(_gap(4))
+	_spectrum_box.add_child(_level_slider(levels))
+	_level_detail = _detail_panel()
+	_spectrum_box.add_child(_level_detail[0])
 
 	var guardrail_title: String = String(block.get("guardrail_title", ""))
 	if guardrail_title != "":
@@ -292,15 +302,17 @@ func _draw_spectrum(block: Dictionary) -> void:
 		_spectrum_box.add_child(_note_label(guardrail_title, Brand.ACCENT_TINT))
 
 	var guardrails: Array = block.get("guardrails", [])
-	for entry in guardrails:
-		var guardrail: Dictionary = entry
+	_guardrail_entries = guardrails
+	for guardrail in guardrails:
+		## Label only. What the guardrail is, is the choice; what it costs is
+		## the detail block that opens under the one chosen.
 		var button: Button = BrandTokens.choice_button(
-			guardrail_group,
-			String(guardrail.get("label", "")),
-			String(guardrail.get("hint", "")),
-			String(guardrail.get("cost", "")))
+			guardrail_group, String(guardrail.get("label", "")))
 		button.pressed.connect(_on_guardrail_pressed.bind(String(guardrail.get("id", ""))))
 		_spectrum_box.add_child(button)
+	if not guardrails.is_empty():
+		_guardrail_detail = _detail_panel()
+		_spectrum_box.add_child(_guardrail_detail[0])
 
 	## The accountability step. It comes after the guardrail because it is the
 	## last thing a placement has to answer for: who owns the outcome.
@@ -314,14 +326,15 @@ func _draw_spectrum(block: Dictionary) -> void:
 	_owner_requirement = _note_label("", Brand.NEUTRAL_LIGHT)
 	_spectrum_box.add_child(_owner_requirement)
 	var owners: Array = block.get("owners", [])
-	for entry in owners:
-		var owner_role: Dictionary = entry
+	_owner_entries = owners
+	for owner_role in owners:
 		var owner_button: Button = BrandTokens.choice_button(
-			owner_group,
-			String(owner_role.get("label", "")),
-			String(owner_role.get("hint", "")))
+			owner_group, String(owner_role.get("label", "")))
 		owner_button.pressed.connect(_on_owner_pressed.bind(String(owner_role.get("id", ""))))
 		_spectrum_box.add_child(owner_button)
+	if not owners.is_empty():
+		_owner_detail = _detail_panel()
+		_spectrum_box.add_child(_owner_detail[0])
 	_refresh_owner_requirement()
 
 	_spectrum_box.add_child(_gap(6))
@@ -349,18 +362,77 @@ func _draw_spectrum(block: Dictionary) -> void:
 
 func _on_level_pressed(level_id: String) -> void:
 	_level_choice = level_id
+	_update_track_selection(level_id)
+	_show_level_detail(level_id)
 	_refresh_owner_requirement()
 	_refresh_commit()
 
 
 func _on_guardrail_pressed(guardrail_id: String) -> void:
 	_guardrail_choice = guardrail_id
+	var entry := _find_entry(_guardrail_entries, guardrail_id)
+	var body := String(entry.get("hint", ""))
+	var cost := String(entry.get("cost", ""))
+	if body != "" and cost != "":
+		body = body + "\n" + cost
+	elif body == "":
+		body = cost
+	_show_detail(_guardrail_detail, String(entry.get("label", "")), body)
 	_refresh_commit()
 
 
 func _on_owner_pressed(owner_id: String) -> void:
 	_owner_choice = owner_id
+	var entry := _find_entry(_owner_entries, owner_id)
+	_show_detail(_owner_detail, String(entry.get("label", "")), String(entry.get("hint", "")))
 	_refresh_commit()
+
+
+## The chosen level's detail: the full label in the small accent voice, the
+## level's own explanation in the smaller neutral voice beneath. Human-only's
+## explanation already says what it means, so nothing extra is added here.
+func _show_level_detail(level_id: String) -> void:
+	var entry := _find_entry(_level_entries, level_id)
+	if entry.is_empty():
+		return
+	_show_detail(_level_detail, String(entry.get("label", "")), String(entry.get("hint", "")))
+
+
+## One entry out of the list a section was drawn from, or empty for an unknown
+## id - the same never-half-accept discipline the model files use.
+func _find_entry(entries: Array, id: String) -> Dictionary:
+	for entry in entries:
+		if String(entry.get("id", "")) == id:
+			return entry
+	return {}
+
+
+## The chosen option's detail: its full label in the small accent voice, its
+## explanation in the smaller neutral voice beneath. This is the second layer
+## of the disclosure: the button carries the name, the block carries the
+## meaning, and it appears only for the option that was chosen.
+func _show_detail(detail: Array, kicker_text: String, body_text: String) -> void:
+	if detail.size() < 3:
+		return
+	var panel: Control = detail[0]
+	panel.visible = true
+	(detail[1] as Label).text = kicker_text
+	(detail[2] as Label).text = body_text
+
+
+## The chosen rung, as distance: the accent fill on the track runs from the
+## first stop to the one selected, so "how much authority is delegated" reads
+## as position, not as a list of toggles.
+func _update_track_selection(level_id: String) -> void:
+	if _track == null:
+		return
+	var index := 0
+	for entry in _level_entries:
+		if String(entry.get("id", "")) == level_id:
+			_track.selected = index
+			_track.queue_redraw()
+			return
+		index += 1
 
 
 ## True when a placement at this level has to name a role that owns it.
@@ -411,6 +483,156 @@ func _on_commit_pressed() -> void:
 	placement_chosen.emit(level_id, guardrail_id, owner_id)
 	if _puzzle != null and is_instance_valid(_puzzle):
 		_puzzle.place(level_id, guardrail_id, owner_id)
+
+
+# --- The level slider ----------------------------------------------------------
+
+
+## The four levels of the autonomy spectrum, drawn as a slider: one row of four
+## stops riding on a track, each stop an icon with its one-word caption under
+## it. This is the list-item-anchoring rule from the UX skill applied to the
+## game's central control - the eye reads four pictures left to right (the
+## model acting alone, a human watching, a stamp of authorisation, a person)
+## before it reads any words, and the line under them says the rungs are
+## positions on one spectrum, not four unrelated checkboxes.
+##
+## The detail is the second layer: each stop's full label and what the level
+## means live in a smaller block that appears under the slider only for the
+## setting chosen - the same disclosure the mandate picker uses on the launch
+## screen, so both places teach the same reading habit.
+func _level_slider(levels: Array) -> Control:
+	var holder := VBoxContainer.new()
+	holder.name = "LevelSlider"
+	holder.add_theme_constant_override("separation", 2)
+	_track = SpectrumTrack.new()
+	_track.name = "Track"
+	_track.stop_count = maxi(levels.size(), 2)
+	_track.custom_minimum_size = Vector2(0.0, 8.0)
+	holder.add_child(_track)
+	var row := HBoxContainer.new()
+	row.name = "Stops"
+	row.add_theme_constant_override("separation", 8)
+	var group := ButtonGroup.new()
+	group.allow_unpress = false
+	for level in levels:
+		var stop := _level_stop(
+			group,
+			Glyph.icon_for_level(String(level.get("id", ""))),
+			String(level.get("short", level.get("label", ""))))
+		stop.pressed.connect(_on_level_pressed.bind(String(level.get("id", ""))))
+		row.add_child(stop)
+	holder.add_child(row)
+	return holder
+
+
+## One stop of the slider: a toggle button whose top band is the icon and whose
+## bottom band is the one-word caption. Toggling is the selection - the pressed
+## state's accent border IS the chosen rung - and the icon changes tint with it
+## so the chosen picture is the bright one.
+func _level_stop(group: ButtonGroup, icon_name: String, label: String) -> Button:
+	var touch: bool = DisplayServer.is_touchscreen_available()
+	var glyph_size := 34.0 if touch else 30.0
+	var top_margin := 52.0 if touch else 44.0
+	var button := Button.new()
+	button.toggle_mode = true
+	button.button_group = group
+	button.focus_mode = Control.FOCUS_ALL
+	button.text = label
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.custom_minimum_size = Vector2(0.0, 88.0 if touch else 74.0)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	button.add_theme_color_override("font_color", Brand.NEUTRAL)
+	button.add_theme_color_override("font_hover_color", Brand.INK)
+	button.add_theme_color_override("font_pressed_color", Brand.ACCENT_TINT)
+	button.add_theme_color_override("font_focus_color", Brand.INK)
+	button.add_theme_stylebox_override("normal", _stop_box(Brand.SURFACE, Brand.NEUTRAL, top_margin))
+	button.add_theme_stylebox_override("hover", _stop_box(Brand.SURFACE_RAISED, Brand.NEUTRAL_LIGHT, top_margin))
+	button.add_theme_stylebox_override("pressed", _stop_box(Brand.SURFACE_RAISED, Brand.ACCENT, top_margin))
+	button.add_theme_stylebox_override("focus", _ring())
+	var glyph := Glyph.make(icon_name, glyph_size, Brand.NEUTRAL)
+	glyph.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	glyph.offset_left = -glyph_size / 2.0
+	glyph.offset_right = glyph_size / 2.0
+	glyph.offset_top = 10.0
+	glyph.offset_bottom = 10.0 + glyph_size
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(glyph)
+	button.toggled.connect(func(on: bool): glyph.tint = Brand.ACCENT_TINT if on else Brand.NEUTRAL)
+	return button
+
+
+## A stop's fill: the same family as the shared choice button, but with the top
+## margin the icon band needs, which is what pushes the caption into the bottom
+## band of the button.
+func _stop_box(background: Color, border: Color, top_margin: float) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = background
+	box.border_color = border
+	box.set_border_width_all(2)
+	box.set_corner_radius_all(3)
+	box.content_margin_left = 8.0
+	box.content_margin_right = 8.0
+	box.content_margin_top = top_margin
+	box.content_margin_bottom = 8.0
+	return box
+
+
+## A detail block: the smaller, secondary voice one section reveals for its
+## chosen option. Built hidden; showing it fills the kicker (the option's full
+## name, in the small accent voice) and the body (its explanation, in the
+## smaller neutral voice). Nothing here knows which section owns it - levels,
+## guardrails and owners each get their own instance.
+func _detail_panel() -> Array:
+	var panel := PanelContainer.new()
+	panel.name = "Detail"
+	var style := StyleBoxFlat.new()
+	style.bg_color = Brand.SURFACE_RAISED
+	style.border_color = Brand.NEUTRAL
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.content_margin_left = 14.0
+	style.content_margin_right = 14.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
+	panel.add_theme_stylebox_override("panel", style)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 3)
+	panel.add_child(box)
+	var kicker := Label.new()
+	kicker.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	kicker.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	box.add_child(kicker)
+	var body := Label.new()
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	body.add_theme_color_override("font_color", Brand.NEUTRAL_LIGHT)
+	box.add_child(body)
+	panel.visible = false
+	return [panel, kicker, body]
+
+
+## The line the stops ride on. A quiet base line spans the whole spectrum; the
+## accent fill runs from the first stop to the selected one, so the position of
+## the selection on the spectrum is drawn, not implied. Stop centres are
+## computed from this control's own width, which matches the stop row's width
+## because both span the same column.
+class SpectrumTrack:
+	extends Control
+
+	var selected: int = -1
+	var stop_count: int = 4
+
+	func _draw() -> void:
+		if stop_count < 2:
+			return
+		var y := size.y * 0.5
+		var first := size.x * 0.5 / float(stop_count)
+		var last := size.x * (float(stop_count) - 0.5) / float(stop_count)
+		draw_line(Vector2(first, y), Vector2(last, y), Brand.NEUTRAL, 2.0)
+		if selected >= 0:
+			var to := size.x * (float(selected) + 0.5) / float(stop_count)
+			draw_line(Vector2(first, y), Vector2(to, y), Brand.ACCENT, 3.0)
 
 
 func _spectrum_title(text: String) -> Label:

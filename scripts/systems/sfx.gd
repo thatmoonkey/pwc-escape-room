@@ -39,6 +39,48 @@ const VOICE_LEVEL := 0.50
 const AMBIENCE_LEVEL := 0.30
 const MUSIC_LEVEL := 0.60
 
+## THE MIXER. Three channels - music, ambience and sfx - each with its own mute
+## and its own fader, because "turn the music down" and "turn the game down" are
+## different requests and one global volume cannot answer both.
+##
+## The fader is a user multiplier (0..1) applied on top of each sound's design
+## level, so a fader at 1.0 plays the mix as authored and a fader at 0.3 pulls
+## that channel to thirty percent of it. Mute is a volume change, not a stop:
+## a bed keeps playing at the mute floor so unmuting brings the track back
+## exactly where it was rather than restarting it.
+const CHANNELS: Array[String] = ["music", "ambience", "sfx"]
+const CHANNEL_NAMES := {
+	"music": "MUSIC",
+	"ambience": "AMBIENCE",
+	"sfx": "SFX",
+}
+const CHANNEL_ICONS := {
+	"music": "note",
+	"ambience": "waves",
+	"sfx": "bolt",
+}
+
+const MUTE_DB := -80.0
+
+## THE MIXER'S MEMORY. Faders and mutes are written to user://settings.cfg the
+## moment they move, and read back at boot, so the mix the crew leaves behind is
+## the mix they come back to. It sits beside the progress save, not inside it:
+## mixer state is a preference about HOW the session sounds, while the progress
+## save is a record of WHAT was decided.
+const SETTINGS_PATH := "user://settings.cfg"
+
+## Music defaults to MUTED, at the crew's request: the soundtrack is the first
+## thing anyone wants quiet during a work session, and it costs nothing to
+## start that way. Ambience and sfx start audible - the room tone is the
+## furniture, and a silent room reads as broken rather than as quiet.
+static var music_muted: bool = true
+static var ambience_muted: bool = false
+static var sfx_muted: bool = false
+
+static var music_volume: float = 1.0
+static var ambience_volume: float = 1.0
+static var sfx_volume: float = 1.0
+
 ## One-shots are spread over the scene's voice players so a console opening over
 ## a door does not cut the first sound short.
 static var _next: int = 0
@@ -62,7 +104,7 @@ static func play(path: String, level: float = VOICE_LEVEL) -> void:
 	if stream == null:
 		return
 	player.stream = stream
-	player.volume_db = level_to_db(level)
+	_apply_level(player, "sfx", level)
 	player.play()
 
 
@@ -85,10 +127,156 @@ static func stop_music() -> void:
 	_stop_loop(MUSIC_GROUP)
 
 
+# --- The mixer ------------------------------------------------------------------
+
+## The music switch. Every player carrying the music group is retuned, and the
+## static flag is what a future loop start reads, so the state survives a scene
+## reload without anyone having to remember to re-apply it.
+static func set_music_muted(muted: bool) -> void:
+	set_channel_muted("music", muted)
+
+
+static func toggle_music_muted() -> bool:
+	return toggle_channel_muted("music")
+
+
+static func channel_is_muted(channel: String) -> bool:
+	match channel:
+		"music":
+			return music_muted
+		"ambience":
+			return ambience_muted
+		"sfx":
+			return sfx_muted
+	return false
+
+
+## Write the mixer to disk. Called on every fader move and mute flip: the write
+## is tiny, so persisting continuously costs nothing and guarantees even a
+## crash between sessions loses no preference.
+static func save_settings() -> void:
+	var config := ConfigFile.new()
+	for channel in CHANNELS:
+		config.set_value("mixer", channel + "_muted", channel_is_muted(channel))
+		config.set_value("mixer", channel + "_volume", channel_volume(channel))
+	config.save(SETTINGS_PATH)
+
+
+## Read the mixer back from disk. A missing file - a first run, or a cache the
+## browser has swept - falls back to the authored defaults without complaint.
+static func load_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load(SETTINGS_PATH) != OK:
+		return
+	for channel in CHANNELS:
+		var muted: bool = bool(config.get_value("mixer", channel + "_muted", channel_is_muted(channel)))
+		var volume: float = float(config.get_value("mixer", channel + "_volume", channel_volume(channel)))
+		set_channel_muted(channel, muted)
+		set_channel_volume(channel, volume)
+
+
+static func set_channel_muted(channel: String, muted: bool) -> void:
+	match channel:
+		"music":
+			music_muted = muted
+		"ambience":
+			ambience_muted = muted
+		"sfx":
+			sfx_muted = muted
+	_apply_channel(channel)
+	save_settings()
+
+
+static func toggle_channel_muted(channel: String) -> bool:
+	set_channel_muted(channel, not channel_is_muted(channel))
+	return channel_is_muted(channel)
+
+
+static func channel_volume(channel: String) -> float:
+	match channel:
+		"music":
+			return music_volume
+		"ambience":
+			return ambience_volume
+		"sfx":
+			return sfx_volume
+	return 1.0
+
+
+## Set one channel's fader. Every player in that channel is retuned at once, so
+## a fader move is heard immediately rather than on the next sound.
+static func set_channel_volume(channel: String, value: float) -> void:
+	var clamped := clampf(value, 0.0, 1.0)
+	match channel:
+		"music":
+			music_volume = clamped
+		"ambience":
+			ambience_volume = clamped
+		"sfx":
+			sfx_volume = clamped
+	_apply_channel(channel)
+	save_settings()
+
+
+static func _group_for(channel: String) -> String:
+	match channel:
+		"music":
+			return MUSIC_GROUP
+		"ambience":
+			return AMBIENCE_GROUP
+	return VOICE_GROUP
+
+
+static func _channel_for_group(group: String) -> String:
+	match group:
+		MUSIC_GROUP:
+			return "music"
+		AMBIENCE_GROUP:
+			return "ambience"
+	return "sfx"
+
+
+## The decibels for a sound at its design level, through the channel's fader
+## and mute. A muted channel plays at the mute floor; an unmuted one multiplies
+## the design level by the fader.
+static func _db_for(channel: String, level: float) -> float:
+	if channel_is_muted(channel):
+		return MUTE_DB
+	return level_to_db(level * channel_volume(channel))
+
+
+## Stamp a player with its design level and the decibels that follow from the
+## channel's current fader. The meta is what lets a later fader move re-derive
+## the level for a sound that is already playing.
+static func _apply_level(player: AudioStreamPlayer, channel: String, level: float) -> void:
+	player.set_meta("sfx_base_level", level)
+	player.volume_db = _db_for(channel, level)
+
+
+## Retune every player in a channel: beds and one-shots alike. This is what a
+## mute toggle or a fader move lands on.
+static func _apply_channel(channel: String) -> void:
+	var tree: SceneTree = _tree()
+	if tree == null:
+		return
+	var group := _group_for(channel)
+	for node in tree.get_nodes_in_group(group):
+		if node is AudioStreamPlayer:
+			var player: AudioStreamPlayer = node
+			if player.has_meta("sfx_base_level"):
+				_apply_level(player, channel, player.get_meta("sfx_base_level"))
+	var spare: AudioStreamPlayer = _spare_loops.get(group, null)
+	if spare != null and is_instance_valid(spare) and spare.has_meta("sfx_base_level"):
+		_apply_level(spare, channel, spare.get_meta("sfx_base_level"))
+
+
 ## Start a looping bed. Safe to call more than once: a call while it is already
-## playing does nothing, which keeps it seamless across a scene reload.
+## playing does nothing, which keeps it seamless across a scene reload. The bed
+## starts at the level the channel's mixer currently asks for, so a boot with
+## music muted starts the bed at the mute floor instead of blasting the mix and
+## then being pulled down.
 static func _start_loop(group: String, path: String, level: float) -> void:
-	var player: AudioStreamPlayer = _loop_voice(group, path, level_to_db(level))
+	var player: AudioStreamPlayer = _loop_voice(group, path, level)
 	if player == null:
 		push_warning("Sfx: no player in group '%s' available for '%s'." % [group, path])
 		return
@@ -115,29 +303,30 @@ static func _stop_loop(group: String) -> void:
 
 
 ## A level expressed as a fraction of full scale, as decibels. Decibels are
-## logarithmic, so this is arithmetic rather than a shift of the decimal point:
-## 0.5 is -6 dB and 0.3 is about -10.5 dB. The floor exists only so that a level
-## of exactly zero cannot produce a negative infinity.
+## logarithmic, so this is arithmetic rather than a guess: 0.5 is -6 dB and 0.3
+## is about -10.5 dB. The floor exists only so that a level of exactly zero
+## cannot produce a negative infinity.
 static func level_to_db(level: float) -> float:
 	return linear_to_db(clampf(level, 0.0001, 1.0))
 
 
 ## The player for a looping bed. Prefers the scene node carrying that group;
-## otherwise creates one deferred and starts it on tree_entered, so it is never
-## played from outside the tree.
-static func _loop_voice(group: String, path: String, volume_db: float) -> AudioStreamPlayer:
+## otherwise creates one deferred and starts it on tree_entered, so a bed is
+## never silently dropped.
+static func _loop_voice(group: String, path: String, level: float) -> AudioStreamPlayer:
 	var tree: SceneTree = _tree()
 	if tree == null:
 		return null
+	var channel := _channel_for_group(group)
 	for node in tree.get_nodes_in_group(group):
 		if node is AudioStreamPlayer:
 			var player: AudioStreamPlayer = node
 			if player.stream == null:
 				player.stream = _stream(path, true)
-			## Set whether or not the stream was just assigned. A bed saved with
-			## a stream already on it would otherwise keep the volume it was
-			## saved with and quietly ignore the mix.
-			player.volume_db = volume_db
+			## Stamp the design level and the current mix every time. A bed
+			## saved with a stream already on it would otherwise keep the
+			## volume it was saved with and quietly ignore the mixer.
+			_apply_level(player, channel, level)
 			return player
 	var spare: AudioStreamPlayer = _spare_loops.get(group, null)
 	if spare != null and is_instance_valid(spare):
@@ -146,7 +335,7 @@ static func _loop_voice(group: String, path: String, volume_db: float) -> AudioS
 	spare.name = "SfxLoop_%s" % group
 	spare.add_to_group(group)
 	_spare_loops[group] = spare
-	_pending[group] = {"path": path, "db": volume_db}
+	_pending[group] = {"path": path, "level": level}
 	spare.tree_entered.connect(_on_spare_loop_ready.bind(group), Object.CONNECT_ONE_SHOT)
 	tree.root.add_child.call_deferred(spare)
 	return null
@@ -161,7 +350,7 @@ static func _on_spare_loop_ready(group: String) -> void:
 	if stream == null:
 		return
 	spare.stream = stream
-	spare.volume_db = float(pending.get("db", -6.0))
+	_apply_level(spare, _channel_for_group(group), float(pending.get("level", 0.5)))
 	if not spare.playing:
 		spare.play()
 
@@ -178,20 +367,17 @@ static func _free_voice() -> AudioStreamPlayer:
 			return node
 	if not voices.is_empty():
 		_next = (_next + 1) % voices.size()
-		var reused: Node = voices[_next]
-		if reused is AudioStreamPlayer:
-			return reused
-	# No scene voices at all: keep a small spare pool under the scene root.
+		return voices[_next]
 	for player in _spare:
 		if is_instance_valid(player) and not player.playing:
 			return player
 	if _spare.size() >= 4:
-		return _spare[0] if is_instance_valid(_spare[0]) else null
+		return _spare[0]
 	var created := AudioStreamPlayer.new()
-	created.name = "SfxSpare%d" % _spare.size()
+	created.name = "SfxVoice_%d" % _spare.size()
 	created.add_to_group(VOICE_GROUP)
-	tree.root.add_child.call_deferred(created)
 	_spare.append(created)
+	tree.root.add_child.call_deferred(created)
 	return created
 
 
@@ -201,22 +387,19 @@ static func _stream(path: String, loop: bool) -> AudioStream:
 	var cached: AudioStream = _cache.get(path, null)
 	if cached != null:
 		## The loop flag is re-applied rather than assumed. load() hands back ONE
-		## shared resource per path, so the flag lives on that shared resource:
-		## without this, whichever caller asked last would decide whether a bed
-		## loops, and a one-shot probe listed before the soundtrack started would
-		## leave the music playing exactly once.
+		## shared resource per path, so without this, whichever caller asked last
+		## would decide whether a bed loops.
 		if loop:
 			_apply_loop(cached)
 		return cached
 	var resource: Resource = load(path)
 	if resource == null or not (resource is AudioStream):
-		push_warning("Sfx: could not load '%s' as an audio stream." % path)
 		return null
-	var stream: AudioStream = resource
+	cached = resource as AudioStream
 	if loop:
-		_apply_loop(stream)
-	_cache[path] = stream
-	return stream
+		_apply_loop(cached)
+	_cache[path] = cached
+	return cached
 
 
 static func _apply_loop(stream: AudioStream) -> void:
@@ -228,47 +411,38 @@ static func _apply_loop(stream: AudioStream) -> void:
 
 ## A one-line report of the audio state, for the boot log. Read-only: it proves
 ## each clip resolves and whether the beds are actually running at the level the
-## mix asks for, but never plays anything itself. The percentage is reported
-## beside the decibels because this log gets read against the mix, and nobody
-## should have to convert -10.5 into thirty percent in their head to check it.
+## mix asks for. The percentage is reported beside the decibels, because the
+## conversion is logarithmic and nobody should have to do it in their head.
 static func debug_state() -> String:
 	var tree: SceneTree = _tree()
 	if tree == null:
 		return "no scene tree"
-	return "ambience %s | music %s | voices=%d | clips: computer=%s door=%s music=%s" % [
-		_bed_state(AMBIENCE_GROUP),
-		_bed_state(MUSIC_GROUP),
-		tree.get_nodes_in_group(VOICE_GROUP).size(),
+	var parts: Array[String] = []
+	for channel in CHANNELS:
+		var muted: String = "muted" if channel_is_muted(channel) else "%d%%" % int(round(channel_volume(channel) * 100.0))
+		parts.append("%s %s [%s]" % [String(CHANNEL_NAMES[channel]), muted, _bed_state(_group_for(channel))])
+	parts.append("voices=%d" % tree.get_nodes_in_group(VOICE_GROUP).size())
+	parts.append("clips: computer=%s door=%s music=%s" % [
 		str(_stream(COMPUTER, false) != null),
 		str(_stream(DOOR, false) != null),
 		str(_stream(MUSIC, true) != null),
-	]
+	])
+	return " | ".join(parts)
 
 
-## One looping bed's state: how many players carry the group, and what the first
-## of them is doing.
 static func _bed_state(group: String) -> String:
 	var tree: SceneTree = _tree()
 	if tree == null:
-		return "no scene tree"
-	var nodes: Array[Node] = tree.get_nodes_in_group(group)
-	for node in nodes:
+		return "no tree"
+	for node in tree.get_nodes_in_group(group):
 		if node is AudioStreamPlayer:
 			var player: AudioStreamPlayer = node
-			if player.stream == null:
-				return "[%d] no stream" % nodes.size()
-			return "[%d] playing=%s stream=%s vol=%.1f (%.0f%%)" % [
-				nodes.size(),
-				str(player.playing),
-				player.stream.resource_path,
-				player.volume_db,
-				db_to_linear(player.volume_db) * 100.0,
-			]
-	return "MISSING"
+			if player.playing:
+				return "playing %.1fdB" % player.volume_db
+			return "stopped"
+	return "no player"
 
 
 static func _tree() -> SceneTree:
 	var loop: MainLoop = Engine.get_main_loop()
-	if loop is SceneTree:
-		return loop as SceneTree
-	return null
+	return loop as SceneTree

@@ -103,12 +103,15 @@ func spectrum_block(title: String, note: String = "") -> ScreenState:
 
 ## One rung of the spectrum. The order these are added in IS the order they are
 ## shown, and the level's own index in the model is what a placement records -
-## so a decision never reorders the spectrum to suit itself.
-func spectrum_level(id: String, label: String, hint: String = "", requires_owner: bool = true) -> ScreenState:
+## so a decision never reorders the spectrum to suit itself. label is the full
+## name read in the detail block; short_label is the one word under the slider's
+## icon, kept short so four stops scan as four pictures rather than four
+## paragraphs.
+func spectrum_level(id: String, label: String, hint: String = "", requires_owner: bool = true, short_label: String = "") -> ScreenState:
 	if spectrum.is_empty():
 		spectrum_block("PLACE THE DECISION")
 	var levels: Array = spectrum["levels"]
-	levels.append({"id": id, "label": label, "hint": hint, "requires_owner": requires_owner})
+	levels.append({"id": id, "label": label, "hint": hint, "requires_owner": requires_owner, "short": short_label})
 	return self
 
 

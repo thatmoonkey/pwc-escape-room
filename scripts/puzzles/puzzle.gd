@@ -239,7 +239,7 @@ func placement_block(state: ScreenState, title: String, note: String, guardrail_
 		## bay's, so it travels with the level.
 		state.spectrum_level(
 			level_id, String(level["label"]), String(level["hint"]),
-			OperatingModel.owner_required_for(level_id))
+			OperatingModel.owner_required_for(level_id), String(level["short"]))
 	state.spectrum_guardrail_title(guardrail_title)
 	for guardrail in guardrails():
 		state.spectrum_guardrail(

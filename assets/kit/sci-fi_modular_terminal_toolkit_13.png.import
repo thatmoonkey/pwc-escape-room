@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnp22wn2mcgop"
-path="res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.ctex"
+path.s3tc="res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.s3tc.ctex"
+path.etc2="res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8cb42ec11b4c577629868732615eb0a7"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/kit/sci-fi_modular_terminal_toolkit_13.png"
-dest_files=["res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.ctex"]
+dest_files=["res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.s3tc.ctex", "res://.godot/imported/sci-fi_modular_terminal_toolkit_13.png-3de3a4a5a3f52055d8ac1a929f70431f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0

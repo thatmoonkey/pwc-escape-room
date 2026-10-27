@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7icnei2fdhi0"
-path="res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.ctex"
+path.s3tc="res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.s3tc.ctex"
+path.etc2="res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6c4733d0bb1bbab3941efb9868c644bc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/library/shooter-scifi/sci-fi-terminal_Image_2.png"
-dest_files=["res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.ctex"]
+dest_files=["res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.s3tc.ctex", "res://.godot/imported/sci-fi-terminal_Image_2.png-6ab00013928b814ce7e2b035bb2efa86.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0

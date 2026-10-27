@@ -34,6 +34,7 @@ const TANGERINE := Color(0.816, 0.251, 0.149)
 const GOLD := Color(0.941, 0.722, 0.224)
 const WHITE := Color(1.0, 1.0, 1.0)
 const BODY := Color(0.93, 0.89, 0.85)
+const INK := Color(0.96, 0.93, 0.89)
 const MUTED := Color(0.72, 0.66, 0.62)
 const SURFACE := Color(0.105, 0.068, 0.052, 1.0)
 const SURFACE_RAISED := Color(0.16, 0.11, 0.085, 1.0)
@@ -67,7 +68,7 @@ var _tile_badges: Dictionary = {}
 var _pulsing_tile: CanvasItem = null
 var _pulse: Tween = null
 
-var _chooser: PanelContainer = null
+var _chooser: Control = null
 var _chooser_open: bool = false
 
 var _sheet: Control = null
@@ -77,8 +78,13 @@ var _sheet_body: VBoxContainer = null
 var _mode_buttons: Dictionary = {}
 var _mode_note: Label = null
 var _mode_watch: int = -1
-var _music_button: Button = null
-var _music_glyph: Glyph = null
+var _audio_button: Button = null
+var _audio_glyph: Glyph = null
+var _audio_popup: PanelContainer = null
+var _audio_catcher: Control = null
+var _objective_line: Label = null
+var _appetite_line: Label = null
+var _chooser_note: Label = null
 
 
 func _ready() -> void:
@@ -95,6 +101,8 @@ func is_open() -> bool:
 func show_screen() -> void:
 	_open = true
 	_root.visible = true
+	_close_audio_popup()
+	_close_chooser()
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	refresh_from_state()
@@ -118,6 +126,7 @@ func refresh_from_state() -> void:
 	for id in _appetite_buttons:
 		if String(id) == _appetite_pick:
 			BrandTokens.mark_chosen(_appetite_buttons[id])
+	_refresh_declared()
 	_refresh_resume()
 	_refresh_tiles()
 	_request_fit()
@@ -166,6 +175,11 @@ func _refresh_resume() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _chooser != null and _chooser.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_chooser()
+			get_viewport().set_input_as_handled()
+		return
 	if _sheet != null and _sheet.visible:
 		if event.is_action_pressed("ui_cancel"):
 			_close_sheet()
@@ -192,6 +206,9 @@ func _process(_delta: float) -> void:
 	if InputMode.mode != _mode_watch:
 		_mode_watch = InputMode.mode
 		_refresh_mode_chips()
+	# The corner speaker tracks the mixer the same way: the AudioPanel writes
+	# the mixer directly, so this corner re-reads it instead of being told.
+	_refresh_audio_button()
 
 
 # --- The three goals ------------------------------------------------------------
@@ -267,19 +284,44 @@ func _open_chooser() -> void:
 	_chooser_open = true
 	if _chooser != null:
 		_chooser.visible = true
-	_request_fit()
+	_refresh_declared()
 
 
 func _close_chooser() -> void:
 	_chooser_open = false
 	if _chooser != null:
 		_chooser.visible = false
-	_request_fit()
+
+
+## The mandate, written as it is being declared. The buttons above only pick;
+## this box states what was picked - the sentence every decision will be read
+## against - so the definitions do their work here rather than under every
+## button on the list.
+func _refresh_declared() -> void:
+	if _objective_line == null or _appetite_line == null:
+		return
+	if _objective_pick == "":
+		_objective_line.text = "Mandate:  pick an objective below."
+		_objective_line.add_theme_color_override("font_color", MUTED)
+	else:
+		_objective_line.text = "Mandate:  %s" % String(
+			OperatingModel.objective_entry_for(_objective_pick).get("statement", ""))
+		_objective_line.add_theme_color_override("font_color", WHITE)
+	if _appetite_pick == "":
+		_appetite_line.text = "Risk appetite:  pick how much risk the mission may carry."
+		_appetite_line.add_theme_color_override("font_color", MUTED)
+	else:
+		_appetite_line.text = "Risk appetite:  %s" % String(
+			OperatingModel.appetite_entry_for(_appetite_pick).get("blurb", ""))
+		_appetite_line.add_theme_color_override("font_color", WHITE)
+	if _chooser_note != null:
+		_chooser_note.visible = not _mandate_declared()
 
 
 func _on_objective_chosen(objective_id: String) -> void:
 	_objective_pick = objective_id
 	_set_hint("")
+	_refresh_declared()
 	_refresh_tiles()
 	_maybe_seal()
 
@@ -287,19 +329,26 @@ func _on_objective_chosen(objective_id: String) -> void:
 func _on_appetite_chosen(appetite_id: String) -> void:
 	_appetite_pick = appetite_id
 	_set_hint("")
+	_refresh_declared()
 	_refresh_tiles()
 	_maybe_seal()
 
 
-## Both halves picked: the tile completes and the chooser folds itself away,
-## because a form that stays open after it is done reads as unfinished.
+## Both halves picked: the popup folds itself away after a beat - long enough
+## for the crew to read the mandate they just wrote - because a form that
+## stays open after it is done reads as unfinished.
 func _maybe_seal() -> void:
 	if not _mandate_declared() or not _chooser_open:
 		return
-	await get_tree().create_timer(0.45).timeout
+	await get_tree().create_timer(1.1).timeout
 	if not is_inside_tree() or not _mandate_declared():
 		return
 	_close_chooser()
+
+
+func _on_chooser_dim_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_close_chooser()
 
 
 # --- Secondary sheets ------------------------------------------------------------
@@ -382,7 +431,10 @@ func _situation_rows() -> Dictionary:
 		"kicker": "THE SITUATION",
 		"title": "Why you're here",
 		"rows": [
-			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity."},
+			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity, "
+				+ "holding out in the survey field with the planet filling the bay "
+				+ "windows. The ship's job: map the planet, then bring its data home "
+				+ "to Kepler-442b."},
 			{"text": "SHIPMIND has flown this ship for years on an operating model nobody "
 				+ "has re-stated: transit time, inside a hazard ceiling of its own "
 				+ "definition. Nothing has failed and nothing is rogue. The ship is simply "
@@ -563,8 +615,6 @@ func _build() -> void:
 
 	_column.add_child(_gap(16))
 	_column.add_child(_goal_tiles())
-	_chooser = _build_chooser()
-	_column.add_child(_chooser)
 	_column.add_child(_gap(12))
 	_column.add_child(_field_row())
 	_resume_label = _micro("")
@@ -574,6 +624,7 @@ func _build() -> void:
 	_column.add_child(_curiosity_row())
 
 	_build_sheet()
+	_build_mandate_popup()
 	_build_mode_chips()
 
 
@@ -584,7 +635,7 @@ func _goal_tiles() -> HBoxContainer:
 	row.add_theme_constant_override("separation", 22)
 
 	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE",
-		"Declare it before you walk."))
+		"Set what the mission is for."))
 	row.add_child(_goal_tile("decisions", "sliders", "FIVE DECISIONS",
 		"Set how much SHIPMIND decides."))
 	row.add_child(_goal_tile("fly", "rocket", "FLY HOME",
@@ -669,38 +720,125 @@ func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: St
 	return tile
 
 
-## The mandate chooser, opened from the first tile. Two exclusive picks with
-## icons, one short line each - the long form of this copy lives in the
-## curiosity sheets.
-func _build_chooser() -> PanelContainer:
+## The mandate picker, as a modal popup in the family of the other popups -
+## the decisions and flight tiles open the same kind of window - rather than a
+## form squeezed between the goal tiles and the BEGIN row, which crowded both.
+##
+## Progressive disclosure lives in the typography: each option's button carries
+## only its NAME, bold and larger; the one-line definition underneath is hidden
+## until that option is the chosen one. What the choices are building - the
+## mandate itself - is stated in a box above the buttons, so the definitions
+## are read where they have meaning: as the sentence being declared. Picking
+## "home on schedule" and "balanced" writes:
+##
+##   Mandate: Keep the filed schedule. The charter holders are waiting.
+##   Risk appetite: Take the openings that are worth it, and carry the cost of the rest.
+##
+## ...instead of printing every option's definition under every button, every time.
+func _build_mandate_popup() -> void:
+	_chooser = Control.new()
+	_chooser.name = "MandatePopup"
+	_chooser.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_chooser.mouse_filter = Control.MOUSE_FILTER_STOP
+	_chooser.visible = false
+	_root.add_child(_chooser)
+
+	var dim := ColorRect.new()
+	dim.name = "Dim"
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.03, 0.02, 0.015, 0.82)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.gui_input.connect(_on_chooser_dim_input)
+	_chooser.add_child(dim)
+
 	var panel := PanelContainer.new()
-	panel.name = "Chooser"
-	panel.visible = false
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.name = "Panel"
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.custom_minimum_size = Vector2(640.0, 0.0)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.055, 0.04, 0.98)
+	style.bg_color = Color(0.09, 0.055, 0.04, 0.99)
 	style.border_color = TANGERINE
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
-	style.content_margin_left = 22.0
-	style.content_margin_right = 22.0
-	style.content_margin_top = 14.0
-	style.content_margin_bottom = 16.0
+	style.content_margin_left = 26.0
+	style.content_margin_right = 26.0
+	style.content_margin_top = 18.0
+	style.content_margin_bottom = 18.0
 	panel.add_theme_stylebox_override("panel", style)
+	_chooser.add_child(panel)
 
 	var column := VBoxContainer.new()
 	column.name = "Column"
-	column.add_theme_constant_override("separation", 6)
-	panel.add_child(column)
+	column.add_theme_constant_override("separation", 8)
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	column.add_child(_heading("DECLARE THE MANDATE"))
-	column.add_child(_micro("Every decision you make is judged against this."))
+	# Five option rows - two of which grow when chosen - can outgrow the
+	# screen, and a centred panel that overflows clips at both edges. The
+	# scroll keeps the panel a fixed, screen-sized height and lets the list
+	# move instead of the panel.
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.custom_minimum_size = Vector2(640.0, 560.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel.add_child(scroll)
+	scroll.add_child(column)
 
+	column.add_child(_kicker("DECLARE THE MANDATE"))
+	column.add_child(_title("What is this mission for?"))
+	column.add_child(_gap(6))
+
+	# The declared mandate, building up as the picks land. This is the payload
+	# of the screen: the buttons below only choose, this box states what was
+	# chosen - in the sentence every decision will later be judged against.
+	var declared := PanelContainer.new()
+	declared.name = "Declared"
+	var declared_style := StyleBoxFlat.new()
+	declared_style.bg_color = Color(0.05, 0.03, 0.02, 0.85)
+	declared_style.border_color = Color(0.35, 0.26, 0.20)
+	declared_style.set_border_width_all(1)
+	declared_style.set_corner_radius_all(4)
+	declared_style.content_margin_left = 16.0
+	declared_style.content_margin_right = 16.0
+	declared_style.content_margin_top = 10.0
+	declared_style.content_margin_bottom = 10.0
+	declared.add_theme_stylebox_override("panel", declared_style)
+	column.add_child(declared)
+
+	var declared_column := VBoxContainer.new()
+	declared_column.add_theme_constant_override("separation", 2)
+	declared.add_child(declared_column)
+
+	var declared_kicker := Label.new()
+	declared_kicker.name = "Kicker"
+	declared_kicker.text = "THE MANDATE YOU ARE DECLARING"
+	declared_kicker.add_theme_font_size_override("font_size", 11)
+	declared_kicker.add_theme_color_override("font_color", PAPAYA)
+	declared_column.add_child(declared_kicker)
+
+	_objective_line = Label.new()
+	_objective_line.name = "ObjectiveLine"
+	_objective_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_objective_line.add_theme_font_size_override("font_size", 15)
+	_objective_line.add_theme_color_override("font_color", WHITE)
+	declared_column.add_child(_objective_line)
+
+	_appetite_line = Label.new()
+	_appetite_line.name = "AppetiteLine"
+	_appetite_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_appetite_line.add_theme_font_size_override("font_size", 15)
+	_appetite_line.add_theme_color_override("font_color", WHITE)
+	declared_column.add_child(_appetite_line)
+	_refresh_declared()
+
+	column.add_child(_gap(8))
+	column.add_child(_heading("THE OBJECTIVE"))
 	var objective_group := ButtonGroup.new()
 	objective_group.allow_unpress = false
 	for entry in OperatingModel.OBJECTIVES:
 		var id: String = String(entry["id"])
-		var button := BrandTokens.icon_choice_button(
+		var button := _mandate_choice_button(
 			objective_group, Glyph.icon_for_objective(id),
 			String(entry["label"]), String(entry["statement"]))
 		button.name = "Objective_%s" % id
@@ -709,19 +847,120 @@ func _build_chooser() -> PanelContainer:
 		column.add_child(button)
 
 	column.add_child(_gap(8))
-	column.add_child(_heading("RISK APPETITE"))
+	column.add_child(_heading("THE RISK APPETITE"))
 	var appetite_group := ButtonGroup.new()
 	appetite_group.allow_unpress = false
 	for entry in OperatingModel.APPETITES:
 		var id: String = String(entry["id"])
-		var button := BrandTokens.icon_choice_button(
+		var button := _mandate_choice_button(
 			appetite_group, Glyph.icon_for_appetite(id),
 			String(entry["label"]), String(entry["blurb"]))
 		button.name = "Appetite_%s" % id
 		button.pressed.connect(_on_appetite_chosen.bind(id))
 		_appetite_buttons[id] = button
 		column.add_child(button)
-	return panel
+
+	# The seal line, under the buttons: the quiet instruction that makes the
+	# auto-seal legible rather than surprising.
+	_chooser_note = _micro("Pick one of each - the mandate writes itself above, and the tile seals.")
+	_chooser_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(_gap(6))
+	column.add_child(_chooser_note)
+
+
+## A mandate option button: name only while unchosen, name plus its definition
+## once chosen. The name is the bold, larger voice; the definition is the
+## smaller secondary voice that appears only where it is now doing work -
+## explaining the option the crew actually picked, in the box above.
+func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: String, definition: String) -> Button:
+	var button := Button.new()
+	button.toggle_mode = true
+	button.button_group = group
+	button.focus_mode = Control.FOCUS_ALL
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.custom_minimum_size = Vector2(0.0, 46.0)
+
+	var rest := StyleBoxFlat.new()
+	rest.bg_color = Color(0.11, 0.07, 0.05, 0.9)
+	rest.border_color = Color(0.35, 0.26, 0.20)
+	rest.set_border_width_all(1)
+	rest.set_corner_radius_all(4)
+	rest.content_margin_left = 58.0
+	rest.content_margin_right = 14.0
+	rest.content_margin_top = 8.0
+	rest.content_margin_bottom = 8.0
+	button.add_theme_stylebox_override("normal", rest)
+	var hover: StyleBoxFlat = rest.duplicate()
+	hover.border_color = TANGERINE
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("focus", hover)
+	var chosen: StyleBoxFlat = rest.duplicate()
+	chosen.bg_color = Color(0.16, 0.10, 0.06, 0.95)
+	chosen.border_color = GOLD
+	button.add_theme_stylebox_override("pressed", chosen)
+
+	var glyph := Glyph.make(icon_name, 30.0, MUTED)
+	glyph.name = "Icon"
+	glyph.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	glyph.offset_left = 14.0
+	glyph.offset_right = 44.0
+	glyph.offset_top = -15.0
+	glyph.offset_bottom = 15.0
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(glyph)
+
+	# The name: the primary voice. Bigger and brighter than the definition
+	# ever is, so the list scans by name alone. Anchored to the content
+	# column - the icon owns the left 58px, exactly like the button's own
+	# content margin - and to the right edge, so it wraps inside the button
+	# instead of sliding under the icon.
+	var title := Label.new()
+	title.name = "Title"
+	title.text = title_text
+	title.anchor_right = 1.0
+	title.offset_left = 58.0
+	title.offset_right = -14.0
+	title.offset_top = 7.0
+	title.offset_bottom = 29.0
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", INK)
+	button.add_child(title)
+
+	# The definition: the secondary voice, hidden until chosen - a stack of
+	# five definitions reads as documentation; one definition under the
+	# selected option reads as an explanation. Same content column, filling
+	# whatever height the pressed state gives it.
+	var detail := Label.new()
+	detail.name = "Detail"
+	detail.text = definition
+	detail.anchor_right = 1.0
+	detail.anchor_bottom = 1.0
+	detail.offset_left = 58.0
+	detail.offset_right = -14.0
+	detail.offset_top = 30.0
+	detail.offset_bottom = -6.0
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail.add_theme_font_size_override("font_size", 12)
+	detail.add_theme_color_override("font_color", Color(0.62, 0.55, 0.50))
+	detail.visible = false
+	button.add_child(detail)
+
+	button.toggled.connect(_on_mandate_option_toggled.bind(button))
+	return button
+
+
+func _on_mandate_option_toggled(pressed: bool, button: Button) -> void:
+	var detail: Label = button.get_node("Detail") as Label
+	var glyph: Glyph = button.get_node("Icon") as Glyph
+	if detail != null:
+		detail.visible = pressed
+	if glyph != null:
+		glyph.tint = GOLD if pressed else MUTED
+	# A chosen option is taller than an unchosen one: the space the definition
+	# needs exists only while the definition is on screen.
+	button.custom_minimum_size.y = 68.0 if pressed else 46.0
 
 
 func _field_row() -> HBoxContainer:
@@ -880,7 +1119,7 @@ func _build_mode_chips() -> void:
 	var chips := HBoxContainer.new()
 	chips.name = "ModeChips"
 	chips.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	chips.offset_left = -378.0
+	chips.offset_left = -430.0
 	chips.offset_top = 14.0
 	chips.offset_right = -20.0
 	chips.offset_bottom = 42.0
@@ -889,37 +1128,40 @@ func _build_mode_chips() -> void:
 	chips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(chips)
 
-	# The music switch lives beside the mode chips: a control the crew reach
-	# for on day one, parked where day-one controls belong. It is icon-only so
-	# the corner stays quiet, with a tooltip and the note line to name it.
-	_music_button = Button.new()
-	_music_button.name = "MusicToggle"
-	_music_button.focus_mode = Control.FOCUS_NONE
-	_music_button.tooltip_text = "Music: muted"
-	_music_button.custom_minimum_size = Vector2(34.0, 28.0)
-	_music_button.add_theme_color_override("font_color", MUTED)
+	# The corner speaker opens the mixer rather than toggling one channel: the
+	# crew reach for sound control on day one, and "make it quiet" is not
+	# always about the music. Icon-only so the corner stays quiet, with the
+	# mixer popup carrying the detail.
+	_audio_button = Button.new()
+	_audio_button.name = "AudioToggle"
+	_audio_button.focus_mode = Control.FOCUS_NONE
+	_audio_button.tooltip_text = "Sound mixer"
+	_audio_button.custom_minimum_size = Vector2(34.0, 28.0)
+	_audio_button.add_theme_color_override("font_color", MUTED)
 	var music_idle := StyleBoxFlat.new()
 	music_idle.bg_color = Color(0, 0, 0, 0.35)
 	music_idle.border_color = Color(0.4, 0.32, 0.26)
 	music_idle.set_border_width_all(1)
 	music_idle.set_corner_radius_all(3)
-	_music_button.add_theme_stylebox_override("normal", music_idle)
+	_audio_button.add_theme_stylebox_override("normal", music_idle)
 	var music_hover: StyleBoxFlat = music_idle.duplicate()
 	music_hover.border_color = TANGERINE
-	_music_button.add_theme_stylebox_override("hover", music_hover)
+	_audio_button.add_theme_stylebox_override("hover", music_hover)
 	var music_on: StyleBoxFlat = music_idle.duplicate()
 	music_on.border_color = GOLD
-	_music_button.add_theme_stylebox_override("pressed", music_on)
-	_music_button.add_theme_stylebox_override("focus", music_idle)
-	_music_glyph = Glyph.make("sound_off", 16.0, MUTED)
-	_music_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_music_glyph.set_anchors_preset(Control.PRESET_CENTER)
-	_music_glyph.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_music_glyph.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_music_button.add_child(_music_glyph)
-	_music_button.pressed.connect(_on_music_toggled)
-	_refresh_music_button()
-	chips.add_child(_music_button)
+	_audio_button.add_theme_stylebox_override("pressed", music_on)
+	_audio_button.add_theme_stylebox_override("focus", music_idle)
+	_audio_glyph = Glyph.make("sound_off", 16.0, MUTED)
+	_audio_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_audio_glyph.set_anchors_preset(Control.PRESET_CENTER)
+	_audio_glyph.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_audio_glyph.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_audio_button.add_child(_audio_glyph)
+	_audio_button.pressed.connect(_on_audio_button)
+	_refresh_audio_button()
+	chips.add_child(_audio_button)
+
+	_build_audio_popup()
 
 	var group := ButtonGroup.new()
 	group.allow_unpress = false
@@ -985,22 +1227,88 @@ func _on_mode_chip(value: int) -> void:
 	_refresh_mode_chips()
 
 
-func _on_music_toggled() -> void:
-	Sfx.toggle_music_muted()
-	_refresh_music_button()
-	if _mode_note != null:
-		_mode_note.text = "music " + ("muted" if Sfx.music_muted else "on")
+## The mixer popup. A small panel anchored under the corner button, carrying
+## the full three-channel mixer. It closes on a click outside it, and it does
+## not block the rest of the screen - the crew can hear a fader move while the
+## title card stays live.
+func _build_audio_popup() -> void:
+	_audio_popup = PanelContainer.new()
+	_audio_popup.name = "AudioPopup"
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.055, 0.04, 0.98)
+	style.border_color = PAPAYA
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 12.0
+	style.content_margin_bottom = 14.0
+	_audio_popup.add_theme_stylebox_override("panel", style)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
+	_audio_popup.add_child(column)
+	var heading := _heading("SOUND")
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	column.add_child(heading)
+	column.add_child(AudioPanel.new())
+	_audio_popup.visible = false
+	_root.add_child(_audio_popup)
+	# A full-rect catcher UNDER the panel closes the popup on the next click
+	# anywhere else; it sits behind the panel in draw order, so the panel's own
+	# clicks never reach it.
+	var catcher := Control.new()
+	catcher.name = "Catcher"
+	catcher.set_anchors_preset(Control.PRESET_FULL_RECT)
+	catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	catcher.visible = false
+	catcher.gui_input.connect(_on_audio_catcher_input)
+	_root.add_child(catcher)
+	_root.move_child(catcher, _audio_popup.get_index())
+	_audio_catcher = catcher
 
 
-func _refresh_music_button() -> void:
-	if _music_button == null:
+func _on_audio_catcher_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_close_audio_popup()
+
+
+func _open_audio_popup() -> void:
+	if _audio_popup == null:
 		return
-	_music_button.set_pressed_no_signal(not Sfx.music_muted)
-	_music_button.tooltip_text = "Music: muted - click to unmute" if Sfx.music_muted \
-		else "Music: on - click to mute"
-	if _music_glyph != null:
-		_music_glyph.icon = "sound_off" if Sfx.music_muted else "sound_on"
-		_music_glyph.tint = MUTED if Sfx.music_muted else GOLD
+	_audio_popup.visible = true
+	if _audio_catcher != null:
+		_audio_catcher.visible = true
+	_audio_popup.reset_size()
+	# Anchor under the corner button, right-aligned to it.
+	_audio_popup.position = Vector2(
+		_root.size.x - _audio_popup.size.x - 20.0,
+		58.0)
+
+
+func _close_audio_popup() -> void:
+	if _audio_popup != null:
+		_audio_popup.visible = false
+	if _audio_catcher != null:
+		_audio_catcher.visible = false
+
+
+func _on_audio_button() -> void:
+	if _audio_popup != null and _audio_popup.visible:
+		_close_audio_popup()
+	else:
+		_open_audio_popup()
+
+
+func _refresh_audio_button() -> void:
+	if _audio_button == null:
+		return
+	var silent: bool = Sfx.channel_is_muted("music") \
+		and Sfx.channel_is_muted("ambience") and Sfx.channel_is_muted("sfx")
+	_audio_button.tooltip_text = "Sound mixer" if not silent \
+		else "Sound mixer (everything muted)"
+	if _audio_glyph != null:
+		_audio_glyph.icon = "sound_off" if silent else "sound_on"
+		_audio_glyph.tint = MUTED if silent else GOLD
 
 
 func _refresh_mode_chips() -> void:

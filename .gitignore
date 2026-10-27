@@ -4,3 +4,10 @@
 
 # Summer Engine local-only state
 .summer/local/
+
+# Local Netlify folder
+.netlify
+
+# macOS junk & local build output
+.DS_Store
+build/

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkm8mmug058e"
-path="res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.ctex"
+path.s3tc="res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.s3tc.ctex"
+path.etc2="res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "22d107073ab5a3ad99896e9ebea89e5c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/kit/spaceship_interior_52.jpg"
-dest_files=["res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.ctex"]
+dest_files=["res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.s3tc.ctex", "res://.godot/imported/spaceship_interior_52.jpg-4cf8af97989764b4b718fdf7437fdf71.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0

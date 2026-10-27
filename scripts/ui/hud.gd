@@ -43,6 +43,11 @@ const MUTED := Color(0.72, 0.66, 0.62)
 const DIM := Color(0.42, 0.36, 0.33)
 const CHIP_BG := Color(0.07, 0.045, 0.035, 0.82)
 
+## Raised when the crew press the corner MENU button. The station controller
+## owns what that means - it opens the pause menu - because the HUD only
+## reports what was touched, same as it does for prompts.
+signal menu_requested
+
 var _say_token: int = 0
 ## The last score block drawn, as a cheap signature. Never a legitimate empty
 ## string, so the first refresh always draws.
@@ -308,7 +313,7 @@ func _build_strip() -> void:
 	_callsign_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_callsign_label.offset_left = -366.0
 	_callsign_label.offset_top = 20.0
-	_callsign_label.offset_right = -26.0
+	_callsign_label.offset_right = -110.0
 	_callsign_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_callsign_label.add_theme_color_override("font_color", PAPAYA)
 	_callsign_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
@@ -316,7 +321,56 @@ func _build_strip() -> void:
 	_callsign_label.add_theme_font_size_override("font_size", 14)
 	root.add_child(_callsign_label)
 
+	root.add_child(_menu_button())
+
 	_build_detail()
+
+
+## The corner MENU button - the clear way out. Visible in every mode including
+## mobile, where there is no Escape key at all: a player who wants to leave
+## should never have to remember a shortcut to find the door.
+func _menu_button() -> Button:
+	var button := Button.new()
+	button.name = "MenuButton"
+	button.text = "MENU"
+	button.focus_mode = Control.FOCUS_NONE
+	button.tooltip_text = "Pause and options (Esc)"
+	button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	button.offset_left = -100.0
+	button.offset_top = 16.0
+	button.offset_right = -22.0
+	button.offset_bottom = 44.0
+	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_color_override("font_color", MUTED)
+	button.add_theme_color_override("font_hover_color", GOLD)
+	button.add_theme_color_override("font_pressed_color", GOLD)
+	var ghost := StyleBoxFlat.new()
+	ghost.bg_color = Color(0.07, 0.045, 0.035, 0.82)
+	ghost.border_color = Color(0.4, 0.32, 0.26)
+	ghost.set_border_width_all(1)
+	ghost.set_corner_radius_all(3)
+	button.add_theme_stylebox_override("normal", ghost)
+	var hover: StyleBoxFlat = ghost.duplicate()
+	hover.border_color = TANGERINE
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("focus", ghost)
+	var glyph := Glyph.make("menu", 14.0, MUTED)
+	glyph.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	glyph.offset_left = 10.0
+	glyph.offset_right = 24.0
+	glyph.offset_top = -7.0
+	glyph.offset_bottom = 7.0
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(glyph)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var box: StyleBoxFlat = button.get_theme_stylebox(state) as StyleBoxFlat
+		if box != null:
+			var adjusted: StyleBoxFlat = box.duplicate()
+			adjusted.content_margin_left = 30.0
+			button.add_theme_stylebox_override(state, adjusted)
+	button.pressed.connect(func() -> void: menu_requested.emit())
+	return button
 
 
 func _panel_style(border: Color) -> StyleBoxFlat:

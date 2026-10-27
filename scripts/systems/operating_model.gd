@@ -71,9 +71,14 @@ const OBJECTIVES := [
 		"pressure": -0.75,
 	},
 	{
+		# The id is legacy - it is what the save file stores, so it stays stable
+		# while the user-facing wording is free to improve. The original label
+		# was "FINISH THE SURVEY", which read as an undefined "the survey": on
+		# the first screen the player has no idea what survey is meant, and it
+		# scans as a corporate questionnaire rather than the ship's mission.
 		"id": "finish_the_survey",
-		"label": "FINISH THE SURVEY",
-		"statement": "Finish the survey first, then bring the data home.",
+		"label": "MAP THE PLANET",
+		"statement": "Map the planet and secure its data, then bring it home.",
 		"pressure": -0.10,
 	},
 ]
@@ -321,6 +326,17 @@ static func objective_entry() -> Dictionary:
 
 static func appetite_entry() -> Dictionary:
 	return _entry(APPETITES, appetite_id)
+
+
+## The same entries, by id - what the mandate picker uses while the crew are
+## still choosing: the picker holds pending picks that are not on the model
+## yet, so the declared-state accessors above cannot answer for them.
+static func objective_entry_for(id: String) -> Dictionary:
+	return _entry(OBJECTIVES, id)
+
+
+static func appetite_entry_for(id: String) -> Dictionary:
+	return _entry(APPETITES, id)
 
 
 static func objective_label() -> String:

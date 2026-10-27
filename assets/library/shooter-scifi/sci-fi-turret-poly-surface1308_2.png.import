@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://l1dy3rv34uji"
-path="res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.ctex"
+path.s3tc="res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.s3tc.ctex"
+path.etc2="res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "03eeeb1ca3117194c09ef816d1146e9c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/library/shooter-scifi/sci-fi-turret-poly-surface1308_2.png"
-dest_files=["res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.ctex"]
+dest_files=["res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.s3tc.ctex", "res://.godot/imported/sci-fi-turret-poly-surface1308_2.png-dea84025ef0f4e0a67368ba38fadede5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0

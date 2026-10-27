@@ -46,7 +46,7 @@ static func icon_for_objective(objective_id: String) -> String:
 		"home_on_schedule":
 			return "clock"
 		"finish_the_survey":
-			return "telescope"
+			return "globe"
 	return "question"
 
 
@@ -58,6 +58,24 @@ static func icon_for_appetite(appetite_id: String) -> String:
 			return "scales"
 		"ambitious":
 			return "flag"
+	return "question"
+
+
+## The four rungs of the autonomy spectrum. The slider's whole point is that
+## the eye reads four pictures in a row before it reads any words, so each rung
+## gets an icon that matches its concept: the model acting alone is a gear, a
+## human reading the call is an eye, a named authorisation is a stamp, and a
+## decision never delegated is a person.
+static func icon_for_level(level_id: String) -> String:
+	match level_id:
+		"automated":
+			return "gear"
+		"review":
+			return "eye"
+		"signoff":
+			return "stamp"
+		"human_only":
+			return "person"
 	return "question"
 
 
@@ -129,6 +147,15 @@ func _draw() -> void:
 			_line([Vector2(10.5, 12.5), Vector2(9.5, 21)], w)
 			_line([Vector2(10.5, 12.5), Vector2(15.5, 21)], w)
 			_line([Vector2(10.5, 12.5), Vector2(12, 21)], w)
+		"globe":
+			# A planet with meridian and equator lines: the map-the-planet
+			# objective. The circle is the disc, the inner arcs are the meridian
+			# and the equator, so it reads as "a world being charted" rather
+			# than as a generic dot.
+			draw_arc(_p(12, 12), s / 2.6, 0.0, TAU, 32, tint, w)
+			draw_arc(_p(12, 12), s / 2.6, -PI * 0.5, PI * 0.5, 24, tint, w * 0.7)
+			_line([Vector2(12, 12 - s / 2.6), Vector2(12, 12 + s / 2.6)], w * 0.7)
+			_line([Vector2(12 - s / 2.6, 12), Vector2(12 + s / 2.6, 12)], w * 0.7)
 		"shield":
 			var shape: PackedVector2Array = _pts([
 				[12, 3], [19, 6], [19, 12], [12, 21], [5, 12], [5, 6], [12, 3],
@@ -225,6 +252,54 @@ func _draw() -> void:
 			_line([Vector2(18.6, 20), Vector2(17, 14.5)], w)
 		"chevron":
 			_line([Vector2(7, 10), Vector2(12, 15), Vector2(17, 10)], w)
+		"sound_on":
+			# A speaker with two arcs of sound. The speaker body is a filled
+			# polygon so it reads at chip size.
+			var body: PackedVector2Array = _pts([
+				[4, 9], [7.5, 9], [11.5, 5], [11.5, 19], [7.5, 15], [4, 15],
+			])
+			draw_colored_polygon(_clean(body), tint)
+			draw_arc(_p(14, 12), s / 8.0, -PI * 0.32, PI * 0.32, 12, tint, w)
+			draw_arc(_p(14, 12), s / 4.4, -PI * 0.32, PI * 0.32, 16, tint, w)
+		"sound_off":
+			# Same speaker, muted: a slash where the waves would be.
+			var muted: PackedVector2Array = _pts([
+				[4, 9], [7.5, 9], [11.5, 5], [11.5, 19], [7.5, 15], [4, 15],
+			])
+			draw_colored_polygon(_clean(muted), tint)
+			_line([Vector2(15, 8), Vector2(21, 16)], w)
+		"menu":
+			_line([Vector2(4, 7), Vector2(20, 7)], w)
+			_line([Vector2(4, 12), Vector2(20, 12)], w)
+			_line([Vector2(4, 17), Vector2(20, 17)], w)
+		"note":
+			# A musical note: stem with a filled head and a flag, for the music
+			# channel.
+			draw_circle(_p(8, 17), s / 9.0, tint)
+			_line([Vector2(10.7, 17), Vector2(10.7, 5)], w)
+			_line([Vector2(10.7, 5), Vector2(16.5, 7)], w)
+		"waves":
+			# Three arcs breaking the same way, for the ambience channel: the
+			# room tone that runs under everything.
+			draw_arc(_p(12, 20), s / 1.6, -PI * 0.78, -PI * 0.22, 14, tint, w)
+			draw_arc(_p(12, 20), s / 2.8, -PI * 0.78, -PI * 0.22, 12, tint, w)
+			draw_arc(_p(12, 20), s / 5.6, -PI * 0.78, -PI * 0.22, 10, tint, w)
+		"bolt":
+			# A lightning bolt, filled, for the sfx channel: the short, sharp
+			# sounds - a console opening, a door sliding.
+			var bolt: PackedVector2Array = _pts([
+				[13, 3], [7, 13], [11, 13], [9.5, 21], [17, 10], [12.6, 10],
+			])
+			draw_colored_polygon(_clean(bolt), tint)
+		"stamp":
+			# A rubber stamp on its base, for human sign-off: an authorisation
+			# a named person physically commits to paper.
+			draw_rect(Rect2(_p(5, 18), Vector2(s / 2.0, s / 8.0)), tint, false, w)
+			_line([Vector2(8, 16), Vector2(16, 16)], w)
+			var head: PackedVector2Array = _pts([
+				[9, 14], [9, 8], [12, 4.5], [15, 8], [15, 14],
+			])
+			draw_polyline(head, tint, w)
 		_:
 			draw_arc(_p(12, 12), s / 3.0, 0.0, TAU, 20, tint, w)
 

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dq2rm2vaw54uq"
-path="res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.ctex"
+path.s3tc="res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.s3tc.ctex"
+path.etc2="res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1f7ad4355cb9a4fe2f1df330dd2e4cba"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/kit/modular_sci-fi_floor_3.png"
-dest_files=["res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.ctex"]
+dest_files=["res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.s3tc.ctex", "res://.godot/imported/modular_sci-fi_floor_3.png-52d308fdc1be74fe729d294b19745656.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0
