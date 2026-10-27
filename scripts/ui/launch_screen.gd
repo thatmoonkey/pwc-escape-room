@@ -35,6 +35,10 @@ signal intro_requested
 const PAPAYA := Color(0.863, 0.369, 0.153)
 const TANGERINE := Color(0.816, 0.251, 0.149)
 const GOLD := Color(0.941, 0.722, 0.224)
+## The brand's primary accent. The palette refresh puts one strong orange in
+## the scene and keeps the greys quiet; every button meant to be pressed is
+## this, filled, with white text - never an outline that reads as subtle.
+const ORANGE := Color(0.992, 0.318, 0.031)
 const WHITE := Color(1.0, 1.0, 1.0)
 const BODY := Color(0.93, 0.89, 0.85)
 const INK := Color(0.96, 0.93, 0.89)
@@ -982,42 +986,16 @@ func _field_row() -> HBoxContainer:
 	var intro_button := Button.new()
 	intro_button.name = "Intro"
 	intro_button.text = "INTRO"
-	intro_button.custom_minimum_size = Vector2(200.0, 50.0)
-	intro_button.add_theme_font_size_override("font_size", 19)
-	intro_button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
-	intro_button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
-	var intro_fill := StyleBoxFlat.new()
-	intro_fill.bg_color = GOLD
-	intro_fill.border_color = TANGERINE
-	intro_fill.set_border_width_all(2)
-	intro_fill.set_corner_radius_all(3)
-	intro_button.add_theme_stylebox_override("normal", intro_fill)
-	var intro_hover: StyleBoxFlat = intro_fill.duplicate()
-	intro_hover.bg_color = Color(1.0, 0.82, 0.36)
-	intro_button.add_theme_stylebox_override("hover", intro_hover)
-	intro_button.add_theme_stylebox_override("focus", intro_hover)
+	intro_button.custom_minimum_size = Vector2(240.0, 50.0)
+	_style_action_button(intro_button)
 	intro_button.pressed.connect(_on_intro_pressed)
 	row.add_child(intro_button)
-
-	row.add_child(_gap_h(1))
 
 	_button = Button.new()
 	_button.name = "Begin"
 	_button.text = "BEGIN"
 	_button.custom_minimum_size = Vector2(240.0, 50.0)
-	_button.add_theme_font_size_override("font_size", 19)
-	_button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
-	_button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = GOLD
-	fill.border_color = TANGERINE
-	fill.set_border_width_all(2)
-	fill.set_corner_radius_all(3)
-	_button.add_theme_stylebox_override("normal", fill)
-	var hover: StyleBoxFlat = fill.duplicate()
-	hover.bg_color = Color(1.0, 0.82, 0.36)
-	_button.add_theme_stylebox_override("hover", hover)
-	_button.add_theme_stylebox_override("focus", hover)
+	_style_action_button(_button)
 	_button.pressed.connect(begin)
 	row.add_child(_button)
 
@@ -1036,6 +1014,27 @@ func _field_row() -> HBoxContainer:
 func _set_hint(text: String) -> void:
 	if _hint != null:
 		_hint.text = text
+
+
+## One solid orange action style, shared by every button the player is meant
+## to press: the brand's primary accent with white text and a quiet border,
+## so the state is obvious rather than an outline that reads as faint.
+func _style_action_button(button: Button) -> void:
+	button.add_theme_font_size_override("font_size", 19)
+	button.add_theme_color_override("font_color", Color.WHITE)
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = ORANGE
+	fill.border_color = Color(0.72, 0.30, 0.08)
+	fill.set_border_width_all(1)
+	fill.set_corner_radius_all(3)
+	button.add_theme_stylebox_override("normal", fill)
+	var hover: StyleBoxFlat = fill.duplicate()
+	hover.bg_color = Color(0.94, 0.36, 0.10)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_stylebox_override("pressed", fill)
 
 
 ## The crew wants the story again from the mandate card. The card only asks;
