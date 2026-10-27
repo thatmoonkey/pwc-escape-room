@@ -2,6 +2,6 @@
 
 [resource]
 resource_name = "WallBase"
-albedo_color = Color(0.085, 0.080, 0.075, 1)
-metallic = 0.2
+albedo_color = Color(0.38, 0.375, 0.370, 1)
+metallic = 0.1
 roughness = 0.6

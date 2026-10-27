@@ -8,18 +8,19 @@ end of an alert scale, so every surface reads as something that is switched on.
 
 | Token | Hex | Where it lives |
 |---|---|---|
-| Warm Platinum | `#B2ACA4` | Wall panels, ceilings, crate bodies - the ship's silver base |
-| Spicy Paprika | `#DC5E27` | Kicker text, terminal rule bar, sill lighting, the papaya accent light |
-| Brick Red | `#AD2323` | Sealed door bodies, deep alert fills |
-| Burnt Tangerine | `#D04026` | Alert/danger text and borders, step numerals, button edges |
-| Sunflower Gold | `#F0B839` | Attention text, HUD border, resolved state, primary button, glow strips |
-| White | `#FFFFFF` | Headline text only |
+| Warm White | `#E8E1DB` | Wall panels, ceilings, crate bodies - the ship's light base |
+| PwC Orange | `#FD5108` | Accents, glow strips, button fills, highlights, alert text |
+| Warm Grey | `#615F5E` | Base band, trim, floor panels |
+| Warm Sand | `#EDE1D6` | Info text, neutral labels |
+| White | `#FFFFFF` | Headline text, text on the orange fill |
 
-The ship's base is a warm platinum silver - a silver with the red-brown taken
-out of it, not a cool grey - and the strong reds ride ON it as accents: doors,
-hazard strips, alert fills. The red is the exception, which is what makes it
-read. A wall panel is platinum; a door is brick red; gold is the light that
-runs along the join between them.
+The brand refresh takes the warm family DOWN to light neutrals and puts one
+strong orange on top. A wall panel is warm white; a door is warm grey with an
+orange seal; gold light is PwC orange; and every button meant to be pressed is
+filled orange with white text - never an outline that reads as subtle. The red
+that used to be the ship's dominant tone is gone: it survives only as the
+dull ember of a locked door's body, replaced everywhere else by the light
+neutral and the one strong accent.
 
 Grounds are a warm near-black rather than a neutral one: panels sit on
 `Color(0.06, 0.032, 0.022)`, not on grey or blue-black.
@@ -29,10 +30,10 @@ Grounds are a warm near-black rather than a neutral one: panels sit on
 The palette has no green and no cool blue, so status is expressed as three
 steps up the warm family rather than as the usual red/amber/green:
 
-- info / neutral - warm sand `Color(0.93, 0.86, 0.76)` (replaced the old cyan)
-- attention - gold `Color(0.941, 0.722, 0.224)`
-- resolved - bright gold `Color(1.0, 0.88, 0.55)` (replaced the old green)
-- alert - tangerine `Color(0.816, 0.251, 0.149)`
+- info / neutral - warm sand `Color(0.93, 0.86, 0.76)`
+- attention - PwC orange `Color(0.99, 0.38, 0.05)`
+- resolved - bright warm sand `Color(0.97, 0.90, 0.82)`
+- alert - deep warm grey `Color(0.38, 0.37, 0.36)` with an orange border
 
 Resolved and attention are deliberately close in hue and separated by value,
 with the word RESTORED and the `[x]` marker carrying the same meaning in text.
@@ -47,20 +48,20 @@ without touching a scene. The filenames are historical (`accent_cyan.tres`
 holds gold, `panel_blue.tres` holds warm off-white); they are kept because
 scenes and scripts reference them by path.
 
-- `wall_upper.tres` - the wall panels themselves, Warm Platinum. This is the
+- `wall_upper.tres` - the wall panels themselves, Warm White. This is the
   material painted onto every kit wall module, so it is the colour the whole
   corridor reads as
 - `wall_lower.tres` - the base band laid against those panels: the same hue
-  taken down to a near-black neutral, so the wall reads as platinum with a
-  dark skirt
-- `panel_light.tres` - ceiling slab, warm off-white platinum
-- `panel_blue.tres` - secondary panel with a low warm emission
-- `floor_dark.tres`, `trim_black.tres` - warm near-black ground and trim
-- `door_locked.tres` - sealed door, brick red with a dull ember emission. The
-  doors are the ship's main red accent against the silver walls
-- `accent_amber.tres`, `accent_cyan.tres` - the two accent strips
-- `screen_cyan.tres` - console screen fill, gold emission
-- `highlight.tres` - the aim highlight on interactables
+  taken down to a warm grey, so the wall reads as white with a grey skirt
+- `panel_light.tres` - ceiling slab, warm off-white
+- `panel_blue.tres` - secondary panel with a low orange emission
+- `floor_dark.tres`, `trim_black.tres` - warm grey ground and trim
+- `door_locked.tres` - sealed door, warm grey with a dull orange emission -
+  the ship's one accent in the room, and its main red accent is gone
+- `accent_amber.tres`, `accent_cyan.tres` - the two accent strips, both
+  PwC orange (the names are historical)
+- `screen_cyan.tres` - console screen fill, orange emission
+- `highlight.tres` - the aim highlight on interactables, orange
 - `window_glass.tres` - glass, warm-tinted and still transparent
 
 Lighting lives in `scenes/world/station.tscn` under `Lights`, on the warm flood

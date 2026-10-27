@@ -20,11 +20,12 @@ uniform sampler2D albedo_texture : source_color, hint_default_white;
 uniform sampler2D normal_texture : hint_normal;
 uniform sampler2D emission_texture : source_color, hint_default_black;
 
-// Warm ramp. The defaults are the interior's warm platinum over its dark
-// seam tone - a silver ship with the red kept for the doors and signage.
-uniform vec3 tint_low : source_color = vec3(0.220, 0.200, 0.180);
-uniform vec3 tint_high : source_color = vec3(0.745, 0.720, 0.690);
-uniform vec3 glow_tint : source_color = vec3(0.941, 0.722, 0.224);
+// Warm ramp. The defaults are the interior's light neutral over a darker
+// seam - a white ship, quiet, with the brand's orange kept as the glow and
+// accent rather than as surface.
+uniform vec3 tint_low : source_color = vec3(0.720, 0.710, 0.690);
+uniform vec3 tint_high : source_color = vec3(0.910, 0.900, 0.880);
+uniform vec3 glow_tint : source_color = vec3(0.992, 0.380, 0.050);
 
 uniform float exposure_gain : hint_range(0.0, 3.0) = 1.0;
 // Luminance at or below seam_floor is pure tint_low; at or above plate_ceiling
