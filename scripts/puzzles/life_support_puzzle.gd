@@ -25,8 +25,8 @@ func intro_state() -> ScreenState:
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
 	placement_block(state, "WHO CONTROLS THE AIR?", "")
 	state.rule()
-	state.option("board", "Check the compartment board", "Each room, one by one.", "primary", "info")
-	state.option("ask", "Why should I leave it to you?", "SHIPMIND makes its case.", "quiet", "shipmind")
+	state.option("board", "READ MORE CONTEXT DATA", "Each room, one by one.", "quiet", "info")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will recommend the placement it wants.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 

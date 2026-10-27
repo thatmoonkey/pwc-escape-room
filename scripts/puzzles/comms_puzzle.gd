@@ -26,8 +26,8 @@ func intro_state() -> ScreenState:
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
 	placement_block(state, "WHO SORTS THE MESSAGES?", "")
 	state.rule()
-	state.option("queue", "Read the full queue", "All 47 items, unsorted.", "primary", "info")
-	state.option("ask", "Why should I leave it to you?", "SHIPMIND makes its case.", "quiet", "shipmind")
+	state.option("queue", "READ MORE CONTEXT DATA", "All 47 items, unsorted.", "quiet", "info")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will recommend the placement it wants.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 

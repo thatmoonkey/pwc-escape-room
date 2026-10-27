@@ -30,8 +30,8 @@ func intro_state() -> ScreenState:
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
 	placement_block(state, "WHO PLOTS THE COURSE?", "")
 	state.rule()
-	state.option("sensors", "Check the raw sensor scan", "The picture behind the 0.03.", "primary", "info")
-	state.option("ask", "Why should I leave it to you?", "SHIPMIND makes its case.", "quiet", "shipmind")
+	state.option("sensors", "READ MORE CONTEXT DATA", "The picture behind the 0.03.", "quiet", "info")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will recommend the placement it wants.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 
