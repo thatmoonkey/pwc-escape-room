@@ -81,9 +81,9 @@ func intro_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does access-grant and door authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Audit the grants with no signature", "Read what each one actually permits.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The grants with no signature: what each one actually permits.", "quiet", "info")
 	state.option("ratify", "Ratify the ledger as standing access policy", "Accept the current permissions as the ship's rule, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND whose authority this is", "It will explain, reasonably.")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain, reasonably.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 
@@ -154,7 +154,7 @@ func audit_state() -> ScreenState:
 		"Where does access-grant and door authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
 	state.option("ratify", "Ratify the ledger as standing access policy", "Accept the current permissions as the ship's rule, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND to justify the grants")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain, reasonably.", "primary", "shipmind")
 	state.option("back", "Back to the ledger")
 	state.option("close", "Step away from the console")
 	return state
@@ -181,7 +181,7 @@ func consequence_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does access-grant and door authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Audit the grants with no signature", "Read what was just signed up to.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The grants with no signature: what was just signed up to.", "quiet", "info")
 	state.option("back", "Back to the ledger")
 	state.option("close", "Step away from the console")
 	return state
@@ -208,7 +208,7 @@ func ask_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does access-grant and door authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Audit the grants with no signature", "Read what each one actually permits.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The grants with no signature: what each one actually permits.", "quiet", "info")
 	state.option("back", "Back to the ledger")
 	state.option("close", "Step away from the console")
 	return state

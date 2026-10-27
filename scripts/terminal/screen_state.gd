@@ -72,8 +72,12 @@ func rule() -> ScreenState:
 	return self
 
 
-func option(id: String, label: String, hint: String = "", tone: String = "normal") -> ScreenState:
-	options.append({"id": id, "label": label, "hint": hint, "tone": tone})
+## An option the crew can press. icon is optional: when set, the button is
+## drawn in the machine voice with the icon anchoring it at the left - the two
+## recurring reads on a console ("more context data" and "ask SHIPMIND") carry
+## the "info" and "shipmind" icons so they scan as pictures before words.
+func option(id: String, label: String, hint: String = "", tone: String = "normal", icon: String = "") -> ScreenState:
+	options.append({"id": id, "label": label, "hint": hint, "tone": tone, "icon": icon})
 	return self
 
 

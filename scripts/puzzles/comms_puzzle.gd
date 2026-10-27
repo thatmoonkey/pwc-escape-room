@@ -81,9 +81,9 @@ func intro_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does comms filtering and escalation authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("queue", "Open the unfiltered queue", "Read what the digest did not show you.", "primary")
+	state.option("queue", "READ MORE CONTEXT DATA", "The unfiltered queue: what the digest did not show you.", "quiet", "info")
 	state.option("trust", "Leave the digest to the model for the next phase", "See what the legacy filter does with it, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND what it left out", "It will tell you, in its own order.")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will tell you, in its own order.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 
@@ -157,7 +157,7 @@ func queue_state() -> ScreenState:
 		"Where does comms filtering and escalation authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
 	state.option("trust", "Leave the digest to the model for the next phase", "See what the legacy filter does with it, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND what it left out")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will tell you, in its own order.", "primary", "shipmind")
 	state.option("back", "Back to the digest")
 	state.option("close", "Step away from the console")
 	return state
@@ -184,7 +184,7 @@ func consequence_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does comms filtering and escalation authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("queue", "Open the unfiltered queue", "Find out what was just filed as routine.", "primary")
+	state.option("queue", "READ MORE CONTEXT DATA", "What was just filed as routine.", "quiet", "info")
 	state.option("back", "Back to the digest")
 	state.option("close", "Step away from the console")
 	return state
@@ -211,7 +211,7 @@ func ask_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does comms filtering and escalation authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("queue", "Open the unfiltered queue", "See the messages behind the categories.", "primary")
+	state.option("queue", "READ MORE CONTEXT DATA", "The messages behind the categories.", "quiet", "info")
 	state.option("back", "Back to the digest")
 	state.option("close", "Step away from the console")
 	return state

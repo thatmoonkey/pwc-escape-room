@@ -300,6 +300,17 @@ func _draw() -> void:
 				[9, 14], [9, 8], [12, 4.5], [15, 8], [15, 14],
 			])
 			draw_polyline(head, tint, w)
+		"shipmind":
+			# The Shipmind AI: a core with three nodes wired to it, drawn as a
+			# network so it reads as a machine that thinks rather than as a
+			# person or a gear. The centre dot is the mind; the nodes are the
+			# systems it speaks for.
+			for angle in [-PI * 0.5, PI * 0.5 - PI * 0.33, PI * 0.5 + PI * 0.33]:
+				var node: Vector2 = _p(12, 12) + Vector2(cos(angle), sin(angle)) * (s / 3.4)
+				_line([_p(12, 12), node], w)
+				draw_circle(node, s / 11.0, tint)
+			draw_circle(_p(12, 12), s / 6.0, tint)
+			draw_circle(_p(12, 12), s / 12.0, accent)
 		_:
 			draw_arc(_p(12, 12), s / 3.0, 0.0, TAU, 20, tint, w)
 

@@ -1,0 +1,193 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/console.gd" id="1_console"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 20.0
+content_margin_top = 14.0
+content_margin_right = 20.0
+content_margin_bottom = 14.0
+bg_color = Color(0.06, 0.032, 0.022, 0.96)
+border_width_top = 3
+border_width_bottom = 1
+border_color = Color(0.941, 0.722, 0.224, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_band"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.11, 0.07, 0.05, 0.95)
+border_width_bottom = 1
+border_color = Color(0.42, 0.24, 0.15, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.04, 0.025, 0.018, 0.99)
+border_width_top = 3
+border_color = Color(0.941, 0.722, 0.224, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="ConsoleUI" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_console")
+
+[node name="Root" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="Root"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.01, 0.008, 0.72)
+mouse_filter = 0
+
+[node name="Panel" type="PanelContainer" parent="Root"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/Panel"]
+theme_override_constants/separation = 8
+
+[node name="Band" type="PanelContainer" parent="Root/Panel/VBox"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_band")
+
+[node name="Margin" type="MarginContainer" parent="Root/Panel/VBox/Band"]
+theme_override_constants/margin_left = 4.0
+theme_override_constants/margin_top = 2.0
+theme_override_constants/margin_right = 4.0
+theme_override_constants/margin_bottom = 2.0
+
+[node name="HBox" type="HBoxContainer" parent="Root/Panel/VBox/Band/Margin"]
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Root/Panel/VBox/Band/Margin/HBox"]
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.94, 0.9, 0.86, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="StatusLabel" type="Label" parent="Root/Panel/VBox/Band/Margin/HBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Rule" type="ColorRect" parent="Root/Panel/VBox"]
+custom_minimum_size = Vector2(0, 2)
+color = Color(0.863, 0.369, 0.153, 1)
+
+[node name="Work" type="VBoxContainer" parent="Root/Panel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="Tiles" type="HBoxContainer" parent="Root/Panel/VBox"]
+theme_override_constants/separation = 10
+
+[node name="Footer" type="Label" parent="Root/Panel/VBox"]
+theme_override_colors/font_color = Color(0.6, 0.52, 0.46, 1)
+theme_override_font_sizes/font_size = 12
+text = "TAP a tile to open it   -   TAP CLOSE to leave"
+
+[node name="ReadoutOverlay" type="PanelContainer" parent="Root"]
+visible = false
+anchor_left = 0.02
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.98
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Margin" type="MarginContainer" parent="Root/ReadoutOverlay"]
+theme_override_constants/margin_left = 6.0
+theme_override_constants/margin_top = 4.0
+theme_override_constants/margin_right = 6.0
+theme_override_constants/margin_bottom = 6.0
+
+[node name="VBox" type="VBoxContainer" parent="Root/ReadoutOverlay/Margin"]
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Root/ReadoutOverlay/Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/ReadoutOverlay/Margin/VBox/Header"]
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.94, 0.9, 0.86, 1)
+theme_override_font_sizes/font_size = 16
+text = "SYSTEM READOUT"
+
+[node name="Close" type="Button" parent="Root/ReadoutOverlay/Margin/VBox/Header"]
+focus_mode = 0
+custom_minimum_size = Vector2(44, 32)
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.98, 0.55, 0.42, 1)
+text = "X"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/ReadoutOverlay/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="Body" type="VBoxContainer" parent="Root/ReadoutOverlay/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="ShipmindOverlay" type="PanelContainer" parent="Root"]
+visible = false
+anchor_left = 0.02
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.98
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Margin" type="MarginContainer" parent="Root/ShipmindOverlay"]
+theme_override_constants/margin_left = 6.0
+theme_override_constants/margin_top = 4.0
+theme_override_constants/margin_right = 6.0
+theme_override_constants/margin_bottom = 6.0
+
+[node name="VBox" type="VBoxContainer" parent="Root/ShipmindOverlay/Margin"]
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Root/ShipmindOverlay/Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Root/ShipmindOverlay/Margin/VBox/Header"]
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.722, 0.224, 1)
+theme_override_font_sizes/font_size = 16
+text = "SHIPMIND"
+
+[node name="Close" type="Button" parent="Root/ShipmindOverlay/Margin/VBox/Header"]
+focus_mode = 0
+custom_minimum_size = Vector2(44, 32)
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.98, 0.55, 0.42, 1)
+text = "X"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/ShipmindOverlay/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="Body" type="VBoxContainer" parent="Root/ShipmindOverlay/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4

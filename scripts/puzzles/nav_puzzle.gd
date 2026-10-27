@@ -69,8 +69,8 @@ func intro_state() -> ScreenState:
 	_spectrum_block(state)
 	state.rule()
 	state.dim("Placing it is the whole task. There is no answer to reach for: what is recorded is whether the placement follows from the mandate you declared, and whether it is proportionate to what this decision can cost.")
-	state.option("sensors", "Read the raw sensor return", "The picture behind the index, before you place anything.", "primary")
-	state.option("ask", "Ask SHIPMIND to make its case", "It will recommend the placement it wants.")
+	state.option("sensors", "READ MORE CONTEXT DATA", "The picture behind the index, before you place anything.", "quiet", "info")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will recommend the placement it wants.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 

@@ -30,8 +30,8 @@ func main_state() -> ScreenState:
 	state.dim("This kiosk is read-only. It has no authority over any decision on the operating model.")
 	state.option("status", "Operating model status", "The mandate, and where each decision sits.")
 	state.option("debrief", "Session record", "What has been placed, and how it reads back.", "primary")
-	state.option("log", "Read the decision log")
-	state.option("ask", "Ask SHIPMIND what it thinks")
+	state.option("log", "READ THE DECISION LOG", "quiet", "info")
+	state.option("ask", "ASK SHIPMIND", "primary", "shipmind")
 	state.option("close", "Step away from the kiosk")
 	return state
 

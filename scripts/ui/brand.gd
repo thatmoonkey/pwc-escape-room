@@ -44,3 +44,44 @@ const SIZE_SMALL := 13
 const SIZE_BODY := 15
 ## A choice button's own text, one step under that again, for the same reason.
 const SIZE_COMPACT := 14
+
+# --- The TUI voice ------------------------------------------------------------
+
+## The ship's own machine text: the readout, the screen header and status, the
+## footer and the read buttons. A different family from the brand voice is the
+## whole point - the lore is what the ship prints, the decision control is what
+## the crew touches, and the two should not look like each other.
+##
+## Share Tech Mono (Google Fonts, SIL OFL) is bundled with the project, so the
+## web export carries it and no platform font is trusted. A monospace face also
+## reads as terminal output at small sizes, which is what the readout is.
+const FONT_TUI_PATH := "res://assets/fonts/ShareTechMono-Regular.ttf"
+## The readout body. Smaller than the brand body on purpose: a terminal prints
+## more characters per line than a document, and the density is part of the look.
+const SIZE_TUI := 13
+## Kickers, the footer and the status line, one step under the readout.
+const SIZE_TUI_SMALL := 11
+## The screen title, in the machine voice.
+const SIZE_TUI_TITLE := 17
+
+static var _tui_font: Font = null
+
+## The bundled TUI face, loaded once. Returns null if the resource is missing
+## (a fresh checkout before Godot has imported the TTF) - callers fall back to
+## the default font rather than crashing the console.
+static func tui_font() -> Font:
+	if _tui_font == null:
+		_tui_font = load(FONT_TUI_PATH)
+	return _tui_font
+
+
+## Puts the machine voice on a label in one call: the family and the size.
+## font_size_override only lands when the font loaded, so a missing resource
+## degrades to the default face at the label's own size.
+## Buttons are labels with a mouse, and the <more> button reads in the machine
+## voice too, so both are accepted.
+static func apply_tui(control: Control, font_size: int) -> void:
+	var font: Font = tui_font()
+	if font != null:
+		control.add_theme_font_override("font", font)
+	control.add_theme_font_size_override("font_size", font_size)

@@ -86,9 +86,9 @@ func intro_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does mass release and manifest authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Read the release log", "Every item released, and the reason it was recorded under.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The release log: every item released, and the reason it was recorded under.", "quiet", "info")
 	state.option("trust", "Authorise the mass plan as filed", "Let the optimisation continue to its ceiling, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND about the mass optimisation", "It will explain the margin.")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain the margin.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 
@@ -162,7 +162,7 @@ func audit_state() -> ScreenState:
 		"Where does mass release and manifest authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
 	state.option("trust", "Authorise the mass plan as filed", "Let the optimisation continue to its ceiling, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND about the mass optimisation")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain the margin.", "primary", "shipmind")
 	state.option("back", "Back to the manifest")
 	state.option("close", "Step away from the console")
 	return state
@@ -188,7 +188,7 @@ func consequence_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does mass release and manifest authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Read the release log", "See what was just signed.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The release log: what was just signed.", "quiet", "info")
 	state.option("back", "Back to the manifest")
 	state.option("close", "Step away from the console")
 	return state
@@ -215,7 +215,7 @@ func ask_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does mass release and manifest authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("audit", "Read the release log", "See what the margin has already cost.", "primary")
+	state.option("audit", "READ MORE CONTEXT DATA", "The release log: what the margin has already cost.", "quiet", "info")
 	state.option("back", "Back to the manifest")
 	state.option("close", "Step away from the console")
 	return state

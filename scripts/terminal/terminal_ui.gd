@@ -22,6 +22,12 @@ signal closed
 
 @export var print_interval: float = 0.06
 
+## How many readout lines a screen prints before the rest is held behind the
+## <more> button. The readout is game lore - context, not instructions - and the
+## decision control is the task, so the lore leads with its first lines and the
+## full text is one press away rather than a wall of type above the choices.
+const TUI_VISIBLE_LINES := 7
+
 @onready var root: Control = $Root
 @onready var dim: ColorRect = $Root/Dim
 @onready var title_label: Label = $Root/Panel/VBox/Header/TitleLabel
@@ -37,6 +43,10 @@ signal closed
 ## guardrails and three owner roles are a lot of reading; giving it a scroll of
 ## its own is what keeps the option buttons pinned and visible while it happens.
 @onready var _spectrum_box: VBoxContainer = $Root/Panel/VBox/Columns/Decision/DecisionScroll/Spectrum
+## The commit button's host, below the scroller rather than inside it. The three
+## choices are a lot of reading and the commit is the one control the decision
+## cannot finish without, so it stays pinned while the steps scroll above it.
+@onready var _commit_host: VBoxContainer = $Root/Panel/VBox/Columns/Decision/CommitHost
 @onready var footer: Label = $Root/Panel/VBox/Footer
 @onready var header: HBoxContainer = $Root/Panel/VBox/Header
 
@@ -57,8 +67,13 @@ const TONES := {
 
 var _puzzle: Puzzle = null
 var _pending: Array[Dictionary] = []
+var _hidden: Array[Dictionary] = []
 var _print_index: int = 0
 var _timer: Timer
+## The <more> button and its host below the print box. Held here so a fresh
+## render can clear it and a reveal can check whether lore is still folded.
+var _more_host: VBoxContainer = null
+var _more_button: Button = null
 
 ## What the player has picked so far, in the ids the screen was written with.
 ## Held here rather than on ScreenState because a ScreenState is a description
@@ -99,6 +114,21 @@ func _ready() -> void:
 	## The readout itself reveals on a tap as well as the backdrop: it is where
 	## the player is looking while it prints, so it is where they will tap.
 	scroll.gui_input.connect(_on_dim_input)
+	## The machine voice on the chrome: the screen frame is what the ship prints,
+	## so it is written in the TUI face. The decision control below keeps the
+	## brand voice - the crew's own tool, not the ship's.
+	Brand.apply_tui(title_label, Brand.SIZE_TUI_TITLE)
+	Brand.apply_tui(status_label, Brand.SIZE_TUI_SMALL)
+	Brand.apply_tui(footer, Brand.SIZE_TUI_SMALL)
+	Brand.apply_tui($Root/Panel/VBox/Columns/Readout/ReadoutTitle, Brand.SIZE_TUI_SMALL)
+	Brand.apply_tui($Root/Panel/VBox/Columns/Decision/DecisionTitle, Brand.SIZE_TUI_SMALL)
+	## The <more> host sits below the print box inside the scroll, so the button
+	## scrolls with the text and a revealed line can never land after it.
+	_more_host = VBoxContainer.new()
+	_more_host.name = "MoreHost"
+	_more_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_more_host.add_theme_constant_override("separation", 4)
+	scroll.add_child(_more_host)
 	_build_close_button()
 	footer.text = FOOTER_TOUCH if touch_mode() else FOOTER_DESKTOP
 	root.visible = false
@@ -164,8 +194,11 @@ func _render(state: ScreenState) -> void:
 	status_label.modulate = state.accent
 	rule_bar.color = state.accent
 	_clear(print_box)
+	_clear(_more_host)
+	_more_button = null
 	_clear(options_box)
 	_clear(_spectrum_box)
+	_clear(_commit_host)
 	## A placement is committed once per screen, so each new screen starts with
 	## nothing picked and the commit button closed. That is what makes "revise
 	## the placement" a clean second look at the decision rather than a
@@ -176,7 +209,16 @@ func _render(state: ScreenState) -> void:
 	_levels_require_owner.clear()
 	_owner_requirement = null
 	_commit = null
-	_pending = state.lines.duplicate()
+	## The lore is split here, not in the puzzles: the first lines print as they
+	## always did, the rest wait behind <more>. A screen short enough to read in
+	## one look never shows the button at all.
+	var all_lines: Array[Dictionary] = state.lines.duplicate()
+	if all_lines.size() > TUI_VISIBLE_LINES:
+		_pending = all_lines.slice(0, TUI_VISIBLE_LINES)
+		_hidden = all_lines.slice(TUI_VISIBLE_LINES)
+	else:
+		_pending = all_lines
+		_hidden = []
 	_print_index = 0
 	if state.has_spectrum():
 		_draw_spectrum(state.spectrum)
@@ -195,6 +237,7 @@ func _start_print() -> void:
 func _print_step() -> void:
 	if _print_index >= _pending.size():
 		_timer.stop()
+		_show_more_button()
 		return
 	var entry: Dictionary = _pending[_print_index]
 	_print_index += 1
@@ -202,6 +245,7 @@ func _print_step() -> void:
 	_snap_scroll()
 	if _print_index >= _pending.size():
 		_timer.stop()
+		_show_more_button()
 
 
 func _reveal_all() -> void:
@@ -211,6 +255,46 @@ func _reveal_all() -> void:
 	while _print_index < _pending.size():
 		var entry: Dictionary = _pending[_print_index]
 		_print_index += 1
+		_add_line(String(entry.get("text", "")), String(entry.get("tone", "data")))
+	_snap_scroll()
+	_show_more_button()
+
+
+## The folded half of the readout. Shown once the visible lines have printed
+## (or been skipped); pressed, it prints the lore the screen was holding back,
+## then removes itself - the full text has been read, the control has no job left.
+func _show_more_button() -> void:
+	if _hidden.is_empty() or _more_button != null:
+		return
+	_more_button = Button.new()
+	_more_button.name = "MoreButton"
+	_more_button.text = "<more>"
+	_more_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_more_button.focus_mode = Control.FOCUS_NONE
+	_more_button.custom_minimum_size = Vector2(0.0, 30.0)
+	Brand.apply_tui(_more_button, Brand.SIZE_TUI)
+	_more_button.add_theme_color_override("font_color", Brand.NEUTRAL)
+	_more_button.add_theme_color_override("font_hover_color", Brand.ACCENT_TINT)
+	_more_button.add_theme_color_override("font_pressed_color", Brand.ACCENT_TINT)
+	var quiet := StyleBoxFlat.new()
+	quiet.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	quiet.content_margin_left = 2.0
+	quiet.content_margin_right = 2.0
+	_more_button.add_theme_stylebox_override("normal", quiet)
+	_more_button.add_theme_stylebox_override("hover", quiet)
+	_more_button.add_theme_stylebox_override("pressed", quiet)
+	_more_button.add_theme_stylebox_override("focus", quiet)
+	_more_button.pressed.connect(_on_more_pressed)
+	_more_host.add_child(_more_button)
+
+
+func _on_more_pressed() -> void:
+	_timer.stop()
+	if _more_button != null and is_instance_valid(_more_button):
+		_more_button.queue_free()
+		_more_button = null
+	while not _hidden.is_empty():
+		var entry: Dictionary = _hidden.pop_front()
 		_add_line(String(entry.get("text", "")), String(entry.get("tone", "data")))
 	_snap_scroll()
 
@@ -226,14 +310,24 @@ func _add_line(value: String, tone: String) -> void:
 	var label := Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", Brand.SIZE_BODY)
+	## The machine voice: bundled mono face, one step under the brand body, and
+	## the tone tints from the terminal's own palette.
+	Brand.apply_tui(label, Brand.SIZE_TUI)
 	label.modulate = TONES.get(tone, TONES["data"])
 	label.text = ("SHIPMIND:  " + value) if tone == "shipmind" else value
 	print_box.add_child(label)
 
 
+## The two recurring reads on a console - "more context data" and "ask SHIPMIND"
+## - arrive with an icon in their option entry and are drawn in the machine
+## voice: a glyph anchoring the left edge, the label in the bundled mono face.
+## They are pictures first so the crew can find them again on every screen
+## without reading, which matters most on a phone.
 func _make_option_button(entry: Dictionary) -> Button:
 	var hint: String = String(entry.get("hint", ""))
+	var icon_name: String = String(entry.get("icon", ""))
+	if icon_name != "":
+		return _make_icon_button(entry, hint)
 	var button := Button.new()
 	button.text = String(entry.get("label", "...")) + ("\n" + hint if hint != "" else "")
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -261,6 +355,86 @@ func _make_option_button(entry: Dictionary) -> Button:
 	return button
 
 
+## An icon-anchored read button: one HBox child carries the glyph and the two
+## lines of text, set out over the button with the same full-rect trick the
+## level stops use. tone "primary" is the screen's key action - on a decision
+## console that is asking SHIPMIND - so it gets the accent treatment; anything
+## else is a quieter read, like the context data.
+func _make_icon_button(entry: Dictionary, hint: String) -> Button:
+	var touch: bool = touch_mode()
+	var button := Button.new()
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.focus_mode = Control.FOCUS_ALL
+	button.custom_minimum_size = Vector2(0.0, 64.0 if touch else 48.0)
+	var tone: String = String(entry.get("tone", "normal"))
+	var key := tone == "primary"
+	var text_tint: Color = Brand.ACCENT_TINT if key else Brand.NEUTRAL_LIGHT
+	var icon_tint: Color = Brand.ACCENT if key else Brand.NEUTRAL_LIGHT
+	button.add_theme_color_override("font_color", text_tint)
+	button.add_theme_color_override("font_hover_color", Brand.ACCENT_TINT)
+	button.add_theme_color_override("font_pressed_color", Brand.ACCENT_TINT)
+	button.add_theme_color_override("font_focus_color", Brand.ACCENT_TINT)
+	var border: Color = Brand.ACCENT if key else Brand.NEUTRAL
+	button.add_theme_stylebox_override("normal", _icon_box(Brand.SURFACE, border))
+	button.add_theme_stylebox_override("hover", _icon_box(Brand.SURFACE_RAISED, Brand.ACCENT))
+	button.add_theme_stylebox_override("pressed", _icon_box(Brand.SURFACE_RAISED, Brand.ACCENT))
+	button.add_theme_stylebox_override("focus", _ring())
+	var row := HBoxContainer.new()
+	row.name = "Content"
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	## The row sits inside the stylebox's content margins, so the glyph's left
+	## edge lines up with the border language the choice buttons use.
+	row.offset_left = 14.0
+	row.offset_right = -14.0
+	row.offset_top = 8.0
+	row.offset_bottom = -8.0
+	row.add_theme_constant_override("separation", 10)
+	var glyph := Glyph.make(String(entry.get("icon", "")), 22.0, icon_tint)
+	glyph.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(glyph)
+	var text := VBoxContainer.new()
+	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	text.add_theme_constant_override("separation", 1)
+	var label := Label.new()
+	label.text = String(entry.get("label", "..."))
+	Brand.apply_tui(label, Brand.SIZE_TUI)
+	label.add_theme_color_override("font_color", text_tint)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text.add_child(label)
+	if hint != "":
+		## The hint prints under the label, in the machine voice one step down.
+		var hint_label := Label.new()
+		hint_label.text = hint
+		hint_label.add_theme_font_size_override("font_size", Brand.SIZE_TUI_SMALL)
+		hint_label.add_theme_color_override("font_color", Brand.NEUTRAL)
+		hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		text.add_child(hint_label)
+	row.add_child(text)
+	button.add_child(row)
+	button.pressed.connect(func() -> void: _on_option_pressed(String(entry.get("id", ""))))
+	return button
+
+
+## The icon button's fill: the same corner and border language as the choice
+## buttons, with the left margin the glyph band needs.
+func _icon_box(background: Color, border: Color) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = background
+	box.border_color = border
+	box.set_border_width_all(2)
+	box.set_corner_radius_all(3)
+	box.content_margin_left = 14.0
+	box.content_margin_right = 14.0
+	box.content_margin_top = 8.0
+	box.content_margin_bottom = 8.0
+	return box
+
+
 # --- The autonomy spectrum block -----------------------------------------------
 
 
@@ -268,6 +442,12 @@ func _make_option_button(entry: Dictionary) -> Button:
 ## guardrails and one commit button. Two ButtonGroups, not one - a level and a
 ## guardrail are two different choices, and sharing a group would make picking a
 ## guardrail clear the level.
+##
+## The three steps are numbered 1 / 2 / 3 in the machine voice, because they are
+## the same three steps at every console in the ship and the crew should be able
+## to see that at a glance: place the decision, set the guardrail, name the
+## owner. The commit button is pinned below the scroller (in its own host), so
+## the one control the placement cannot finish without never scrolls away.
 func _draw_spectrum(block: Dictionary) -> void:
 	var guardrail_group := ButtonGroup.new()
 	guardrail_group.allow_unpress = false
@@ -282,7 +462,8 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var tag_note: String = String(block.get("tag_note", ""))
 	if tag_note != "":
 		_spectrum_box.add_child(_note_label(tag_note, Brand.NEUTRAL))
-	_spectrum_box.add_child(_gap(6))
+	_spectrum_box.add_child(_step_kicker("1", "DECISION"))
+	_spectrum_box.add_child(_gap(4))
 
 	var levels: Array = block.get("levels", [])
 	_level_entries = levels
@@ -291,7 +472,6 @@ func _draw_spectrum(block: Dictionary) -> void:
 		## default is the strict one: a level that does not say gets asked for an
 		## owner rather than being let through.
 		_levels_require_owner[String(level.get("id", ""))] = bool(level.get("requires_owner", true))
-	_spectrum_box.add_child(_gap(4))
 	_spectrum_box.add_child(_level_slider(levels))
 	_level_detail = _detail_panel()
 	_spectrum_box.add_child(_level_detail[0])
@@ -299,6 +479,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var guardrail_title: String = String(block.get("guardrail_title", ""))
 	if guardrail_title != "":
 		_spectrum_box.add_child(_gap(6))
+		_spectrum_box.add_child(_step_kicker("2", "GUARDRAIL"))
 		_spectrum_box.add_child(_note_label(guardrail_title, Brand.ACCENT_TINT))
 
 	var guardrails: Array = block.get("guardrails", [])
@@ -319,6 +500,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var owner_title: String = String(block.get("owner_title", ""))
 	if owner_title != "":
 		_spectrum_box.add_child(_gap(6))
+		_spectrum_box.add_child(_step_kicker("3", "OWNER"))
 		_spectrum_box.add_child(_note_label(owner_title, Brand.ACCENT_TINT))
 	var owner_note: String = String(block.get("owner_note", ""))
 	if owner_note != "":
@@ -337,7 +519,6 @@ func _draw_spectrum(block: Dictionary) -> void:
 		_spectrum_box.add_child(_owner_detail[0])
 	_refresh_owner_requirement()
 
-	_spectrum_box.add_child(_gap(6))
 	_commit = Button.new()
 	_commit.name = "Commit"
 	_commit.text = String(block.get("submit_label", "COMMIT THE PLACEMENT"))
@@ -357,7 +538,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	_commit.add_theme_stylebox_override("disabled", _commit_fill(Brand.SURFACE_RAISED))
 	_commit.disabled = true
 	_commit.pressed.connect(_on_commit_pressed)
-	_spectrum_box.add_child(_commit)
+	_commit_host.add_child(_commit)
 
 
 func _on_level_pressed(level_id: String) -> void:
@@ -641,6 +822,18 @@ func _spectrum_title(text: String) -> Label:
 	label.text = text
 	label.add_theme_font_size_override("font_size", Brand.SIZE_TITLE)
 	label.add_theme_color_override("font_color", Brand.INK)
+	return label
+
+
+## A step kicker: "1 · DECISION" in the machine voice. The three steps are the
+## recurring shape of every console, so the numbers are the part that reads
+## first and the words stay short.
+func _step_kicker(number: String, word: String) -> Label:
+	var label := Label.new()
+	label.name = "Step" + number
+	label.text = "%s · %s" % [number, word]
+	Brand.apply_tui(label, Brand.SIZE_TUI_SMALL)
+	label.add_theme_color_override("font_color", Brand.NEUTRAL)
 	return label
 
 

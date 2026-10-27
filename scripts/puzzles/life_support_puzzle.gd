@@ -83,9 +83,9 @@ func intro_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does environmental monitoring and response authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("board", "Read the compartments behind the board", "The readings the average was taken from.", "primary")
+	state.option("board", "READ MORE CONTEXT DATA", "The compartments behind the average.", "quiet", "info")
 	state.option("trust", "Leave the board to the model for the next phase", "See what the legacy model does with it, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND to defend the average", "It will explain the measurement it chose.")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain the measurement it chose.", "primary", "shipmind")
 	state.option("close", "Step away from the panel")
 	return state
 
@@ -151,7 +151,7 @@ func board_state() -> ScreenState:
 		"Where does environmental monitoring and response authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
 	state.option("trust", "Leave the board to the model for the next phase", "See what the legacy model does with it, unattended.", "danger")
-	state.option("ask", "Ask SHIPMIND to defend the average")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will explain the measurement it chose.", "primary", "shipmind")
 	state.option("back", "Back to the board")
 	state.option("close", "Step away from the panel")
 	return state
@@ -178,7 +178,7 @@ func consequence_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does environmental monitoring and response authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("board", "Read the compartments behind the board", "The readings the average was taken from.", "primary")
+	state.option("board", "READ MORE CONTEXT DATA", "The compartments behind the average.", "quiet", "info")
 	state.option("back", "Back to the board")
 	state.option("close", "Step away from the panel")
 	return state
@@ -205,7 +205,7 @@ func ask_state() -> ScreenState:
 		"PLACE THE DECISION",
 		"Where does environmental monitoring and response authority sit for the next phase, what one guardrail goes around it, and who owns the outcome?")
 	state.rule()
-	state.option("board", "Read the compartments behind the board", "See what the average was taken from.", "primary")
+	state.option("board", "READ MORE CONTEXT DATA", "What the average was taken from.", "quiet", "info")
 	state.option("back", "Back to the board")
 	state.option("close", "Step away from the panel")
 	return state
