@@ -40,11 +40,14 @@ static func choice_button(group: ButtonGroup, label: String, hint: String = "", 
 	button.add_theme_font_size_override("font_size", Brand.SIZE_COMPACT)
 	button.add_theme_color_override("font_color", Brand.NEUTRAL)
 	button.add_theme_color_override("font_hover_color", Brand.INK)
-	button.add_theme_color_override("font_pressed_color", Brand.INK)
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
 	button.add_theme_color_override("font_focus_color", Brand.INK)
 	button.add_theme_stylebox_override("normal", _fill(Brand.SURFACE, Brand.NEUTRAL))
 	button.add_theme_stylebox_override("hover", _fill(Brand.SURFACE_RAISED, Brand.NEUTRAL_LIGHT))
-	button.add_theme_stylebox_override("pressed", _fill(Brand.SURFACE_RAISED, Brand.ACCENT))
+	## Selected is a solid orange fill with white text: the old orange border on
+	## dark read as an outline, not a state, and the player had to hunt for
+	## which option was actually on.
+	button.add_theme_stylebox_override("pressed", _fill(Brand.ACCENT, Brand.ACCENT))
 	## The focus ring is drawn over whatever fill is current, so it is a bare
 	## orange border on nothing. The engine's default ring is cool, and this
 	## layer has no cool colour in it.
