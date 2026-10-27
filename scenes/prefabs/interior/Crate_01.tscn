@@ -7,8 +7,8 @@
 render_priority = 0
 shader = ExtResource("1_8yrxu")
 shader_parameter/albedo_texture = ExtResource("2_nu7qm")
-shader_parameter/tint_low = Color(0.31, 0.063, 0.063, 1)
-shader_parameter/tint_high = Color(0.678, 0.137, 0.137, 1)
+shader_parameter/tint_low = Color(0.22, 0.20, 0.18, 1)
+shader_parameter/tint_high = Color(0.745, 0.72, 0.69, 1)
 shader_parameter/glow_tint = Color(0.941, 0.722, 0.224, 1)
 shader_parameter/exposure_gain = 1.0
 shader_parameter/seam_floor = 0.05

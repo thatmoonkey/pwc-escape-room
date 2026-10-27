@@ -2,6 +2,6 @@
 
 [resource]
 resource_name = "WallFace"
-albedo_color = Color(0.678431, 0.137255, 0.137255, 1)
-metallic = 0.0
-roughness = 0.55
+albedo_color = Color(0.700, 0.675, 0.645, 1)
+metallic = 0.1
+roughness = 0.5
