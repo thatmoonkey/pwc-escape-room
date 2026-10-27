@@ -50,20 +50,42 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if OS.is_debug_build():
 		print("[Sfx] ", Sfx.debug_state())
-	## The opening monologue waits for the launch screen. SHIPMIND's first lines
-	## are the premise, and they have to land after the crew has chosen to begin
-	## rather than underneath a title card nobody has read yet.
+	## The narrative intro owns the first impression: it plays over everything,
+	## and the mandate card waits underneath it until the story has been told.
 	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
+	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
 	if launch != null:
 		## The card's own _ready fired before this controller loaded the save, so
 		## it is re-read here: without this a resumed session would open with an
 		## empty callsign and no mandate on a record that holds both.
 		launch.refresh_from_state()
+	if intro != null:
+		## The readout strip stays dark while the story is up, and the mandate
+		## card steps aside until _on_intro_finished brings it back.
+		hud.visible = false
+		if launch != null:
+			launch.hide_screen()
+		intro.finished.connect(_on_intro_finished)
+	elif launch != null:
 		## The readout strip stays dark while the card is up: it would only
 		## bleed through the dim as noise the player cannot act on yet.
 		hud.visible = not launch.is_open()
-	if launch != null and launch.is_open():
-		launch.begun.connect(_on_session_begin)
+		if launch.is_open():
+			launch.begun.connect(_on_session_begin)
+		else:
+			_on_session_begin()
+	else:
+		_on_session_begin()
+
+
+## The intro has told its three beats. The mandate card takes the stage.
+func _on_intro_finished() -> void:
+	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
+	if launch != null:
+		hud.visible = false
+		launch.show_screen()
+		if not launch.begun.is_connected(_on_session_begin):
+			launch.begun.connect(_on_session_begin)
 	else:
 		_on_session_begin()
 	## The in-run menu is wired here rather than in the menu itself, because
