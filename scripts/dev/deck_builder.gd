@@ -408,10 +408,10 @@ func _light(parent: Node3D, node_name: String, pos: Vector3, system_id: String =
 	var light := OmniLight3D.new()
 	light.name = node_name
 	light.position = pos
-	light.light_color = Color(1.0, 0.82, 0.62, 1.0)
-	light.light_energy = 2.2
-	light.omni_range = 9.0
-	light.shadow_enabled = true
+	light.light_color = Color(0.94, 0.86, 0.75, 1.0)
+	light.light_energy = 1.25
+	light.omni_range = 11.0
+	light.shadow_enabled = false
 	if system_id != "":
 		light.set_script(load(S_BAY_LIGHT))
 		light.set("system_id", system_id)

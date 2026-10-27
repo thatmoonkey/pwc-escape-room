@@ -704,26 +704,26 @@ shape = SubResource("BoxShape3D_pon20")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.61, -32)
 light_color = Color(1, 0.82, 0.62, 1)
 light_energy = 2.2
-shadow_enabled = true
-omni_range = 9.0
+shadow_enabled = false
+omni_range = 11.0
 
 [node name="Arrival" type="OmniLight3D" parent="Lights" unique_id=359337332]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -32.2)
 light_color = Color(1, 0.82, 0.62, 1)
 light_energy = 2.2
-shadow_enabled = true
-omni_range = 9.0
+shadow_enabled = false
+omni_range = 11.0
 
 [node name="Turn" type="OmniLight3D" parent="Lights" unique_id=661256858]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -35.5)
 light_color = Color(1, 0.82, 0.62, 1)
 light_energy = 2.2
-shadow_enabled = true
-omni_range = 9.0
+shadow_enabled = false
+omni_range = 11.0
 
 [node name="Landing" type="OmniLight3D" parent="Lights" unique_id=661540405]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -40.25)
 light_color = Color(1, 0.82, 0.62, 1)
 light_energy = 2.2
-shadow_enabled = true
-omni_range = 9.0
+shadow_enabled = false
+omni_range = 11.0

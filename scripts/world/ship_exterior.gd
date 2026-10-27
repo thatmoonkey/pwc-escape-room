@@ -102,7 +102,7 @@ func _build_sun() -> void:
 	add_child(_sun_pivot)
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
-	sun.light_energy = 1.25
+	sun.light_energy = 0.45
 	sun.shadow_enabled = false
 	_sun_pivot.add_child(sun)
 

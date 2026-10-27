@@ -64,12 +64,18 @@ scenes and scripts reference them by path.
 - `highlight.tres` - the aim highlight on interactables, orange
 - `window_glass.tres` - glass, warm-tinted and still transparent
 
-Lighting lives in `scenes/world/station.tscn` under `Lights`, on the warm flood
-colour `Color(0.94, 0.86, 0.75)` at energy 1.55, with the environment ambient
-neutral `Color(0.32, 0.30, 0.28)`. The bloom is kept at intensity 0.25 and
-bloom 0.02: a light wall is bright without a whiteout. Nothing in the interior
-is pure white or pure black - the lightest surface sits at 0.92 and the
-darkest at 0.38, so the tonemapper always has room either side.
+The lighting model is deliberately thin, because every light is a draw call and
+a shadow pass is another one per light. One environment ambient
+(`Color(0.40, 0.38, 0.36)` at 0.55) does the base work; each room then carries
+ONE OmniLight at its centre - warm neutral `Color(0.94, 0.86, 0.75)` at energy
+1.25, range 11 - and that is all. The sun that keys the outside is a
+directional light at 0.45, low enough to read on the planet without lighting
+one wall brighter than the rest through the windows. No light casts shadows:
+shadow maps are the cost on mobile, and the base ambient keeps the unlit
+faces legible without them. The bloom is kept at intensity 0.25 and bloom
+0.02. Nothing in the interior is pure white or pure black - the lightest
+surface sits at 0.92 and the darkest at 0.38, so the tonemapper always has
+room either side.
 
 ## The kit modules are repainted in code
 
