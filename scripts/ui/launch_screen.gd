@@ -23,11 +23,14 @@ extends CanvasLayer
 ##
 ## Behaviour the card keeps from its earlier life: the mandate is captured HERE,
 ## before the crew can see a single bay, because consistency is measured against
-## what was declared before deciding; BEGIN refuses to run without a callsign
-## and a mandate; and a resumed session opens with its record already shown
-## rather than being asked to re-declare it.
+## what was declared before deciding; BEGIN refuses to run without a mandate;
+## and a resumed session opens with its record already shown rather than being
+## asked to re-declare it.
 
 signal begun
+## The crew wants the story again. The station controller raises the intro
+## screen over everything, so the card never talks to it directly.
+signal intro_requested
 
 const PAPAYA := Color(0.863, 0.369, 0.153)
 const TANGERINE := Color(0.816, 0.251, 0.149)
@@ -47,14 +50,12 @@ var _fit: Control = null
 var _column: VBoxContainer = null
 var _button: Button = null
 var _resume_label: Label = null
-var _callsign: LineEdit = null
 var _hint: Label = null
 var _open: bool = false
 
 ## The mandate, as chosen on this card. Held as ids until BEGIN, because a
-## half-typed name or a half-chosen mandate must not reach the record: the
-## mandate is what every placement is judged against, so it is committed once,
-## deliberately, with the callsign.
+## half-chosen mandate must not reach the record: the mandate is what every
+## placement is judged against, so it is committed once, deliberately.
 var _objective_pick: String = ""
 var _appetite_pick: String = ""
 var _objective_buttons: Dictionary = {}
@@ -98,9 +99,7 @@ func show_screen() -> void:
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	refresh_from_state()
-	if _callsign != null and _callsign.text.length() < GameState.CALLSIGN_LENGTH:
-		_callsign.grab_focus()
-	elif _button != null:
+	if _button != null:
 		_button.grab_focus()
 	_request_fit()
 
@@ -116,8 +115,6 @@ func hide_screen() -> void:
 ## Re-reads the record. The station controller calls this AFTER it has loaded
 ## the save, because this card's own _ready fires before that does.
 func refresh_from_state() -> void:
-	if _callsign != null and GameState.has_save() and GameState.callsign != "":
-		_callsign.text = GameState.callsign
 	_objective_pick = OperatingModel.objective_id
 	_appetite_pick = OperatingModel.appetite_id
 	for id in _objective_buttons:
@@ -135,11 +132,6 @@ func refresh_from_state() -> void:
 func begin() -> void:
 	if not _open:
 		return
-	if _callsign == null or _callsign.text.length() < GameState.CALLSIGN_LENGTH:
-		if _callsign != null:
-			_callsign.grab_focus()
-		_set_hint("Three letters for the record, then BEGIN.")
-		return
 	if _objective_pick == "":
 		_open_chooser()
 		_set_hint("Declare the mandate first - it is the yardstick every decision is judged against.")
@@ -148,7 +140,9 @@ func begin() -> void:
 		_open_chooser()
 		_set_hint("Choose the risk appetite the model runs at.")
 		return
-	GameState.set_callsign(_callsign.text)
+	## The callsign is the record's own now: the field is gone, so the ship's
+	## default handle stands unless a save already holds a better one.
+	GameState.set_callsign(GameState.callsign)
 	GameState.set_mandate(_objective_pick, _appetite_pick)
 	_set_hint("")
 	_open = false
@@ -515,7 +509,7 @@ func _fit_to_viewport() -> void:
 	# scaled viewport. The old maths centred view.y * scale, which is only the
 	# content's height when nothing was scaled at all: with the chooser open on
 	# a taller-than-16:9 screen it pushed the whole card half the leftover
-	# space down the screen and clipped the callsign row off the bottom.
+	# space down the screen and clipped the buttons row off the bottom.
 	_fit.position = Vector2(
 		(view.x - view.x * scale) * 0.5,
 		maxf(0.0, (view.y - needed * scale) * 0.5))
@@ -738,7 +732,28 @@ func _field_row() -> HBoxContainer:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
 
-	row.add_child(_callsign_row())
+	## The story's front door, within reach the whole time: the crew can walk
+	## the narrative back from the mandate card, styled as Begin's quiet twin.
+	var intro_button := Button.new()
+	intro_button.name = "Intro"
+	intro_button.text = "INTRO"
+	intro_button.custom_minimum_size = Vector2(200.0, 50.0)
+	intro_button.add_theme_font_size_override("font_size", 19)
+	intro_button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
+	intro_button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
+	var intro_fill := StyleBoxFlat.new()
+	intro_fill.bg_color = GOLD
+	intro_fill.border_color = TANGERINE
+	intro_fill.set_border_width_all(2)
+	intro_fill.set_corner_radius_all(3)
+	intro_button.add_theme_stylebox_override("normal", intro_fill)
+	var intro_hover: StyleBoxFlat = intro_fill.duplicate()
+	intro_hover.bg_color = Color(1.0, 0.82, 0.36)
+	intro_button.add_theme_stylebox_override("hover", intro_hover)
+	intro_button.add_theme_stylebox_override("focus", intro_hover)
+	intro_button.pressed.connect(_on_intro_pressed)
+	row.add_child(intro_button)
+
 	row.add_child(_gap_h(1))
 
 	_button = Button.new()
@@ -761,14 +776,6 @@ func _field_row() -> HBoxContainer:
 	_button.pressed.connect(begin)
 	row.add_child(_button)
 
-	var start_hint := Label.new()
-	start_hint.name = "StartHint"
-	start_hint.text = "or press Enter"
-	start_hint.add_theme_font_size_override("font_size", 14)
-	start_hint.add_theme_color_override("font_color", MUTED)
-	start_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(start_hint)
-
 	_hint = Label.new()
 	_hint.name = "Hint"
 	_hint.text = ""
@@ -781,69 +788,15 @@ func _field_row() -> HBoxContainer:
 	return row
 
 
-func _callsign_row() -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "CallsignRow"
-	row.add_theme_constant_override("separation", 12)
-
-	_callsign = LineEdit.new()
-	_callsign.name = "Callsign"
-	_callsign.max_length = GameState.CALLSIGN_LENGTH
-	_callsign.placeholder_text = "REY"
-	_callsign.custom_minimum_size = Vector2(132.0, 50.0)
-	_callsign.add_theme_font_size_override("font_size", 24)
-	_callsign.add_theme_color_override("font_color", WHITE)
-	_callsign.add_theme_color_override("caret_color", GOLD)
-	_callsign.add_theme_color_override("font_placeholder_color", MUTED)
-	var field := StyleBoxFlat.new()
-	field.bg_color = SURFACE
-	field.border_color = TANGERINE
-	field.set_border_width_all(2)
-	field.set_corner_radius_all(3)
-	field.content_margin_left = 14.0
-	field.content_margin_right = 14.0
-	_callsign.add_theme_stylebox_override("normal", field)
-	var focused: StyleBoxFlat = field.duplicate()
-	focused.border_color = GOLD
-	_callsign.add_theme_stylebox_override("focus", focused)
-	_callsign.text_changed.connect(_on_callsign_typed)
-	_callsign.text_submitted.connect(_on_callsign_submitted)
-	row.add_child(_callsign)
-
-	var note := Label.new()
-	note.name = "Note"
-	note.text = "your callsign"
-	note.add_theme_font_size_override("font_size", 13)
-	note.add_theme_color_override("font_color", MUTED)
-	note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(note)
-	return row
-
-
-func _on_callsign_typed(text: String) -> void:
-	var cleaned: String = ""
-	for character in text.to_upper():
-		if "ABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(character):
-			cleaned += character
-	if cleaned.length() > GameState.CALLSIGN_LENGTH:
-		cleaned = cleaned.substr(0, GameState.CALLSIGN_LENGTH)
-	if cleaned != text:
-		_callsign.set_text(cleaned)
-		_callsign.caret_column = cleaned.length()
-	if cleaned.length() >= GameState.CALLSIGN_LENGTH and _button != null:
-		_button.grab_focus()
-
-
-func _on_callsign_submitted(_text: String) -> void:
-	if _callsign != null and _callsign.text.length() >= GameState.CALLSIGN_LENGTH:
-		begin()
-	else:
-		_callsign.grab_focus()
-
-
 func _set_hint(text: String) -> void:
 	if _hint != null:
 		_hint.text = text
+
+
+## The crew wants the story again from the mandate card. The card only asks;
+## the station controller raises the intro screen over everything.
+func _on_intro_pressed() -> void:
+	intro_requested.emit()
 
 
 ## The curiosity row: three quiet doors to the detail the old card used to

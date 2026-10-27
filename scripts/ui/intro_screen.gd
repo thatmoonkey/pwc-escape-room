@@ -187,6 +187,20 @@ func _open() -> void:
 	_relayout()
 
 
+## Replays the telling for a crew who wants the story again from the mandate
+## card. Resets the beats and plays them over from the first still.
+func replay() -> void:
+	_done = false
+	_beat = 0
+	InputRouter.set_ui_blocking(true)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_root.visible = true
+	_root.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	create_tween().tween_property(_root, "modulate:a", 1.0, 0.5)
+	_show_beat(0, true)
+	_relayout()
+
+
 func _on_viewport_resized() -> void:
 	_relayout()
 
