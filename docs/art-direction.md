@@ -8,14 +8,14 @@ end of an alert scale, so every surface reads as something that is switched on.
 
 | Token | Hex | Where it lives |
 |---|---|---|
-| Warm White | `#E8E1DB` | Wall panels, ceilings, crate bodies - the ship's light base |
+| Light Warm Grey | `#B8B4AF` | Wall panels, ceilings, crate bodies - the ship's light base |
 | PwC Orange | `#FD5108` | Accents, glow strips, button fills, highlights, alert text |
 | Warm Grey | `#615F5E` | Base band, trim, floor panels |
 | Warm Sand | `#EDE1D6` | Info text, neutral labels |
 | White | `#FFFFFF` | Headline text, text on the orange fill |
 
 The brand refresh takes the warm family DOWN to light neutrals and puts one
-strong orange on top. A wall panel is warm white; a door is warm grey with an
+strong orange on top. A wall panel is a light warm grey - no pure white - a door is warm grey with an
 orange seal; gold light is PwC orange; and every button meant to be pressed is
 filled orange with white text - never an outline that reads as subtle. The red
 that used to be the ship's dominant tone is gone: it survives only as the
@@ -65,9 +65,11 @@ scenes and scripts reference them by path.
 - `window_glass.tres` - glass, warm-tinted and still transparent
 
 Lighting lives in `scenes/world/station.tscn` under `Lights`, on the warm flood
-colour `Color(0.97, 0.87, 0.72)`, with the environment ambient warm. The
-exterior hull, the docking arms and the debris are warm dark metal and rock
-rather than cool grey.
+colour `Color(0.94, 0.86, 0.75)` at energy 1.55, with the environment ambient
+neutral `Color(0.32, 0.30, 0.28)`. The bloom is kept at intensity 0.25 and
+bloom 0.02: a light wall is bright without a whiteout. Nothing in the interior
+is pure white or pure black - the lightest surface sits at 0.92 and the
+darkest at 0.38, so the tonemapper always has room either side.
 
 ## The kit modules are repainted in code
 

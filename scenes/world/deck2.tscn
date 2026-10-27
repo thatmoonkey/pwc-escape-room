@@ -187,8 +187,8 @@ render_priority = 0
 shader = ExtResource("5_3i4jk")
 shader_parameter/albedo_texture = ExtResource("6_g3q3u")
 shader_parameter/emission_texture = ExtResource("7_8rv8x")
-shader_parameter/tint_low = Color(0.72, 0.71, 0.69, 1)
-shader_parameter/tint_high = Color(0.91, 0.90, 0.88, 1)
+shader_parameter/tint_low = Color(0.50, 0.495, 0.48, 1)
+shader_parameter/tint_high = Color(0.72, 0.71, 0.70, 1)
 shader_parameter/glow_tint = Color(0.99, 0.38, 0.05, 1)
 shader_parameter/exposure_gain = 1.0
 shader_parameter/seam_floor = 0.05
@@ -1558,50 +1558,50 @@ collision_mask = 0
 
 [node name="Spine_A" type="OmniLight3D" parent="Lights" unique_id=362716581]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -28)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Spine_B" type="OmniLight3D" parent="Lights" unique_id=1773194910]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -20)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Spine_C" type="OmniLight3D" parent="Lights" unique_id=1014879150]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, -3)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Spine_D" type="OmniLight3D" parent="Lights" unique_id=2128409840]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, 11)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="Junction" type="OmniLight3D" parent="Lights" unique_id=1925173709]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -1.25, -8.75)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="CargoRoom" type="OmniLight3D" parent="Lights" unique_id=1928376366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, -1.25, -5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
 [node name="EngRoom" type="OmniLight3D" parent="Lights" unique_id=1090270853]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, -1.25, 10.5)
-light_color = Color(1, 0.82, 0.62, 1)
-light_energy = 2.2
+light_color = Color(0.94, 0.86, 0.75, 1)
+light_energy = 1.55
 shadow_enabled = true
 omni_range = 9.0
 
