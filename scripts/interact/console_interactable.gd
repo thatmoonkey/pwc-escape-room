@@ -21,6 +21,11 @@ signal puzzle_opened(puzzle_id: String)
 
 @export var puzzle_path: NodePath
 @export var fit_to_model: bool = true
+## How tall the model should stand, in metres. The kit consoles arrive
+## around 0.5 m tall - under knee height - which is why they read as a toy
+## box on the floor rather than as the room's workstation. The fit scales
+## the model UP to this height, then measures it.
+@export var target_model_height: float = 1.45
 ## A short prop is still given a box this tall, so it stays comfortable to aim at.
 @export var min_aim_height: float = 0.9
 
@@ -85,12 +90,37 @@ func _fit_to_model() -> void:
 	if first:
 		return
 
+	# 0: scale the model to a real workstation height before measuring it. The
+	# kit consoles are under knee height on import; left alone they read as a
+	# toy on the floor. Scale is uniform so the model keeps its proportions,
+	# and the fit is worked out AFTER it - so the collision and highlight
+	# still match what is on screen.
+	var factor: float = target_model_height / maxf(bounds.size.y, 0.001)
+	if absf(factor - 1.0) > 0.02:
+		model.scale = Vector3.ONE * factor
+		to_local = global_transform.affine_inverse()
+		bounds = AABB()
+		first = true
+		for mesh in meshes:
+			if not is_instance_valid(mesh):
+				continue
+			var box: AABB = (to_local * mesh.global_transform) * mesh.get_aabb()
+			if first:
+				bounds = box
+				first = false
+			else:
+				bounds = bounds.merge(box)
+	if first:
+		return
+
 	# 1 and 2: base on the floor, centred on the console body.
 	var center: Vector3 = bounds.get_center()
 	model.position += Vector3(-center.x, -bounds.position.y, -center.z)
 
 	# 3: the aim volume and the highlight match the model, with a floor on the
-	# height so a low prop is still easy to aim at.
+	# height so a low prop is still easy to aim at. The highlight's MESH is
+	# resized to the box - not scaled - so its proportions never stretch into
+	# the elongated outline the old scale produced.
 	var width: float = maxf(bounds.size.x, 0.4)
 	var height: float = maxf(bounds.size.y, min_aim_height)
 	var depth: float = maxf(bounds.size.z, 0.4)
@@ -105,7 +135,10 @@ func _fit_to_model() -> void:
 
 	var highlight: MeshInstance3D = get_node_or_null("Highlight") as MeshInstance3D
 	if highlight != null:
-		highlight.scale = Vector3(width, height, depth) * 1.06
+		var hl_box := BoxMesh.new()
+		hl_box.size = Vector3(width, height, depth) * 1.06
+		highlight.mesh = hl_box
+		highlight.scale = Vector3.ONE
 		highlight.position = Vector3(0.0, height * 0.5, 0.0)
 
 
