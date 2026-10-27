@@ -108,6 +108,9 @@ var _level_detail: Array = []
 var _owner_requirement: Label = null
 var _levels_require_owner: Dictionary = {}
 
+## The flyouts' print pace, seconds per line.
+const PRINT_INTERVAL := 0.35
+
 
 func _ready() -> void:
 	add_to_group("terminal_ui")
@@ -463,13 +466,19 @@ func requires_owner(level_id: String) -> bool:
 	return bool(_levels_require_owner.get(level_id, true))
 
 
+## The commit stays closed until the decision is complete. A placement is its
+## level; a block that ALSO lists guardrails or owner roles asks for those too,
+## and one that lists none - the game's five bays - commits on the level alone.
 func _refresh_commit() -> void:
 	if _commit == null:
 		return
-	if _level_choice == "" or _guardrail_choice == "":
+	if _level_choice == "":
 		_commit.disabled = true
 		return
-	_commit.disabled = requires_owner(_level_choice) and _owner_choice == ""
+	if not _guardrail_entries.is_empty() and _guardrail_choice == "":
+		_commit.disabled = true
+		return
+	_commit.disabled = requires_owner(_level_choice) and not _owner_entries.is_empty() and _owner_choice == ""
 
 
 func _refresh_owner_requirement() -> void:
@@ -485,18 +494,16 @@ func _refresh_owner_requirement() -> void:
 
 
 func _on_commit_pressed() -> void:
-	if _level_choice == "" or _guardrail_choice == "":
+	if _level_choice == "":
 		return
 	var level_id: String = _level_choice
-	var guardrail_id: String = _guardrail_choice
-	var owner_id: String = ""
-	if requires_owner(level_id):
-		owner_id = _owner_choice
-		if owner_id == "":
-			return
-	placement_chosen.emit(level_id, guardrail_id, owner_id)
+	if not _guardrail_entries.is_empty() and _guardrail_choice == "":
+		return
+	if requires_owner(level_id) and not _owner_entries.is_empty() and _owner_choice == "":
+		return
+	placement_chosen.emit(level_id, _guardrail_choice, _owner_choice)
 	if _puzzle != null and is_instance_valid(_puzzle):
-		_puzzle.place(level_id, guardrail_id, owner_id)
+		_puzzle.place(level_id)
 
 
 # --- The lore flyouts ---------------------------------------------------------
@@ -550,7 +557,7 @@ func _show_readout() -> void:
 	## The tile opens the flyout and the lore prints at its own pace; the
 	## readout is the ship's own account of itself, and it reads the same
 	## whether the crew is watching yet or not.
-	_timer.start(print_interval)
+	_timer.start(PRINT_INTERVAL)
 
 
 func _show_shipmind() -> void:
