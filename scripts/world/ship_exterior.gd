@@ -44,6 +44,11 @@ const STATION_SCENE := "res://assets/exterior/low-poly_space_station_-_3december
 @export var rock_count: int = 14
 @export var rock_radius: float = 15.0
 @export var rock_length: float = 150.0
+## The ship's own half-beam, plus a clear margin. Nothing in the field ever
+## spawns inside this band on X, so debris always passes OUTSIDE the hull and
+## never crosses the interior where it would read as flying past the crew's
+## head.
+const HULL_HALF_BEAM := 17.0
 
 ## WHERE THE DOCKING ARMS STOP, and the one number that matters about them.
 ##
@@ -226,7 +231,8 @@ func _build_star_field() -> void:
 
 ## The rocks: a sparse handful of dark shapes drifting past the windows, each
 ## on its own line so they pass at different heights and speeds. Spawned ahead
-## of the ship and recycled behind it, in one loop.
+## of the ship and recycled behind it, in one loop - and every line keeps
+## outside the hull, so a rock passes the window and never the crew.
 func _build_drifting_rocks() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
@@ -244,25 +250,37 @@ func _build_drifting_rocks() -> void:
 		rock.mesh = mesh
 		rock.material_override = material
 		rock.rotation = Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)
-		rock.position = _field_point(rng, rock_radius, rock_length, false)
+		rock.position = _rock_line(rng)
 		add_child(rock)
 		_rocks.append(rock)
 		_rock_speeds.append(rng.randf_range(0.8, 1.3))
 
 
-## One point in the drift band. `sparse_port` is true for the stars: the band
-## is full everywhere, but thins on the port side where the station hull fills
-## the view - so nothing drifts through the docking arms or the hull.
+## One rock's line: outside the hull on one side of the ship, at a height and
+## depth along its run. Starboard is the open side, so most rocks pass there;
+## a share pass the port windows, beyond the hull and the docking arms.
+func _rock_line(rng: RandomNumberGenerator) -> Vector3:
+	var side: float = 1.0 if rng.randf() < 0.75 else -1.0
+	return Vector3(
+		side * rng.randf_range(HULL_HALF_BEAM, rock_radius + HULL_HALF_BEAM),
+		rng.randf_range(-rock_radius * 0.4, rock_radius * 0.4),
+		rng.randf_range(-rock_length, rock_length * 0.5))
+
+
+## One point in the drift band. Everything in the field stays OUTSIDE the
+## hull's half-beam on X - never inside it - so a rock or a star can never
+## cross the interior and read as flying past the crew's head. The port side
+## thins out where the station hull fills the view, so nothing drifts through
+## the docking arms or the hull.
 func _field_point(rng: RandomNumberGenerator, radius: float, length: float,
 		sparse_port: bool) -> Vector3:
-	var x: float
-	if sparse_port and rng.randf() < 0.35:
-		# The station fills port; a star here would read as inside the hull.
-		x = rng.randf_range(-radius * 0.4, radius * 0.4)
-	else:
-		x = rng.randf_range(-radius, radius)
-		if absf(x) < 4.0:
-			x = signf(x if x != 0.0 else 1.0) * rng.randf_range(4.0, radius)
+	# Starboard is the open side: the station fills port, so the field leans
+	# that way. A point always clears the hull by a margin, so debris passes
+	# the window and never the crew.
+	var side: float = 1.0
+	if sparse_port and rng.randf() < 0.30:
+		side = -1.0  # some stars still pass the port windows, beyond the hull
+	var x: float = side * rng.randf_range(HULL_HALF_BEAM, radius + HULL_HALF_BEAM)
 	return Vector3(x, rng.randf_range(-radius * 0.45, radius * 0.45),
 		rng.randf_range(-length, length * 0.5))
 
@@ -289,9 +307,12 @@ func _update_drifting_rocks(delta: float) -> void:
 		rock.position.z -= drift_speed * _rock_speeds[i] * delta
 		rock.rotation += Vector3(0.21, 0.13, 0.09) * delta
 		if rock.position.z < -rock_length:
-			rock.position.z += rock_length * 1.5
-			rock.position.x = randf_range(-rock_radius, rock_radius)
-			rock.position.y = randf_range(-rock_radius * 0.4, rock_radius * 0.4)
+			# Recycle behind the bow, on a fresh line outside the hull.
+			var side: float = 1.0 if randf() < 0.75 else -1.0
+			rock.position = Vector3(
+				side * randf_range(HULL_HALF_BEAM, rock_radius + HULL_HALF_BEAM),
+				randf_range(-rock_radius * 0.4, rock_radius * 0.4),
+				rock.position.z + rock_length * 1.5)
 
 
 # --- Helpers ------------------------------------------------------------------
