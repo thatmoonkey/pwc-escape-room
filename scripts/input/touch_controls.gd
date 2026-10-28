@@ -144,18 +144,35 @@ func _input(event: InputEvent) -> void:
 		_handle_press(event.index, event.position, event.pressed)
 	elif event is InputEventScreenDrag:
 		_handle_drag(event.index, event.position)
-	elif _mouse_drives() and event is InputEventMouseButton:
+	elif event is InputEventMouseButton:
 		_handle_press(-2, event.position, event.pressed)
-	elif _mouse_drives() and event is InputEventMouseMotion \
+	elif event is InputEventMouseMotion \
 			and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
 		_handle_drag(-2, event.position)
+
+
+var _pending_touch: int = -1
+var _pending_start: Vector2 = Vector2.ZERO
+## A tap that travels this far is a drag, not a tap, so the finger wobbling
+## while it touches never counts as a use.
+const TAP_MAX_TRAVEL := 18.0
 
 
 func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 	if jump_button != null and jump_button.get_global_rect().has_point(position):
 		return
 	if pressed:
-		_try_grab(index, position)
+		# Every touch is a candidate tap first: it only becomes a stick once the
+		# thumb moves, so a quick touch-and-release is always a use, never a
+		# stick that briefly appeared.
+		_pending_touch = index
+		_pending_start = position
+		return
+	if index == _pending_touch:
+		var is_tap: bool = position.distance_to(_pending_start) < TAP_MAX_TRAVEL
+		_pending_touch = -1
+		if is_tap and _move_touch == -1 and _look_touch == -1:
+			InputRouter.queue_interact()
 		return
 	if index == _move_touch:
 		_move_touch = -1
@@ -170,11 +187,25 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 		_return_stick(look_base, look_radius, false)
 
 
-## A tap in the lower half of the screen grabs the nearest stick and centres
-## it under the thumb. A tap higher up (or with no stick free) is interact:
-## the tap casts into the world and uses whatever the crew is looking at, so
-## the whole screen is the interact surface.
-func _try_grab(index: int, position: Vector2) -> void:
+func _handle_drag(index: int, position: Vector2) -> void:
+	# A pending touch that has moved is a stick, not a tap: claim the nearest
+	# one and start dragging, so the first pixel of movement already moves.
+	if index == _pending_touch and position.distance_to(_pending_start) > TAP_MAX_TRAVEL:
+		_claim_stick(index, position)
+		_pending_touch = -1
+	if index == _move_touch:
+		_move_dir = _stick_input(position - _move_center, move_radius, move_dead_zone)
+		_set_knob(move_knob, move_radius, move_knob_radius, _move_dir)
+		_set_move(_move_dir)
+	elif index == _look_touch:
+		_look_dir = _stick_input(position - _look_center, look_radius, look_dead_zone)
+		_set_knob(look_knob, look_radius, look_knob_radius, _look_dir)
+
+
+## A drag in the lower half of the screen claims the nearest stick and centres
+## it under the thumb, so the stick is under the finger the moment it starts
+## to move - not under the finger it has to hunt for.
+func _claim_stick(index: int, position: Vector2) -> void:
 	var view: Vector2 = get_viewport().get_visible_rect().size
 	var in_grab: bool = position.y > view.y * (1.0 - stick_grab_region)
 	if in_grab and _move_touch == -1 and position.x < view.x * 0.5:
@@ -182,15 +213,11 @@ func _try_grab(index: int, position: Vector2) -> void:
 		_move_center = position
 		move_base.position = position - Vector2(move_radius, move_radius)
 		_center_knob(move_knob, move_radius, move_knob_radius)
-		return
-	if in_grab and _look_touch == -1 and position.x >= view.x * 0.5:
+	elif in_grab and _look_touch == -1 and position.x >= view.x * 0.5:
 		_look_touch = index
 		_look_center = position
 		look_base.position = position - Vector2(look_radius, look_radius)
 		_center_knob(look_knob, look_radius, look_knob_radius)
-		return
-	# No stick claimed, or the tap was above the grab region: interact.
-	InputRouter.queue_interact()
 
 
 ## A released stick glides back to its corner instead of staying where the
@@ -202,16 +229,6 @@ func _return_stick(base: Control, radius: float, _left: bool) -> void:
 		target.x = view.x - stick_margin.x - radius * 2.0
 	var tween := create_tween()
 	tween.tween_property(base, "position", target, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-
-func _handle_drag(index: int, position: Vector2) -> void:
-	if index == _move_touch:
-		_move_dir = _stick_input(position - _move_center, move_radius, move_dead_zone)
-		_set_knob(move_knob, move_radius, move_knob_radius, _move_dir)
-		_set_move(_move_dir)
-	elif index == _look_touch:
-		_look_dir = _stick_input(position - _look_center, look_radius, look_dead_zone)
-		_set_knob(look_knob, look_radius, look_knob_radius, _look_dir)
 
 
 ## Normalised stick input: 0..1 inside the dead zone, then a smooth ramp to
@@ -259,6 +276,7 @@ func _action(action: StringName, pressed: bool) -> void:
 func _release_all() -> void:
 	_move_touch = -1
 	_look_touch = -1
+	_pending_touch = -1
 	_move_dir = Vector2.ZERO
 	_look_dir = Vector2.ZERO
 	_set_move(Vector2.ZERO)
