@@ -1,25 +1,56 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/input/touch_controls.gd" id="1_touch"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stick"]
-bg_color = Color(0.78, 0.45, 0.28, 0.16)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring"]
+bg_color = Color(0.96, 0.94, 0.90, 0.10)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.94, 0.72, 0.42, 0.4)
-corner_radius_top_left = 68
-corner_radius_top_right = 68
-corner_radius_bottom_right = 68
-corner_radius_bottom_left = 68
+border_color = Color(0.96, 0.94, 0.90, 0.55)
+corner_radius_top_left = 100
+corner_radius_top_right = 100
+corner_radius_bottom_right = 100
+corner_radius_bottom_left = 100
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_knob"]
-bg_color = Color(0.94, 0.76, 0.45, 0.62)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
+bg_color = Color(0.96, 0.94, 0.90, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 100
+corner_radius_top_right = 100
+corner_radius_bottom_right = 100
+corner_radius_bottom_left = 100
+shadow_color = Color(0, 0, 0, 0.28)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.99, 0.38, 0.05, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.30, 0.08, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_dim"]
+bg_color = Color(0.24, 0.22, 0.20, 0.78)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.96, 0.94, 0.90, 0.45)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="TouchControls" type="CanvasLayer"]
 layer = 3
@@ -31,88 +62,117 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="Stick" type="Control" parent="Root"]
+[node name="MoveStick" type="Control" parent="Root"]
 visible = false
-offset_right = 136.0
-offset_bottom = 136.0
+custom_minimum_size = Vector2(140, 140)
 mouse_filter = 2
 
-[node name="Base" type="Panel" parent="Root/Stick"]
+[node name="Ring" type="Panel" parent="Root/MoveStick"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_stick")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ring")
 
-[node name="Knob" type="Panel" parent="Root/Stick"]
-offset_left = 42.0
-offset_top = 42.0
-offset_right = 94.0
-offset_bottom = 94.0
+[node name="Knob" type="Panel" parent="Root/MoveStick"]
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 100.0
+offset_bottom = 100.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
 
-[node name="InteractButton" type="Button" parent="Root"]
+[node name="LookStick" type="Control" parent="Root"]
+visible = false
+custom_minimum_size = Vector2(140, 140)
+mouse_filter = 2
+
+[node name="Ring" type="Panel" parent="Root/LookStick"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ring")
+
+[node name="Knob" type="Panel" parent="Root/LookStick"]
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 100.0
+offset_bottom = 100.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
+
+[node name="SprintButton" type="Button" parent="Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -210.0
-offset_top = -118.0
-offset_right = -34.0
-offset_bottom = -34.0
+offset_left = -196.0
+offset_top = -192.0
+offset_right = -120.0
+offset_bottom = -140.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.96, 0.92, 0.87, 1)
+toggle_mode = true
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "INTERACT"
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_dim")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
+text = "SPRINT"
 
 [node name="JumpButton" type="Button" parent="Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -394.0
-offset_top = -118.0
-offset_right = -218.0
-offset_bottom = -34.0
+offset_left = -96.0
+offset_top = -176.0
+offset_right = -24.0
+offset_bottom = -120.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.96, 0.92, 0.87, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_dim")
 text = "JUMP"
 
-[node name="SprintButton" type="Button" parent="Root"]
-anchor_left = 0.0
-anchor_top = 1.0
-anchor_right = 0.0
-anchor_bottom = 1.0
-offset_left = 34.0
-offset_top = -118.0
-offset_right = 210.0
-offset_bottom = -34.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.96, 0.92, 0.87, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "SPRINT"
-toggle_mode = true
-
-[node name="Hint" type="Label" parent="Root"]
+[node name="InteractButton" type="Button" parent="Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -260.0
-offset_top = -152.0
-offset_right = -34.0
-offset_bottom = -126.0
+offset_left = -120.0
+offset_top = -104.0
+offset_right = -24.0
+offset_bottom = -40.0
 grow_horizontal = 0
 grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_dim")
+text = "INTERACT"
+
+[node name="Hint" type="Label" parent="Root"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -40.0
+offset_right = 110.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.72, 0.62, 0.55, 1)
+theme_override_colors/font_color = Color(0.72, 0.62, 0.55, 0.9)
 theme_override_font_sizes/font_size = 13
-text = "drag to look, tap to use"
-horizontal_alignment = 2
+text = "left stick: move - right stick: look"
+horizontal_alignment = 1
