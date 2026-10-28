@@ -105,6 +105,6 @@ version="0.7.3"
 
 [xr]
 
-openxr/enabled=true
+openxr/enabled=false
 openxr/startup_alert=false
 shaders/enabled=true
