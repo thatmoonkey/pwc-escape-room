@@ -3,7 +3,11 @@ extends CanvasLayer
 
 ## Mobile input layer: two joysticks and the action buttons.
 ##
-## LEFT thumb: the move stick - a fixed ring on the left of the screen, with a
+## The sticks are ALWAYS VISIBLE at the bottom corners, so the player can see
+## where to put their thumbs before they touch. Dragging inside the left ring
+## moves the crew; dragging inside the right ring turns the view.
+##
+## LEFT thumb: the move stick - a ring on the left of the screen, with a
 ## smaller knob you drag inside it. The ring's edge is the limit of travel, so
 ## the stick never runs away from the thumb and the movement never exceeds the
 ## walk cap.
@@ -22,16 +26,18 @@ extends CanvasLayer
 @export var force_visible: bool = false
 
 ## The move stick. The ring is how far the knob can travel; dead zone is the
-## fraction of the ring that counts as rest.
-@export var move_radius: float = 70.0
-@export var move_knob_radius: float = 30.0
+## fraction of the ring that counts as rest. The stick is always drawn at the
+## bottom-left corner, this far in from the edges.
+@export var move_radius: float = 80.0
+@export var move_knob_radius: float = 32.0
 @export var move_dead_zone: float = 0.18
+@export var stick_margin: Vector2 = Vector2(34, 34)
 
 ## The look stick. The knob's deflection is a turn RATE in radians per second
 ## at full deflection - slow enough to keep the view readable, fast enough to
 ## turn when you mean it. The ring and dead zone are the same as the move stick.
-@export var look_radius: float = 70.0
-@export var look_knob_radius: float = 30.0
+@export var look_radius: float = 80.0
+@export var look_knob_radius: float = 32.0
 @export var look_dead_zone: float = 0.16
 @export var look_yaw_speed: float = 2.3
 @export var look_pitch_speed: float = 1.7
@@ -61,8 +67,9 @@ var _active_override: bool = false
 
 func _ready() -> void:
 	_refresh_visibility()
-	move_base.visible = false
-	look_base.visible = false
+	_layout_sticks()
+	_center_knob(move_knob, move_radius, move_knob_radius)
+	_center_knob(look_knob, look_radius, look_knob_radius)
 	if root.visible:
 		interact_button.pressed.connect(func() -> void: InputRouter.queue_interact())
 		jump_button.button_down.connect(func() -> void: Input.action_press("jump"))
@@ -72,6 +79,19 @@ func _ready() -> void:
 				Input.action_press("sprint")
 			else:
 				Input.action_release("sprint"))
+	get_viewport().size_changed.connect(_layout_sticks)
+
+
+## The sticks never hide: they are always at the bottom corners, so the player
+## can see where to put their thumbs before they touch.
+func _layout_sticks() -> void:
+	if root == null or not root.visible:
+		return
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	move_base.position = Vector2(stick_margin.x,
+		view.y - stick_margin.y - move_radius * 2.0)
+	look_base.position = Vector2(view.x - stick_margin.x - look_radius * 2.0,
+		view.y - stick_margin.y - look_radius * 2.0)
 
 
 ## The station controller's mode switch. On a desktop the override also lets
@@ -140,26 +160,22 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 			return
 	var half := get_viewport().get_visible_rect().size.x * 0.5
 	if pressed:
-		if position.x < half and _move_touch == -1:
+		if position.x < half and _move_touch == -1 and _in_stick(position, move_base, move_radius):
 			_move_touch = index
-			_move_center = position
-			_place_stick(move_base, move_knob, position, move_radius, move_knob_radius)
-			move_base.visible = true
-		elif position.x >= half and _look_touch == -1:
+			_move_center = move_base.position + Vector2(move_radius, move_radius)
+		elif position.x >= half and _look_touch == -1 and _in_stick(position, look_base, look_radius):
 			_look_touch = index
-			_look_center = position
-			_place_stick(look_base, look_knob, position, look_radius, look_knob_radius)
-			look_base.visible = true
+			_look_center = look_base.position + Vector2(look_radius, look_radius)
 		return
 	if index == _move_touch:
 		_move_touch = -1
-		move_base.visible = false
 		_move_dir = Vector2.ZERO
 		_set_move(Vector2.ZERO)
+		_center_knob(move_knob, move_radius, move_knob_radius)
 	elif index == _look_touch:
 		_look_touch = -1
-		look_base.visible = false
 		_look_dir = Vector2.ZERO
+		_center_knob(look_knob, look_radius, look_knob_radius)
 
 
 func _handle_drag(index: int, position: Vector2) -> void:
@@ -184,11 +200,10 @@ func _stick_input(offset: Vector2, radius: float, dead_zone: float) -> Vector2:
 	return (v / mag) * scaled if mag > 0.001 else Vector2.ZERO
 
 
-## The ring centres on the touch, the knob at its middle.
-func _place_stick(base: Control, knob: Control, position: Vector2,
-		radius: float, knob_radius: float) -> void:
-	base.position = position - Vector2(radius, radius)
-	_center_knob(knob, radius, knob_radius)
+## Is this touch inside the stick's ring? A generous hit area a little past the
+## ring, so a thumb landing near the stick still picks it up.
+func _in_stick(position: Vector2, base: Control, radius: float) -> bool:
+	return position.distance_to(base.position + Vector2(radius, radius)) < radius * 1.25
 
 
 func _center_knob(knob: Control, radius: float, knob_radius: float) -> void:
@@ -219,16 +234,16 @@ func _action(action: StringName, pressed: bool) -> void:
 
 
 ## Left pressed after a deactivation would walk the crew into a wall forever.
-## Both sticks come home too, so the buttons and the knobs cannot outlive the
+## Both knobs come home too, so the buttons and the sticks cannot outlive the
 ## touch that was driving them.
 func _release_all() -> void:
 	_move_touch = -1
 	_look_touch = -1
 	_move_dir = Vector2.ZERO
 	_look_dir = Vector2.ZERO
-	move_base.visible = false
-	look_base.visible = false
 	_set_move(Vector2.ZERO)
+	_center_knob(move_knob, move_radius, move_knob_radius)
+	_center_knob(look_knob, look_radius, look_knob_radius)
 	Input.action_release("jump")
 	Input.action_release("sprint")
 	if sprint_button != null and sprint_button.button_pressed:

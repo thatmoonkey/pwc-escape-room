@@ -110,6 +110,38 @@ func set_compact(value: bool) -> void:
 		_expand_btn.visible = not _compact
 	if _compact and _detail != null:
 		_detail.visible = false
+	_apply_touch_layout(value)
+
+
+## On a touchscreen the subtitle moves to the top, so a thumb holding the
+## sticks never covers what SHIPMIND is saying, and the text doubles up: a
+## phone screen is read at arm's length, not at a monitor's distance.
+func _apply_touch_layout(touch: bool) -> void:
+	if subtitle == null:
+		return
+	var scale: float = 2.0 if touch else 1.0
+	subtitle_text.add_theme_font_size_override("font_size", int(17.0 * scale))
+	subtitle_speaker.add_theme_font_size_override("font_size", int(13.0 * scale))
+	if touch:
+		subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		subtitle.anchor_left = 0.5
+		subtitle.anchor_right = 0.5
+		subtitle.anchor_top = 0.0
+		subtitle.anchor_bottom = 0.0
+		subtitle.offset_left = -430.0
+		subtitle.offset_right = 430.0
+		subtitle.offset_top = 18.0
+		subtitle.offset_bottom = 120.0
+	else:
+		subtitle.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+		subtitle.anchor_left = 0.5
+		subtitle.anchor_right = 0.5
+		subtitle.anchor_top = 1.0
+		subtitle.anchor_bottom = 1.0
+		subtitle.offset_left = -430.0
+		subtitle.offset_right = 430.0
+		subtitle.offset_top = -196.0
+		subtitle.offset_bottom = -112.0
 
 
 func _unhandled_input(event: InputEvent) -> void:
