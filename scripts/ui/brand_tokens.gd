@@ -31,12 +31,16 @@ static func choice_button(group: ButtonGroup, label: String, hint: String = "", 
 	button.toggle_mode = true
 	button.button_group = group
 	button.focus_mode = Control.FOCUS_ALL
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.clip_text = false
 	## One line, two lines, three lines - and the third line is a cost, so the
 	## step between them is what keeps a stack of eleven choices on one screen.
 	## Every line is taller on a touchscreen, because the target that is
 	## comfortable under a cursor is fiddly under a thumb.
-	var base: float = 30.0 + (20.0 if DisplayServer.is_touchscreen_available() else 0.0)
-	button.custom_minimum_size = Vector2(0.0, base + 18.0 * float(lines.size() - 1))
+	var base: float = 30.0 + (26.0 if DisplayServer.is_touchscreen_available() else 0.0)
+	button.custom_minimum_size = Vector2(0.0, base + 20.0 * float(lines.size() - 1))
 	button.add_theme_font_size_override("font_size", Brand.SIZE_COMPACT)
 	button.add_theme_color_override("font_color", Brand.NEUTRAL)
 	button.add_theme_color_override("font_hover_color", Brand.INK)

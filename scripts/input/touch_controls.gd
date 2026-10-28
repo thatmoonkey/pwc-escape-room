@@ -3,22 +3,22 @@ extends CanvasLayer
 
 ## Mobile input layer: two joysticks and the action buttons.
 ##
-## The sticks are ALWAYS VISIBLE at the bottom corners, so the player can see
-## where to put their thumbs before they touch. Dragging inside the left ring
-## moves the crew; dragging inside the right ring turns the view.
+## The sticks TELEPORT: tap the lower half of the screen and the nearest
+## stick centres under your thumb, so you never have to hunt for it. The
+## JUMP button floats above the right stick and tapping it never moves the
+## stick - a button is a button, not a joystick.
 ##
-## LEFT thumb: the move stick - a ring on the left of the screen, with a
-## smaller knob you drag inside it. The ring's edge is the limit of travel, so
-## the stick never runs away from the thumb and the movement never exceeds the
-## walk cap.
+## LEFT thumb: the move stick - a ring with a smaller knob you drag inside
+## it. The ring's edge is the limit of travel.
 ##
-## RIGHT thumb: the look stick - the same kind of ring on the right. This is
-## what replaces the old raw drag-look: the knob's deflection is a RATE, not a
-## delta, so the view turns smoothly and never whips - and when you let go the
-## knob springs home and the view stops.
+## RIGHT thumb: the look stick - the same kind of ring. This is what replaces
+## the old raw drag-look: the knob's deflection is a RATE, not a delta, so the
+## view turns smoothly and never whips - and when you let go the knob springs
+## home and the view stops.
 ##
-## The action buttons sit beside the right stick, within reach of the right
-## thumb while the left thumb is on the move stick.
+## A TAP on the world (not on a stick, not on a button) is interact: the
+## tap casts to whatever the crew is looking at, so the whole screen is the
+## interact surface and no button is needed.
 ##
 ## It feeds the same InputMap actions and the same InputRouter look delta as
 ## the mouse, so no room or puzzle script changes for mobile.
@@ -26,16 +26,19 @@ extends CanvasLayer
 @export var force_visible: bool = false
 
 ## The move stick. The ring is how far the knob can travel; dead zone is the
-## fraction of the ring that counts as rest. The stick is always drawn at the
-## bottom-left corner, this far in from the edges.
+## fraction of the ring that counts as rest. The stick sits at the bottom-left
+## until a touch claims it.
 @export var move_radius: float = 80.0
 @export var move_knob_radius: float = 32.0
 @export var move_dead_zone: float = 0.18
 @export var stick_margin: Vector2 = Vector2(34, 34)
+## The sticks only teleport within the lower half of the screen: a tap higher
+## up is a look drag, not a stick claim.
+@export var stick_grab_region: float = 0.5
 
 ## The look stick. The knob's deflection is a turn RATE in radians per second
 ## at full deflection - slow enough to keep the view readable, fast enough to
-## turn when you mean it. The ring and dead zone are the same as the move stick.
+## turn when you mean it.
 @export var look_radius: float = 80.0
 @export var look_knob_radius: float = 32.0
 @export var look_dead_zone: float = 0.16
@@ -50,9 +53,7 @@ extends CanvasLayer
 @onready var move_knob: Control = $Root/MoveStick/Knob
 @onready var look_base: Control = $Root/LookStick
 @onready var look_knob: Control = $Root/LookStick/Knob
-@onready var interact_button: Button = $Root/InteractButton
 @onready var jump_button: Button = $Root/JumpButton
-@onready var sprint_button: Button = $Root/SprintButton
 
 const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", "move_back"]
 
@@ -71,21 +72,17 @@ func _ready() -> void:
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
 	if root.visible:
-		interact_button.pressed.connect(func() -> void: InputRouter.queue_interact())
 		jump_button.button_down.connect(func() -> void: Input.action_press("jump"))
 		jump_button.button_up.connect(func() -> void: Input.action_release("jump"))
-		sprint_button.toggled.connect(func(on: bool) -> void:
-			if on:
-				Input.action_press("sprint")
-			else:
-				Input.action_release("sprint"))
 	get_viewport().size_changed.connect(_layout_sticks)
 
 
-## The sticks never hide: they are always at the bottom corners, so the player
-## can see where to put their thumbs before they touch.
+## The sticks rest at the bottom corners, and teleport to under a thumb that
+## claims them in the lower half of the screen.
 func _layout_sticks() -> void:
 	if root == null or not root.visible:
+		return
+	if _move_touch != -1 or _look_touch != -1:
 		return
 	var view: Vector2 = get_viewport().get_visible_rect().size
 	move_base.position = Vector2(stick_margin.x,
@@ -155,27 +152,56 @@ func _input(event: InputEvent) -> void:
 
 
 func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
-	for button: Button in [interact_button, jump_button, sprint_button]:
-		if button.get_global_rect().has_point(position):
-			return
-	var half := get_viewport().get_visible_rect().size.x * 0.5
+	if jump_button != null and jump_button.get_global_rect().has_point(position):
+		return
 	if pressed:
-		if position.x < half and _move_touch == -1 and _in_stick(position, move_base, move_radius):
-			_move_touch = index
-			_move_center = move_base.position + Vector2(move_radius, move_radius)
-		elif position.x >= half and _look_touch == -1 and _in_stick(position, look_base, look_radius):
-			_look_touch = index
-			_look_center = look_base.position + Vector2(look_radius, look_radius)
+		_try_grab(index, position)
 		return
 	if index == _move_touch:
 		_move_touch = -1
 		_move_dir = Vector2.ZERO
 		_set_move(Vector2.ZERO)
 		_center_knob(move_knob, move_radius, move_knob_radius)
+		_return_stick(move_base, move_radius, true)
 	elif index == _look_touch:
 		_look_touch = -1
 		_look_dir = Vector2.ZERO
 		_center_knob(look_knob, look_radius, look_knob_radius)
+		_return_stick(look_base, look_radius, false)
+
+
+## A tap in the lower half of the screen grabs the nearest stick and centres
+## it under the thumb. A tap higher up (or with no stick free) is interact:
+## the tap casts into the world and uses whatever the crew is looking at, so
+## the whole screen is the interact surface.
+func _try_grab(index: int, position: Vector2) -> void:
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	var in_grab: bool = position.y > view.y * (1.0 - stick_grab_region)
+	if in_grab and _move_touch == -1 and position.x < view.x * 0.5:
+		_move_touch = index
+		_move_center = position
+		move_base.position = position - Vector2(move_radius, move_radius)
+		_center_knob(move_knob, move_radius, move_knob_radius)
+		return
+	if in_grab and _look_touch == -1 and position.x >= view.x * 0.5:
+		_look_touch = index
+		_look_center = position
+		look_base.position = position - Vector2(look_radius, look_radius)
+		_center_knob(look_knob, look_radius, look_knob_radius)
+		return
+	# No stick claimed, or the tap was above the grab region: interact.
+	InputRouter.queue_interact()
+
+
+## A released stick glides back to its corner instead of staying where the
+## thumb left it, so the layout resets itself for the next tap.
+func _return_stick(base: Control, radius: float, _left: bool) -> void:
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	var target := Vector2(stick_margin.x, view.y - stick_margin.y - radius * 2.0)
+	if not _left:
+		target.x = view.x - stick_margin.x - radius * 2.0
+	var tween := create_tween()
+	tween.tween_property(base, "position", target, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _handle_drag(index: int, position: Vector2) -> void:
@@ -198,12 +224,6 @@ func _stick_input(offset: Vector2, radius: float, dead_zone: float) -> Vector2:
 		return Vector2.ZERO
 	var scaled: float = clampf((mag - dead_zone) / (1.0 - dead_zone), 0.0, 1.0)
 	return (v / mag) * scaled if mag > 0.001 else Vector2.ZERO
-
-
-## Is this touch inside the stick's ring? A generous hit area a little past the
-## ring, so a thumb landing near the stick still picks it up.
-func _in_stick(position: Vector2, base: Control, radius: float) -> bool:
-	return position.distance_to(base.position + Vector2(radius, radius)) < radius * 1.25
 
 
 func _center_knob(knob: Control, radius: float, knob_radius: float) -> void:
@@ -245,9 +265,8 @@ func _release_all() -> void:
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
 	Input.action_release("jump")
-	Input.action_release("sprint")
-	if sprint_button != null and sprint_button.button_pressed:
-		sprint_button.set_pressed_no_signal(false)
+	_return_stick(move_base, move_radius, true)
+	_return_stick(look_base, look_radius, false)
 
 
 func _exit_tree() -> void:

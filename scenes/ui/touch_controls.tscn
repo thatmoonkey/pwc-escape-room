@@ -104,35 +104,15 @@ offset_bottom = 112.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
 
-[node name="SprintButton" type="Button" parent="Root"]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -196.0
-offset_top = -192.0
-offset_right = -120.0
-offset_bottom = -140.0
-grow_horizontal = 0
-grow_vertical = 0
-toggle_mode = true
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_button_dim")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button")
-text = "SPRINT"
-
 [node name="JumpButton" type="Button" parent="Root"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -96.0
-offset_top = -176.0
-offset_right = -24.0
-offset_bottom = -120.0
+offset_left = -216.0
+offset_top = -216.0
+offset_right = -136.0
+offset_bottom = -160.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -143,38 +123,19 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_button")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_dim")
 text = "JUMP"
 
-[node name="InteractButton" type="Button" parent="Root"]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -120.0
-offset_top = -104.0
-offset_right = -24.0
-offset_bottom = -40.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_dim")
-text = "INTERACT"
-
 [node name="Hint" type="Label" parent="Root"]
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -110.0
+offset_left = -150.0
 offset_top = -40.0
-offset_right = 110.0
+offset_right = 150.0
 offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.72, 0.62, 0.55, 0.9)
 theme_override_font_sizes/font_size = 13
-text = "left stick: move - right stick: look"
+text = "left thumb: move - right thumb: look - tap the world: use"
 horizontal_alignment = 1

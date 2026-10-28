@@ -775,10 +775,20 @@ func _build_mandate_popup() -> void:
 
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.custom_minimum_size = Vector2(640.0, 0.0)
-	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	## On a phone the chooser hugs the screen instead of floating in the
+	## middle: a small ring of dim all round, the list filling the height, so
+	## the options read without a scroll and the whole screen is used.
+	if DisplayServer.is_touchscreen_available():
+		panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+		panel.offset_left = 18.0
+		panel.offset_right = -18.0
+		panel.offset_top = 18.0
+		panel.offset_bottom = -18.0
+	else:
+		panel.set_anchors_preset(Control.PRESET_CENTER)
+		panel.custom_minimum_size = Vector2(640.0, 0.0)
+		panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.055, 0.04, 0.99)
 	style.border_color = TANGERINE
@@ -795,15 +805,18 @@ func _build_mandate_popup() -> void:
 	column.name = "Column"
 	column.add_theme_constant_override("separation", 8)
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	# Five option rows - two of which grow when chosen - can outgrow the
-	# screen, and a centred panel that overflows clips at both edges. The
-	# scroll keeps the panel a fixed, screen-sized height and lets the list
-	# move instead of the panel.
+	# The scroll keeps the list inside the panel when it outgrows the screen;
+	# on a phone the panel is the screen, so the list fills it instead of
+	# scrolling a window that could just be taller.
 	var scroll := ScrollContainer.new()
 	scroll.name = "Scroll"
-	scroll.custom_minimum_size = Vector2(640.0, 560.0)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if not DisplayServer.is_touchscreen_available():
+		scroll.custom_minimum_size = Vector2(640.0, 560.0)
 	panel.add_child(scroll)
 	scroll.add_child(column)
 
