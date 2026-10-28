@@ -48,8 +48,8 @@ const CORNER_RADIUS := 6
 ## precise; the compact phone layout is the primary shape, so the touch floor
 ## is the reference.
 const BUTTON_FLOOR := 56.0
-const TILE_HEIGHT := 84.0
-const SLIDER_HEIGHT := 56.0
+const TILE_HEIGHT := 92.0
+const SLIDER_HEIGHT := 64.0
 
 ## Sliders map to the autonomy spectrum's four stops: automated within
 ## guardrails, human review, human sign-off, human-only. The position is the
@@ -373,7 +373,10 @@ func _choice_tile(label: String, _id: String) -> Button:
 	tile.text = label
 	tile.toggle_mode = true
 	tile.focus_mode = Control.FOCUS_ALL
-	tile.custom_minimum_size = Vector2(0.0, BUTTON_FLOOR - 8.0)
+	## A fingertip's comfortable target: the full floor on touch, a hair under
+	## on desktop so the stack still fits one screen.
+	var tile_h: float = BUTTON_FLOOR if touch_mode() else BUTTON_FLOOR - 10.0
+	tile.custom_minimum_size = Vector2(0.0, tile_h)
 	tile.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	tile.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
 	tile.add_theme_color_override("font_color", Brand.NEUTRAL)
@@ -390,7 +393,8 @@ func _make_option_button(entry: Dictionary) -> Button:
 	var button := Button.new()
 	button.text = String(entry.get("label", "..."))
 	button.focus_mode = Control.FOCUS_ALL
-	button.custom_minimum_size = Vector2(0.0, BUTTON_FLOOR - 8.0)
+	button.custom_minimum_size = Vector2(0.0,
+		BUTTON_FLOOR if touch_mode() else BUTTON_FLOOR - 10.0)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
 	button.add_theme_color_override("font_color", Brand.NEUTRAL)

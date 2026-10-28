@@ -35,6 +35,11 @@ const SEAM_BOTTOM := 0.72
 ## The words sit clear of the seam's widest reach.
 const WORDS_LEFT := 0.74
 
+## Held the other way up the seam turns on its side: the picture claims the
+## top two thirds, the words the bottom third, and the whole screen reads on
+## thirds, the way a poster is meant to be read.
+const WORDS_TOP_PORTRAIT := 0.62
+
 const IMAGE_PATHS := [
 	"res://assets/ui/intro/intro_crew.png",
 	"res://assets/ui/intro/intro_transit.png",
@@ -75,6 +80,30 @@ func _ready() -> void:
 	_build()
 	get_viewport().size_changed.connect(_on_viewport_resized)
 	_open()
+	_relayout_layout()
+
+
+## Which way is the screen held? Portrait - taller than it is wide - stacks
+## the picture over the words; landscape splits them left and right, the way
+## the seam was drawn first.
+func _is_portrait() -> bool:
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	return view.y > view.x
+
+
+func _relayout_layout() -> void:
+	if _panel == null:
+		return
+	if _is_portrait():
+		_panel.anchor_left = 0.0
+		_panel.anchor_right = 1.0
+		_panel.anchor_top = WORDS_TOP_PORTRAIT
+		_panel.anchor_bottom = 1.0
+	else:
+		_panel.anchor_left = WORDS_LEFT
+		_panel.anchor_right = 1.0
+		_panel.anchor_top = 0.0
+		_panel.anchor_bottom = 1.0
 
 
 func _process(_delta: float) -> void:
@@ -200,6 +229,7 @@ func replay() -> void:
 
 
 func _on_viewport_resized() -> void:
+	_relayout_layout()
 	_relayout()
 
 
@@ -284,10 +314,12 @@ func _build_words() -> void:
 	margin.name = "Margin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 36)
-	margin.add_theme_constant_override("margin_right", 44)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
+	var side_margin: int = 28 if _is_portrait() else 40
+	var top_margin: int = 18 if _is_portrait() else 24
+	margin.add_theme_constant_override("margin_left", side_margin)
+	margin.add_theme_constant_override("margin_right", side_margin)
+	margin.add_theme_constant_override("margin_top", top_margin)
+	margin.add_theme_constant_override("margin_bottom", top_margin)
 	_panel.add_child(margin)
 
 	var column := VBoxContainer.new()
@@ -300,7 +332,7 @@ func _build_words() -> void:
 	var kicker := Label.new()
 	kicker.name = "Kicker"
 	kicker.text = "THE SITUATION"
-	kicker.add_theme_font_size_override("font_size", 13)
+	kicker.add_theme_font_size_override("font_size", _text_size(15))
 	kicker.add_theme_color_override("font_color", PAPAYA)
 	column.add_child(kicker)
 
@@ -308,7 +340,7 @@ func _build_words() -> void:
 	title.name = "Title"
 	title.text = "WHY YOU'RE HERE"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_font_size_override("font_size", _text_size(30))
 	title.add_theme_color_override("font_color", WHITE)
 	column.add_child(title)
 
@@ -325,8 +357,9 @@ func _build_words() -> void:
 	_beat_label.name = "Beat"
 	_beat_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_beat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_beat_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_beat_label.custom_minimum_size = Vector2(0.0, 190.0)
-	_beat_label.add_theme_font_size_override("font_size", 17)
+	_beat_label.add_theme_font_size_override("font_size", _text_size(19))
 	_beat_label.add_theme_constant_override("line_spacing", 6)
 	_beat_label.add_theme_color_override("font_color", BODY)
 	column.add_child(_beat_label)
@@ -347,7 +380,7 @@ func _build_words() -> void:
 		_dashes.append(dash)
 	_counter = Label.new()
 	_counter.name = "Counter"
-	_counter.add_theme_font_size_override("font_size", 12)
+	_counter.add_theme_font_size_override("font_size", _text_size(13))
 	_counter.add_theme_color_override("font_color", MUTED)
 	_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	progress.add_child(_counter)
@@ -361,8 +394,8 @@ func _build_words() -> void:
 	_button = Button.new()
 	_button.name = "Continue"
 	_button.text = "CONTINUE"
-	_button.custom_minimum_size = Vector2(200.0, 48.0)
-	_button.add_theme_font_size_override("font_size", 17)
+	_button.custom_minimum_size = Vector2(220.0, _button_height())
+	_button.add_theme_font_size_override("font_size", _text_size(19))
 	_button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
 	_button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
 	_button.add_theme_color_override("font_pressed_color", Color(0.10, 0.06, 0.04))
@@ -383,7 +416,8 @@ func _build_words() -> void:
 	skip.name = "Skip"
 	skip.text = "SKIP"
 	skip.focus_mode = Control.FOCUS_NONE
-	skip.add_theme_font_size_override("font_size", 13)
+	skip.custom_minimum_size = Vector2(120.0, _button_height())
+	skip.add_theme_font_size_override("font_size", _text_size(15))
 	skip.add_theme_color_override("font_color", MUTED)
 	skip.add_theme_color_override("font_hover_color", GOLD)
 	skip.add_theme_color_override("font_pressed_color", GOLD)
@@ -404,7 +438,7 @@ func _build_words() -> void:
 	var keys := Label.new()
 	keys.name = "Keys"
 	keys.text = "ENTER to continue  -  ESC to skip"
-	keys.add_theme_font_size_override("font_size", 11)
+	keys.add_theme_font_size_override("font_size", _text_size(12))
 	keys.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	column.add_child(keys)
 
@@ -414,6 +448,17 @@ func _gap(height: float) -> Control:
 	spacer.custom_minimum_size = Vector2(0.0, height)
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return spacer
+
+
+## A touch floor on text and buttons: on a phone held at arm's length, a label
+## at monitor size is a squint. Text steps up a tier on touch; buttons sit at
+## the fingertip's comfortable target. Both scale back down on a desktop.
+func _text_size(base: int) -> int:
+	return base * 2 if DisplayServer.is_touchscreen_available() else base
+
+
+func _button_height() -> float:
+	return 56.0 if DisplayServer.is_touchscreen_available() else 48.0
 
 
 # --- The drawn frame ------------------------------------------------------------

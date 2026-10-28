@@ -368,7 +368,7 @@ func _open_sheet(rows_provider: Callable) -> void:
 		child.queue_free()
 	var kick := Label.new()
 	kick.text = kicker_text
-	kick.add_theme_font_size_override("font_size", 12)
+	kick.add_theme_font_size_override("font_size", _ui_text(12))
 	kick.add_theme_color_override("font_color", PAPAYA)
 	_sheet_body.add_child(kick)
 	_sheet_body.add_child(_sheet_gap(8))
@@ -403,7 +403,7 @@ func _sheet_text(text: String) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# Sheet copy is the second layer of information: smaller than the anchor
 	# screen, and forgiving to a longer paragraph.
-	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_font_size_override("font_size", _ui_text(13))
 	label.add_theme_color_override("font_color", BODY)
 	return label
 
@@ -423,7 +423,7 @@ func _sheet_icon_row(icon_name: String, lead: String, text: String) -> HBoxConta
 	label.text = "  ".join(parts)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_font_size_override("font_size", _ui_text(13))
 	label.add_theme_color_override("font_color", BODY)
 	row.add_child(label)
 	return row
@@ -551,6 +551,16 @@ func _request_fit() -> void:
 		_fit_to_viewport()
 
 
+func _button_h() -> float:
+	return 56.0 if DisplayServer.is_touchscreen_available() else 50.0
+
+
+func _ui_text(base: int) -> int:
+	## A touch floor on text: a phone screen is read at arm's length, not at a
+	## monitor's distance, so small labels step up to a size that reads.
+	return base * 2 if DisplayServer.is_touchscreen_available() else base
+
+
 func _fit_to_viewport() -> void:
 	if _fit == null or _column == null:
 		return
@@ -655,7 +665,10 @@ func _goal_tiles() -> HBoxContainer:
 func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: String) -> Button:
 	var tile := Button.new()
 	tile.name = "Tile_%s" % tile_id
-	tile.custom_minimum_size = Vector2(226.0, 178.0)
+	var tile_size: float = 226.0
+	if DisplayServer.is_touchscreen_available():
+		tile_size = 210.0
+	tile.custom_minimum_size = Vector2(tile_size, 178.0)
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.pressed.connect(_on_tile_pressed.bind(tile_id))
 
@@ -693,14 +706,14 @@ func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: St
 	var label := Label.new()
 	label.text = label_text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_font_size_override("font_size", _ui_text(15))
 	label.add_theme_color_override("font_color", WHITE)
 	content.add_child(label)
 
 	var status := Label.new()
 	status.text = ""
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status.add_theme_font_size_override("font_size", 12)
+	status.add_theme_font_size_override("font_size", _ui_text(13))
 	status.add_theme_color_override("font_color", MUTED)
 	content.add_child(status)
 
@@ -708,7 +721,7 @@ func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: St
 	caption.text = hint
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	caption.add_theme_font_size_override("font_size", 11)
+	caption.add_theme_font_size_override("font_size", _ui_text(11))
 	caption.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	caption.custom_minimum_size = Vector2(0.0, 26.0)
 	content.add_child(caption)
@@ -822,7 +835,7 @@ func _build_mandate_popup() -> void:
 	var declared_kicker := Label.new()
 	declared_kicker.name = "Kicker"
 	declared_kicker.text = "THE MANDATE YOU ARE DECLARING"
-	declared_kicker.add_theme_font_size_override("font_size", 11)
+	declared_kicker.add_theme_font_size_override("font_size", _ui_text(11))
 	declared_kicker.add_theme_color_override("font_color", PAPAYA)
 	declared_column.add_child(declared_kicker)
 
@@ -951,7 +964,7 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	detail.offset_bottom = -6.0
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	detail.add_theme_font_size_override("font_size", 12)
+	detail.add_theme_font_size_override("font_size", _ui_text(12))
 	detail.add_theme_color_override("font_color", Color(0.62, 0.55, 0.50))
 	detail.visible = false
 	button.add_child(detail)
@@ -983,7 +996,7 @@ func _field_row() -> HBoxContainer:
 	var intro_button := Button.new()
 	intro_button.name = "Intro"
 	intro_button.text = "INTRO"
-	intro_button.custom_minimum_size = Vector2(240.0, 50.0)
+	intro_button.custom_minimum_size = Vector2(240.0, _button_h())
 	_style_action_button(intro_button)
 	intro_button.pressed.connect(_on_intro_pressed)
 	row.add_child(intro_button)
@@ -991,7 +1004,7 @@ func _field_row() -> HBoxContainer:
 	_button = Button.new()
 	_button.name = "Begin"
 	_button.text = "BEGIN"
-	_button.custom_minimum_size = Vector2(240.0, 50.0)
+	_button.custom_minimum_size = Vector2(240.0, _button_h())
 	_style_action_button(_button)
 	_button.pressed.connect(begin)
 	row.add_child(_button)
@@ -1000,7 +1013,7 @@ func _field_row() -> HBoxContainer:
 	_hint.name = "Hint"
 	_hint.text = ""
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.add_theme_font_size_override("font_size", 14)
+	_hint.add_theme_font_size_override("font_size", _ui_text(14))
 	_hint.add_theme_color_override("font_color", GOLD)
 	_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1057,7 +1070,7 @@ func _curiosity_button(label_text: String, rows_provider: Callable) -> Button:
 	var button := Button.new()
 	button.text = label_text
 	button.focus_mode = Control.FOCUS_NONE
-	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_font_size_override("font_size", _ui_text(13))
 	button.add_theme_color_override("font_color", MUTED)
 	button.add_theme_color_override("font_hover_color", GOLD)
 	button.add_theme_color_override("font_pressed_color", GOLD)
@@ -1141,7 +1154,7 @@ func _build_mode_chips() -> void:
 	_mode_note.offset_right = -20.0
 	_mode_note.offset_bottom = 60.0
 	_mode_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_mode_note.add_theme_font_size_override("font_size", 11)
+	_mode_note.add_theme_font_size_override("font_size", _ui_text(11))
 	_mode_note.add_theme_color_override("font_color", MUTED)
 	_mode_note.text = "input mode  -  test switch"
 	_root.add_child(_mode_note)
@@ -1156,7 +1169,7 @@ func _mode_chip(value: int, group: ButtonGroup) -> Button:
 	chip.button_group = group
 	chip.focus_mode = Control.FOCUS_NONE
 	chip.text = InputMode.label(value)
-	chip.add_theme_font_size_override("font_size", 12)
+	chip.add_theme_font_size_override("font_size", _ui_text(12))
 	chip.add_theme_color_override("font_color", MUTED)
 	chip.add_theme_color_override("font_hover_color", WHITE)
 	chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
@@ -1342,7 +1355,7 @@ func _build_sheet() -> void:
 	close.text = "CLOSE"
 	close.custom_minimum_size = Vector2(150.0, 40.0)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_END
-	close.add_theme_font_size_override("font_size", 14)
+	close.add_theme_font_size_override("font_size", _ui_text(14))
 	close.add_theme_color_override("font_color", Color(0.1, 0.06, 0.04))
 	var close_fill := StyleBoxFlat.new()
 	close_fill.bg_color = GOLD
@@ -1368,7 +1381,7 @@ func _kicker(text: String) -> Label:
 	label.name = "Kicker"
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_font_size_override("font_size", _ui_text(13))
 	label.add_theme_color_override("font_color", PAPAYA)
 	return label
 
@@ -1397,7 +1410,7 @@ func _heading(text: String) -> Label:
 	var label := Label.new()
 	label.name = "Heading"
 	label.text = text
-	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_font_size_override("font_size", _ui_text(14))
 	label.add_theme_color_override("font_color", GOLD)
 	return label
 
@@ -1405,7 +1418,7 @@ func _heading(text: String) -> Label:
 func _micro(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_font_size_override("font_size", _ui_text(12))
 	label.add_theme_color_override("font_color", MUTED)
 	return label
 
