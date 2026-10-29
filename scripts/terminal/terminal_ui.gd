@@ -24,6 +24,7 @@ signal closed
 
 @onready var root: Control = $Root
 @onready var dim: ColorRect = $Root/Dim
+@onready var panel: PanelContainer = $Root/Panel
 @onready var title_label: Label = $Root/Panel/VBox/Header/TitleLabel
 @onready var status_label: Label = $Root/Panel/VBox/Header/StatusLabel
 @onready var rule_bar: ColorRect = $Root/Panel/VBox/Rule
@@ -32,10 +33,19 @@ signal closed
 @onready var print_box: VBoxContainer = $Root/Panel/VBox/Columns/Readout/Scroll/Print
 @onready var options_box: VBoxContainer = $Root/Panel/VBox/Columns/Decision/Options
 @onready var decision_scroll: ScrollContainer = $Root/Panel/VBox/Columns/Decision/DecisionScroll
+@onready var _decision_box: VBoxContainer = $Root/Panel/VBox/Columns/Decision
+@onready var _columns: VBoxContainer = $Root/Panel/VBox/Columns
+@onready var _readout_box: VBoxContainer = $Root/Panel/VBox/Columns/Readout
+@onready var readout_title: Label = $Root/Panel/VBox/Columns/Readout/ReadoutTitle
+@onready var decision_title: Label = $Root/Panel/VBox/Columns/Decision/DecisionTitle
+@onready var _columns_rule: ColorRect = $Root/Panel/VBox/Columns/ColumnsRule
 ## The placement control's host, which owns its own scroller. The decision panel
-## is the half of the screen that overflows, because the four levels, three
-## guardrails and three owner roles are a lot of reading; giving it a scroll of
-## its own is what keeps the option buttons pinned and visible while it happens.
+## is the lower half of the screen, because the four levels, three guardrails
+## and three owner roles are a lot of reading; giving it a scroll of its own is
+## what keeps the option buttons pinned and visible while it happens. On a
+## screen with no placement to make the scroller is empty, so it is hidden and
+## collapses to its option buttons, everything packing at the top of the panel
+## with the leftover space falling in below.
 @onready var _spectrum_box: VBoxContainer = $Root/Panel/VBox/Columns/Decision/DecisionScroll/Spectrum
 @onready var footer: Label = $Root/Panel/VBox/Footer
 @onready var header: HBoxContainer = $Root/Panel/VBox/Header
@@ -56,7 +66,11 @@ const TONES := {
 }
 
 var _puzzle: Puzzle = null
-var _pending: Array[Dictionary] = []
+## The readout's lines, laid out at render time and revealed one per tick by
+## the typewriter. Built complete and hidden (see _make_line) so the console's
+## height is the printout's final height from the first frame: nothing moves
+## under the player's hand while it types.
+var _line_controls: Array[Control] = []
 var _print_index: int = 0
 var _timer: Timer
 
@@ -75,6 +89,31 @@ var _levels_require_owner: Dictionary = {}
 ## discovered when the commit is refused.
 var _owner_requirement: Label = null
 var _commit: Button = null
+## The CLOSE button, kept so the fit pass can re-scale it when the window
+## changes size after it was built.
+var _close_button: Button = null
+## The last state handed to _render, kept so a window resize can redraw the
+## screen at the new scale without the puzzle knowing anything about windows.
+var _last_state: ScreenState = null
+
+## Fit scaling. See _apply_fit: the base canvas this screen is authored for.
+const BASE_HEIGHT := 648.0
+## The cap on the fit factor. The canvas grows in height only: the width stays
+## at the base 1152 in every portrait window, so the type can grow only as far
+## as the panel's fixed width can hold. Past that the header title and the
+## choice buttons overflow the panel - the width is the wall the type walks
+## into. About 1.6 keeps the longest title and the longest choice line inside
+## the panel while still reading one and a half steps larger.
+const FIT_CAP := 1.6
+## The current scale, recomputed by _apply_fit. Every size the screen spends
+## goes through _fs so the whole console grows together.
+var _fit: float = 1.0
+
+
+## A size at the current fit. Whole pixels only: fonts are rasterized per size,
+## and a half-pixel button height is not a thing anyone can see.
+func _fs(size: float) -> int:
+	return maxi(1, roundi(size * _fit))
 
 
 func _ready() -> void:
@@ -89,6 +128,10 @@ func _ready() -> void:
 	scroll.gui_input.connect(_on_dim_input)
 	_build_close_button()
 	footer.text = FOOTER_TOUCH if touch_mode() else FOOTER_DESKTOP
+	## Scale the screen to the window it actually gets (see _apply_fit), and
+	## keep it scaled when the window changes size under it.
+	get_viewport().size_changed.connect(_on_viewport_resized)
+	_apply_fit.call_deferred()
 	root.visible = false
 
 
@@ -112,11 +155,130 @@ func _build_close_button() -> void:
 	## FOCUS_NONE: this is a pointer target, not a keyboard stop. Left in the
 	## focus chain it would steal focus from the option buttons.
 	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(0.0, 50.0 if touch_mode() else 34.0)
-	button.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	button.custom_minimum_size = Vector2(0.0, _fs(50.0 if touch_mode() else 34.0))
+	button.add_theme_font_size_override("font_size", _fs(Brand.SIZE_LABEL))
 	button.add_theme_color_override("font_color", Brand.ACCENT_TINT)
 	button.pressed.connect(close)
 	header.add_child(button)
+	_close_button = button
+
+
+## --- Fit scaling ----------------------------------------------------------------
+
+
+## Scale the screen to the window it is given.
+##
+## The project stretches with "canvas_items" and "expand" aspect: instead of
+## zooming, Godot keeps the base 1152x648 canvas on screen and grows the canvas
+## itself in taller windows - a portrait window becomes a canvas of roughly
+## 1152x1729 rather than a zoomed 1152x648. Every size in this screen is
+## authored in pixels for that base height, so left alone the type stays small
+## and the spare height pools as empty panel between the stacked readout and
+## the decision. The complaint this screen got. The fit factor is the canvas
+## height over the base height, and every size the screen spends goes through
+## it: the panel's inset, its inner margins, the separations, the rules, and
+## every font. A tall window reads like a large console instead of a stretched
+## one, which is also what keeps the stacked blocks from stranding dead space
+## between them.
+func _apply_fit() -> void:
+	_fit = clampf(root.get_viewport_rect().size.y / BASE_HEIGHT, 1.0, FIT_CAP)
+	## Structure: the panel's side insets breathe with the window, and so do
+	## its inner margins and every separation between the stacked blocks. The
+	## panel's height is the refit's business - see _refit_panel.
+	panel.offset_left = _fs(44.0)
+	panel.offset_right = -_fs(44.0)
+	var panel_box := panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if panel_box != null:
+		panel_box.content_margin_left = _fs(28.0)
+		panel_box.content_margin_top = _fs(20.0)
+		panel_box.content_margin_right = _fs(28.0)
+		panel_box.content_margin_bottom = _fs(18.0)
+	vbox.add_theme_constant_override("separation", _fs(10.0))
+	header.add_theme_constant_override("separation", _fs(12.0))
+	_columns.add_theme_constant_override("separation", _fs(14.0))
+	_readout_box.add_theme_constant_override("separation", _fs(6.0))
+	print_box.add_theme_constant_override("separation", _fs(6.0))
+	_decision_box.add_theme_constant_override("separation", _fs(8.0))
+	_spectrum_box.add_theme_constant_override("separation", _fs(4.0))
+	options_box.add_theme_constant_override("separation", _fs(6.0))
+	rule_bar.custom_minimum_size = Vector2(0.0, _fs(2.0))
+	_columns_rule.custom_minimum_size = Vector2(0.0, _fs(1.0))
+	## Type on the standing nodes. Content drawn afterwards picks the scale up
+	## at creation time, through _fs at each draw site.
+	title_label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_TITLE))
+	status_label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_DATA))
+	readout_title.add_theme_font_size_override("font_size", _fs(Brand.SIZE_KICKER))
+	decision_title.add_theme_font_size_override("font_size", _fs(Brand.SIZE_KICKER))
+	footer.add_theme_font_size_override("font_size", _fs(Brand.SIZE_FOOTER))
+	if _close_button != null:
+		_close_button.add_theme_font_size_override("font_size", _fs(Brand.SIZE_LABEL))
+		_close_button.custom_minimum_size = Vector2(0.0, _fs(50.0 if touch_mode() else 34.0))
+
+
+## --- The panel's height ---------------------------------------------------------
+
+
+## The console hugs its content.
+##
+## The panel used to span the full window height, and in the tall portrait
+## windows this game is played in that meant the spare space pooled inside it -
+## a dead band between the printout and the decision, on every screen that did
+## not fill the panel. The fix is to size the sheet to what the screen actually
+## prints: each scroller reports its content's own height, the panel's height
+## becomes the sum of everything, and the sheet sits centred over the dim, a
+## console of exactly the size of its record. Only when that sum will not fit
+## the window does a scroller give height back and scroll instead - the
+## decision block first, because it owns a scroll of its own for exactly this,
+## then the readout down to a floor that keeps the newest lines readable.
+var _refit_pending: bool = false
+
+
+func _request_refit() -> void:
+	if _refit_pending:
+		return
+	_refit_pending = true
+	_refit_panel.call_deferred()
+
+
+func _refit_panel() -> void:
+	_refit_pending = false
+	if not is_inside_tree():
+		return
+	## Both scrollers ask their content how tall it is. An autowrap label only
+	## knows its wrapped height once it has been laid out at a real width - the
+	## engine reports one bare line before that - so this pass waits out two
+	## sort cycles first and reads the true printout height. Sorting is also
+	## why the terminal is visible-but-transparent rather than hidden: hidden
+	## containers never sort, and a readout measured at width 1 puts every
+	## word on its own line.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	scroll.custom_minimum_size = Vector2(0.0, print_box.get_combined_minimum_size().y)
+	decision_scroll.custom_minimum_size = Vector2(0.0, _spectrum_box.get_combined_minimum_size().y)
+	var avail: float = root.size.y - _fs(24.0) - _fs(20.0)
+	var over: float = panel.get_combined_minimum_size().y - avail
+	if over > 0.0:
+		var give: float = minf(over, maxf(0.0, decision_scroll.custom_minimum_size.y - _fs(360.0)))
+		decision_scroll.custom_minimum_size.y -= give
+		over -= give
+		give = minf(over, maxf(0.0, scroll.custom_minimum_size.y - _fs(160.0)))
+		scroll.custom_minimum_size.y -= give
+	var height: float = panel.get_combined_minimum_size().y
+	panel.offset_top = -height * 0.5
+	panel.offset_bottom = height * 0.5
+	## Measured and sized: the console is allowed on screen.
+	root.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+
+## A window resize redraws the screen at the new scale. The puzzle is not asked:
+## it describes screens, not windows, and _render already knows how to draw the
+## last state it was handed.
+func _on_viewport_resized() -> void:
+	_apply_fit()
+	if root.visible and _last_state != null:
+		_render(_last_state)
 
 
 func is_open() -> bool:
@@ -129,7 +291,13 @@ func open(puzzle: Puzzle) -> void:
 	_puzzle = puzzle
 	if not puzzle.state_changed.is_connected(_render):
 		puzzle.state_changed.connect(_render)
+	## Visible from the first frame but transparent: containers only sort a
+	## subtree that is in the visible tree (a hidden one keeps every stale
+	## size), and the refit has to measure the printout's wrapped heights
+	## before the sheet can be given its size. Transparency does the same job
+	## as visibility without showing a half-measured console.
 	root.visible = true
+	root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	puzzle.start()
@@ -147,6 +315,7 @@ func close() -> void:
 
 
 func _render(state: ScreenState) -> void:
+	_last_state = state
 	title_label.text = state.title
 	status_label.text = state.status
 	status_label.modulate = state.accent
@@ -164,60 +333,72 @@ func _render(state: ScreenState) -> void:
 	_levels_require_owner.clear()
 	_owner_requirement = null
 	_commit = null
-	_pending = state.lines.duplicate()
+	_line_controls.clear()
 	_print_index = 0
 	if state.has_spectrum():
+		decision_scroll.visible = true
 		_draw_spectrum(state.spectrum)
+	else:
+		decision_scroll.visible = false
 	for entry in state.options:
 		options_box.add_child(_make_option_button(entry))
+	for entry in state.lines:
+		_line_controls.append(_make_line(String(entry.get("text", "")), String(entry.get("tone", "data"))))
 	_start_print()
+	_request_refit()
 
 
 func _start_print() -> void:
-	if _pending.is_empty():
+	if _line_controls.is_empty():
 		return
 	_timer.start(print_interval)
 	_print_step()
 
 
 func _print_step() -> void:
-	if _print_index >= _pending.size():
+	if _print_index >= _line_controls.size():
 		_timer.stop()
 		return
-	var entry: Dictionary = _pending[_print_index]
+	_line_controls[_print_index].modulate.a = 1.0
 	_print_index += 1
-	_add_line(String(entry.get("text", "")), String(entry.get("tone", "data")))
 	_snap_scroll()
-	if _print_index >= _pending.size():
+	if _print_index >= _line_controls.size():
 		_timer.stop()
 
 
 func _reveal_all() -> void:
-	if _print_index >= _pending.size():
+	if _print_index >= _line_controls.size():
 		return
 	_timer.stop()
-	while _print_index < _pending.size():
-		var entry: Dictionary = _pending[_print_index]
+	while _print_index < _line_controls.size():
+		_line_controls[_print_index].modulate.a = 1.0
 		_print_index += 1
-		_add_line(String(entry.get("text", "")), String(entry.get("tone", "data")))
 	_snap_scroll()
 
 
-func _add_line(value: String, tone: String) -> void:
+## Builds one readout line without showing it. Every line of the screen is
+## laid out at render time and the typewriter only lifts them into view one
+## per tick: the console's height is the printout's final height from the
+## first frame, so the option buttons and the footer never shift under the
+## player's hand while it types.
+func _make_line(value: String, tone: String) -> Control:
 	if tone == "rule":
 		var divider := ColorRect.new()
 		divider.color = TONES["rule"]
-		divider.custom_minimum_size = Vector2(0.0, 1.0)
+		divider.custom_minimum_size = Vector2(0.0, _fs(1.0))
 		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		divider.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		print_box.add_child(divider)
-		return
+		return divider
 	var label := Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", Brand.SIZE_BODY)
-	label.modulate = TONES.get(tone, TONES["data"])
+	label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_BODY))
+	var tint: Color = TONES.get(tone, TONES["data"])
+	label.modulate = Color(tint.r, tint.g, tint.b, 0.0)
 	label.text = ("SHIPMIND:  " + value) if tone == "shipmind" else value
 	print_box.add_child(label)
+	return label
 
 
 func _make_option_button(entry: Dictionary) -> Button:
@@ -230,11 +411,11 @@ func _make_option_button(entry: Dictionary) -> Button:
 	## long hint wraps rather than being cropped. The floor is raised on a
 	## touchscreen because a fingertip needs about 44 px and the same sentence
 	## does not get any shorter on a phone.
-	var floor_height: float = 52.0 if hint == "" else 64.0
+	var floor_height: float = _fs(52.0 if hint == "" else 64.0)
 	if not touch_mode():
-		floor_height = 38.0 if hint == "" else 52.0
+		floor_height = _fs(38.0 if hint == "" else 52.0)
 	button.custom_minimum_size = Vector2(0.0, floor_height)
-	button.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	button.add_theme_font_size_override("font_size", _fs(Brand.SIZE_DATA))
 	var tone: String = String(entry.get("tone", "normal"))
 	match tone:
 		"primary":
@@ -272,7 +453,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var tag_note: String = String(block.get("tag_note", ""))
 	if tag_note != "":
 		_spectrum_box.add_child(_note_label(tag_note, Brand.NEUTRAL))
-	_spectrum_box.add_child(_gap(6))
+	_spectrum_box.add_child(_gap(_fs(6.0)))
 
 	var levels: Array = block.get("levels", [])
 	for entry in levels:
@@ -281,24 +462,24 @@ func _draw_spectrum(block: Dictionary) -> void:
 		## default is the strict one: a level that does not say gets asked for an
 		## owner rather than being let through.
 		_levels_require_owner[String(level.get("id", ""))] = bool(level.get("requires_owner", true))
-		var button: Button = BrandTokens.choice_button(
-			level_group, String(level.get("label", "")), String(level.get("hint", "")))
+		var button: Button = _fit_choice_button(BrandTokens.choice_button(
+			level_group, String(level.get("label", "")), String(level.get("hint", ""))))
 		button.pressed.connect(_on_level_pressed.bind(String(level.get("id", ""))))
 		_spectrum_box.add_child(button)
 
 	var guardrail_title: String = String(block.get("guardrail_title", ""))
 	if guardrail_title != "":
-		_spectrum_box.add_child(_gap(6))
+		_spectrum_box.add_child(_gap(_fs(6.0)))
 		_spectrum_box.add_child(_note_label(guardrail_title, Brand.ACCENT_TINT))
 
 	var guardrails: Array = block.get("guardrails", [])
 	for entry in guardrails:
 		var guardrail: Dictionary = entry
-		var button: Button = BrandTokens.choice_button(
+		var button: Button = _fit_choice_button(BrandTokens.choice_button(
 			guardrail_group,
 			String(guardrail.get("label", "")),
 			String(guardrail.get("hint", "")),
-			String(guardrail.get("cost", "")))
+			String(guardrail.get("cost", ""))))
 		button.pressed.connect(_on_guardrail_pressed.bind(String(guardrail.get("id", ""))))
 		_spectrum_box.add_child(button)
 
@@ -306,7 +487,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	## last thing a placement has to answer for: who owns the outcome.
 	var owner_title: String = String(block.get("owner_title", ""))
 	if owner_title != "":
-		_spectrum_box.add_child(_gap(6))
+		_spectrum_box.add_child(_gap(_fs(6.0)))
 		_spectrum_box.add_child(_note_label(owner_title, Brand.ACCENT_TINT))
 	var owner_note: String = String(block.get("owner_note", ""))
 	if owner_note != "":
@@ -316,23 +497,23 @@ func _draw_spectrum(block: Dictionary) -> void:
 	var owners: Array = block.get("owners", [])
 	for entry in owners:
 		var owner_role: Dictionary = entry
-		var owner_button: Button = BrandTokens.choice_button(
+		var owner_button: Button = _fit_choice_button(BrandTokens.choice_button(
 			owner_group,
 			String(owner_role.get("label", "")),
-			String(owner_role.get("hint", "")))
+			String(owner_role.get("hint", ""))))
 		owner_button.pressed.connect(_on_owner_pressed.bind(String(owner_role.get("id", ""))))
 		_spectrum_box.add_child(owner_button)
 	_refresh_owner_requirement()
 
-	_spectrum_box.add_child(_gap(6))
+	_spectrum_box.add_child(_gap(_fs(6.0)))
 	_commit = Button.new()
 	_commit.name = "Commit"
 	_commit.text = String(block.get("submit_label", "COMMIT THE PLACEMENT"))
 	_commit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	## Taller on a touch device: this is the one button the decision cannot be
 	## finished without, so it is the worst place to make a fingertip guess.
-	_commit.custom_minimum_size = Vector2(0.0, 58.0 if touch_mode() else 42.0)
-	_commit.add_theme_font_size_override("font_size", Brand.SIZE_DATA)
+	_commit.custom_minimum_size = Vector2(0.0, _fs(58.0 if touch_mode() else 42.0))
+	_commit.add_theme_font_size_override("font_size", _fs(Brand.SIZE_DATA))
 	_commit.add_theme_color_override("font_color", Brand.SURFACE)
 	_commit.add_theme_color_override("font_hover_color", Brand.SURFACE)
 	_commit.add_theme_color_override("font_pressed_color", Brand.SURFACE)
@@ -413,11 +594,22 @@ func _on_commit_pressed() -> void:
 		_puzzle.place(level_id, guardrail_id, owner_id)
 
 
+## The shared choice widget at this screen's current fit. The token builder is
+## the one place the widget is shaped - it owns the heights and the type - and
+## the fit is this screen's property, so the scale is re-applied over the
+## builder's own sizes instead of the builder growing windows-aware for one
+## consumer.
+func _fit_choice_button(button: Button) -> Button:
+	button.custom_minimum_size = Vector2(0.0, button.custom_minimum_size.y * _fit)
+	button.add_theme_font_size_override("font_size", _fs(Brand.SIZE_COMPACT))
+	return button
+
+
 func _spectrum_title(text: String) -> Label:
 	var label := Label.new()
 	label.name = "SpectrumTitle"
 	label.text = text
-	label.add_theme_font_size_override("font_size", Brand.SIZE_TITLE)
+	label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_TITLE))
 	label.add_theme_color_override("font_color", Brand.INK)
 	return label
 
@@ -427,7 +619,7 @@ func _note_label(text: String, tint: Color) -> Label:
 	label.name = "Note"
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_SMALL))
 	label.add_theme_color_override("font_color", tint)
 	return label
 
@@ -436,7 +628,7 @@ func _tag_label(text: String, tint: Color) -> Label:
 	var label := Label.new()
 	label.name = "Tag"
 	label.text = text
-	label.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	label.add_theme_font_size_override("font_size", _fs(Brand.SIZE_SMALL))
 	label.add_theme_color_override("font_color", tint)
 	return label
 
@@ -446,7 +638,7 @@ func _tag_label(text: String, tint: Color) -> Label:
 func _tag_row(block: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "TagRow"
-	row.add_theme_constant_override("separation", 16)
+	row.add_theme_constant_override("separation", _fs(16.0))
 	var consequence: String = String(block.get("consequence", ""))
 	var reversibility: String = String(block.get("reversibility", ""))
 	if consequence != "":

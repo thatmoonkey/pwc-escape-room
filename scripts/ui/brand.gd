@@ -33,14 +33,21 @@ const NEUTRAL := Color(0.631373, 0.658824, 0.701961)
 ## The type scale, in pixels. Sizes only for now: the families (Georgia for
 ## headlines, body and SHIPMIND's voice, Arial Bold for sub-heads and labels,
 ## Arial for data) belong to the brand layer and land here with it.
-const SIZE_TITLE := 20
+const SIZE_TITLE := 22
 const SIZE_DATA := 16
 const SIZE_LABEL := 15
-const SIZE_SMALL := 13
+const SIZE_SMALL := 14
+## A section kicker inside a panel: the small caps line that names a block
+## ("SYSTEM READOUT", "OPERATING MODEL DECISION").
+const SIZE_KICKER := 13
+## Panel furniture: the footer line that names the ways out of a screen.
+const SIZE_FOOTER := 12
 
-## The terminal's readout body, one step under the data size. A decision screen
-## prints a long readout and then stacks eleven choices under it, so the body
-## size is set where the copy still reads and the whole screen still fits.
-const SIZE_BODY := 15
-## A choice button's own text, one step under that again, for the same reason.
-const SIZE_COMPACT := 14
+## The terminal's readout body. The readout and the decision block stack above
+## and below each other, each with the panel's full width to read across, so
+## the body is set for comfortable reading rather than for squeezing two
+## columns side by side.
+const SIZE_BODY := 17
+## A choice button's own text, one step under that again, so a stack of eleven
+## choices still reads at a glance.
+const SIZE_COMPACT := 15
