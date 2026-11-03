@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/xr_rig.gd" id="1_xr"]
+[ext_resource type="Script" path="res://scripts/interact/interactor.gd" id="2_interactor"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rig"]
+radius = 0.35
+height = 1.8
+
+[node name="XRRig" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("1_xr")
+
+[node name="StandingShape" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_rig")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="LeftHand" type="XRController3D" parent="XROrigin3D"]
+tracker = &"left_hand"
+
+[node name="Interactor" type="RayCast3D" parent="XROrigin3D/LeftHand"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 4
+script = ExtResource("2_interactor")
+reach = 5.0
+
+[node name="RightHand" type="XRController3D" parent="XROrigin3D"]
+tracker = &"right_hand"
+
+[node name="Interactor" type="RayCast3D" parent="XROrigin3D/RightHand"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 4
+script = ExtResource("2_interactor")
+reach = 5.0

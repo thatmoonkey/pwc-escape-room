@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/kit/spaceship_interior.glb" id="1_int"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ref"]
+size = Vector3(1, 1, 1)
+
+[node name="InteriorAtTen" type="Node3D"]
+
+[node name="Kit" parent="." instance=ExtResource("1_int")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="Ref_1m" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 6)
+mesh = SubResource("BoxMesh_ref")

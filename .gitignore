@@ -1,0 +1,15 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Summer Engine local-only state
+.summer/local/
+
+# Local Netlify folder
+.netlify
+
+# macOS junk & local build output
+.DS_Store
+build/
+export_web/
+*.pck

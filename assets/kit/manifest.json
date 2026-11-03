@@ -1,0 +1,447 @@
+{
+  "Wall_Run": {
+    "file": "modules/Wall_Run.glb",
+    "objects": [
+      "Wall_Run"
+    ],
+    "tris": 84,
+    "materials": [
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          2.0,
+          3.4,
+          0.32
+        ],
+        "actual": [
+          2.0,
+          3.4,
+          0.33
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Wall_Half": {
+    "file": "modules/Wall_Half.glb",
+    "objects": [
+      "Wall_Half"
+    ],
+    "tris": 72,
+    "materials": [
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.0,
+          3.4,
+          0.32
+        ],
+        "actual": [
+          1.0,
+          3.4,
+          0.33
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Wall_Quarter": {
+    "file": "modules/Wall_Quarter.glb",
+    "objects": [
+      "Wall_Quarter"
+    ],
+    "tris": 72,
+    "materials": [
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          0.5,
+          3.4,
+          0.32
+        ],
+        "actual": [
+          0.5,
+          3.4,
+          0.33
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Door_Frame": {
+    "file": "modules/Door_Frame.glb",
+    "objects": [
+      "Door_Frame"
+    ],
+    "tris": 96,
+    "materials": [
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          3.4,
+          3.4,
+          0.36
+        ],
+        "actual": [
+          3.4,
+          3.4,
+          0.385
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  },
+  "Door_Panel": {
+    "file": "modules/Door_Panel.glb",
+    "objects": [
+      "Door_Panel"
+    ],
+    "tris": 192,
+    "materials": [
+      "Amber_Alert",
+      "Floor_and_vent",
+      "Floor_vent",
+      "Wall_Black"
+    ],
+    "verify": [
+      {
+        "expected": [
+          3.0,
+          3.3,
+          0.24
+        ],
+        "actual": [
+          3.0,
+          3.3,
+          0.24
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Window_Unit": {
+    "file": "modules/Window_Unit.glb",
+    "objects": [
+      "Window_Frame",
+      "glass"
+    ],
+    "tris": 132,
+    "materials": [
+      "Glass",
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          7.6,
+          3.4,
+          0.36
+        ],
+        "actual": [
+          7.6,
+          3.4,
+          0.385
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      },
+      {
+        "expected": [
+          6.98,
+          3.38,
+          0.02
+        ],
+        "actual": [
+          6.98,
+          3.38,
+          0.02
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  },
+  "Floor_Tile": {
+    "file": "modules/Floor_Tile.glb",
+    "objects": [
+      "Floor_Tile"
+    ],
+    "tris": 12,
+    "materials": [
+      "Floor_and_vent"
+    ],
+    "verify": [
+      {
+        "expected": [
+          2.0,
+          0.22,
+          2.0
+        ],
+        "actual": [
+          2.0,
+          0.2,
+          2.0
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Floor_Vent": {
+    "file": "modules/Floor_Vent.glb",
+    "objects": [
+      "Floor_Vent"
+    ],
+    "tris": 96,
+    "materials": [
+      "Floor_and_vent",
+      "Floor_vent",
+      "Wall_Black"
+    ],
+    "verify": [
+      {
+        "expected": [
+          2.0,
+          0.22,
+          2.0
+        ],
+        "actual": [
+          2.0,
+          0.222,
+          2.0
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Ceiling_Tile": {
+    "file": "modules/Ceiling_Tile.glb",
+    "objects": [
+      "Ceiling_Tile"
+    ],
+    "tris": 36,
+    "materials": [
+      "Wall_Roof_White",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          2.0,
+          0.2,
+          2.0
+        ],
+        "actual": [
+          2.0,
+          0.222,
+          2.0
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  },
+  "Ceiling_Light": {
+    "file": "modules/Ceiling_Light.glb",
+    "objects": [
+      "Ceiling_Light"
+    ],
+    "tris": 36,
+    "materials": [
+      "Vent_light",
+      "Wall_Roof_White",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          2.0,
+          0.2,
+          2.0
+        ],
+        "actual": [
+          2.0,
+          0.222,
+          2.0
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  },
+  "Trim_Cyan": {
+    "file": "modules/Trim_Cyan.glb",
+    "objects": [
+      "Trim_Cyan"
+    ],
+    "tris": 12,
+    "materials": [
+      "Wall_blue"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.0,
+          0.05,
+          0.02
+        ],
+        "actual": [
+          1.0,
+          0.05,
+          0.02
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Trim_Skirt": {
+    "file": "modules/Trim_Skirt.glb",
+    "objects": [
+      "Trim_Skirt"
+    ],
+    "tris": 12,
+    "materials": [
+      "Wall_Black"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.0,
+          0.15,
+          0.02
+        ],
+        "actual": [
+          1.0,
+          0.15,
+          0.02
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Trim_Amber": {
+    "file": "modules/Trim_Amber.glb",
+    "objects": [
+      "Trim_Amber"
+    ],
+    "tris": 12,
+    "materials": [
+      "Amber_Alert"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.0,
+          0.08,
+          0.06
+        ],
+        "actual": [
+          1.0,
+          0.08,
+          0.06
+        ],
+        "pass_": true,
+        "pivot_ok": true
+      }
+    ],
+    "pass": true
+  },
+  "Console_Standing": {
+    "file": "modules/Console_Standing.glb",
+    "objects": [
+      "Console_Standing"
+    ],
+    "tris": 60,
+    "materials": [
+      "Screen",
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.6,
+          1.4,
+          1.0
+        ],
+        "actual": [
+          1.6,
+          1.028,
+          1.478
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  },
+  "Console_Kiosk": {
+    "file": "modules/Console_Kiosk.glb",
+    "objects": [
+      "Console_Kiosk"
+    ],
+    "tris": 60,
+    "materials": [
+      "Screen",
+      "Wall_Black",
+      "Wall_blue",
+      "lambert1"
+    ],
+    "verify": [
+      {
+        "expected": [
+          1.2,
+          1.4,
+          0.8
+        ],
+        "actual": [
+          1.2,
+          1.075,
+          1.29
+        ],
+        "pass_": false,
+        "pivot_ok": true
+      }
+    ],
+    "pass": false
+  }
+}

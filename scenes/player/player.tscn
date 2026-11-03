@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/input/desktop_input.gd" id="2_desktop"]
+[ext_resource type="Script" path="res://scripts/interact/interactor.gd" id="3_interactor"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_crew"]
+radius = 0.35
+height = 1.8
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("1_player")
+
+[node name="StandingShape" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_crew")
+
+[node name="Head" type="Node3D" parent="."]
+position = Vector3(0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+fov = 72.0
+
+[node name="Interactor" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -3.2)
+collision_mask = 4
+script = ExtResource("3_interactor")
+
+[node name="DesktopInput" type="Node" parent="."]
+script = ExtResource("2_desktop")

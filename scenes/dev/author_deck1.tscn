@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bxn4vgevjog3y"]
+
+[ext_resource type="Script" uid="uid://dbv2citw2tno" path="res://scripts/dev/author_deck1.gd" id="1_author"]
+
+[node name="AuthorDeck1" type="Node3D" unique_id=1596035506]
+script = ExtResource("1_author")
