@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#080b10">
+	<title>$GODOT_PROJECT_NAME</title>
+	<style>
+		:root { color-scheme: dark; --gold:#f0b83e; --orange:#fd651f; --ink:#f7f1e8; --muted:#b9b4ad; }
+		* { box-sizing: border-box; }
+		html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
+		body { font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+		#canvas { display:block; width:100%; height:100%; border:0; outline:0; }
+		#pwc-loading {
+			position:fixed; inset:0; z-index:20; display:flex; align-items:flex-end;
+			padding:clamp(22px,5vw,72px); overflow:hidden; opacity:1; visibility:visible;
+			background:#080b10 url('$GODOT_SPLASH') center/cover no-repeat;
+			transition:opacity .65s ease, visibility .65s ease;
+		}
+		#pwc-loading::before {
+			content:""; position:absolute; inset:0;
+			background:linear-gradient(90deg,rgba(3,6,10,.94) 0%,rgba(3,6,10,.70) 42%,rgba(3,6,10,.12) 78%),
+				linear-gradient(0deg,rgba(3,6,10,.96) 0%,rgba(3,6,10,.28) 62%,rgba(3,6,10,.18) 100%);
+		}
+		#pwc-loading::after {
+			content:""; position:absolute; inset:0; pointer-events:none; opacity:.16;
+			background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,rgba(255,255,255,.10) 4px);
+		}
+		#pwc-loading.is-hidden { opacity:0; visibility:hidden; pointer-events:none; }
+		.pwc-card { position:relative; z-index:1; width:min(590px,100%); padding:0 0 max(0px,env(safe-area-inset-bottom)); }
+		.pwc-eyebrow { color:var(--gold); font-size:12px; font-weight:750; letter-spacing:.22em; margin-bottom:14px; }
+		.pwc-title { color:var(--ink); font-size:clamp(28px,4.4vw,54px); line-height:1.02; letter-spacing:-.035em; margin:0 0 14px; max-width:550px; }
+		.pwc-detail { color:var(--muted); font-size:clamp(14px,1.6vw,17px); line-height:1.55; min-height:3.1em; margin:0 0 25px; max-width:520px; }
+		.pwc-track { height:5px; width:100%; overflow:hidden; background:rgba(255,255,255,.16); border-radius:99px; }
+		.pwc-fill { height:100%; width:2%; border-radius:inherit; background:linear-gradient(90deg,var(--orange),var(--gold)); transition:width .25s ease; box-shadow:0 0 22px rgba(240,184,62,.35); }
+		.pwc-indeterminate .pwc-fill { width:34%; animation:pwc-scan 1.5s ease-in-out infinite; }
+		.pwc-meta { display:flex; justify-content:space-between; gap:20px; margin-top:11px; color:#d5cfc5; font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
+		.pwc-foot { margin-top:28px; color:rgba(255,255,255,.48); font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+		.pwc-error .pwc-fill { background:#e74c3c; animation:none; }
+		.pwc-error .pwc-detail { color:#ffd5cf; white-space:pre-wrap; }
+		@keyframes pwc-scan { 0%{transform:translateX(-110%)} 100%{transform:translateX(300%)} }
+		@media (max-width:650px) {
+			#pwc-loading { background-position:62% center; align-items:flex-end; padding:26px 22px calc(28px + env(safe-area-inset-bottom)); }
+			#pwc-loading::before { background:linear-gradient(0deg,rgba(3,6,10,.98) 0%,rgba(3,6,10,.78) 48%,rgba(3,6,10,.16) 100%); }
+			.pwc-title { font-size:32px; }
+			.pwc-detail { font-size:14px; margin-bottom:18px; }
+			.pwc-foot { margin-top:20px; }
+		}
+		@media (prefers-reduced-motion:reduce) { #pwc-loading,.pwc-fill { transition:none; } .pwc-indeterminate .pwc-fill { animation:none; } }
+	</style>
+	$GODOT_HEAD_INCLUDE
+</head>
+<body>
+	<canvas id="canvas">Your browser does not support the canvas element.</canvas>
+	<noscript>This mission needs JavaScript enabled.</noscript>
+
+	<section id="pwc-loading" role="status" aria-live="polite" aria-label="Loading Adamant Verity">
+		<div class="pwc-card">
+			<div class="pwc-eyebrow">SHIPMIND // ADAMANT VERITY</div>
+			<h1 class="pwc-title" id="pwc-title">Preparing your mission</h1>
+			<p class="pwc-detail" id="pwc-detail">Downloading the ship and waking its operating systems.</p>
+			<div class="pwc-track" id="pwc-track"><div class="pwc-fill" id="pwc-fill"></div></div>
+			<div class="pwc-meta"><span id="pwc-stage">ESTABLISHING UPLINK</span><span id="pwc-readout">STARTING</span></div>
+			<div class="pwc-foot">Crew Member Reyes · Survey Ship Adamant Verity</div>
+		</div>
+	</section>
+
+	<script src="$GODOT_URL"></script>
+	<script>
+		const GODOT_THREADS_ENABLED = false;
+		const engine = new Engine($GODOT_CONFIG);
+
+		(function () {
+			const overlay = document.getElementById('pwc-loading');
+			const title = document.getElementById('pwc-title');
+			const detail = document.getElementById('pwc-detail');
+			const track = document.getElementById('pwc-track');
+			const fill = document.getElementById('pwc-fill');
+			const stageLabel = document.getElementById('pwc-stage');
+			const readout = document.getElementById('pwc-readout');
+			let hideTimer = 0;
+			let failed = false;
+			let downloading = true;
+			let hintIndex = 0;
+
+			const hints = [
+				'Mission: inspect five ship systems and decide how much control to hand back.',
+				'Your decisions are judged against the mandate you declare before entering the deck.',
+				'Navigation, life support, communications, cargo and engineering are waiting aboard.',
+				'Keep this tab open. SHIPMIND is preparing the ship for your inspection.'
+			];
+			const stageNames = {
+				'engine.started': ['CONSTRUCTING ADAMANT VERITY', 'The engine is ready. Building decks, ship geometry and control systems.'],
+				'kit_shell.begin': ['ASSEMBLING DECK STRUCTURE', 'Placing the ship’s modular walls, doors and window frames.'],
+				'station_dressing.begin': ['RESTORING SHIP SYSTEMS', 'Installing conduit, lighting, cargo and deck equipment.'],
+				'ship_hull.begin': ['FITTING THE OUTER HULL', 'Measuring and preparing the Adamant Verity’s exterior.'],
+				'main.added': ['BUILDING THE MAIN DECK', 'Loading the station, player controls and mission interface.'],
+				'main.ready': ['MISSION CONTROL READY', 'The main deck is ready. Presenting mission control.'],
+				'intro.ready': ['MISSION BRIEFING READY', 'Your briefing is ready.']
+			};
+
+			function show(titleText, detailText) {
+				clearTimeout(hideTimer);
+				overlay.style.display = 'flex';
+				overlay.classList.remove('is-hidden', 'pwc-error');
+				overlay.setAttribute('aria-hidden', 'false');
+				title.textContent = titleText || 'Preparing Adamant Verity';
+				detail.textContent = detailText || 'Preparing the first playable view.';
+				stageLabel.textContent = 'PREPARING FIRST FRAME';
+				readout.textContent = 'PLEASE WAIT';
+				track.classList.add('pwc-indeterminate');
+				downloading = false;
+			}
+
+			function hide() {
+				if (failed) return;
+				overlay.classList.add('is-hidden');
+				overlay.setAttribute('aria-hidden', 'true');
+				clearTimeout(hideTimer);
+				hideTimer = setTimeout(function () { overlay.style.display = 'none'; }, 750);
+			}
+
+			function stage(key, elapsed) {
+				if (key === 'engine.started') downloading = false;
+				const item = stageNames[key];
+				if (item && !failed) {
+					stageLabel.textContent = item[0];
+					if (downloading) detail.textContent = item[1];
+					title.textContent = key === 'intro.ready' ? 'Mission briefing ready' : 'Preparing your mission';
+				}
+				if (elapsed !== undefined) console.info('[PWC_SHELL] ' + key + ' at Godot +' + elapsed + ' ms');
+			}
+
+			window.pwcLoading = { show:show, hide:hide, stage:stage };
+
+			setInterval(function () {
+				if (!downloading || failed) return;
+				hintIndex = (hintIndex + 1) % hints.length;
+				detail.textContent = hints[hintIndex];
+			}, 5200);
+
+			function progress(current, total) {
+				if (failed) return;
+				if (current > 0 && total > 0) {
+					const percent = Math.min(100, Math.round(current / total * 100));
+					track.classList.remove('pwc-indeterminate');
+					fill.style.width = percent + '%';
+					readout.textContent = percent + '% · ' + (current / 1048576).toFixed(1) + ' / ' + (total / 1048576).toFixed(1) + ' MB';
+				} else {
+					track.classList.add('pwc-indeterminate');
+					readout.textContent = 'DOWNLOADING';
+				}
+			}
+
+			function fail(error) {
+				failed = true;
+				console.error(error);
+				overlay.style.display = 'flex';
+				overlay.classList.remove('is-hidden');
+				overlay.classList.add('pwc-error');
+				title.textContent = 'SHIPMIND could not start';
+				stageLabel.textContent = 'STARTUP INTERRUPTED';
+				readout.textContent = 'ERROR';
+				track.classList.remove('pwc-indeterminate');
+				detail.textContent = error instanceof Error ? error.message : String(error || 'Unknown startup error. Open the browser console for details.');
+			}
+
+			const missing = Engine.getMissingFeatures({ threads:GODOT_THREADS_ENABLED });
+			if (missing.length) {
+				fail('This browser is missing required Web features:\n' + missing.join('\n'));
+			} else {
+				track.classList.add('pwc-indeterminate');
+				engine.startGame({ onProgress:progress }).then(function () {
+					fill.style.width = '100%';
+					readout.textContent = 'DOWNLOAD COMPLETE';
+					track.classList.remove('pwc-indeterminate');
+					stage('engine.started');
+				}, fail);
+			}
+		}());
+	</script>
+</body>
+</html>
