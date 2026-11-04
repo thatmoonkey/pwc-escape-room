@@ -16,6 +16,7 @@ config/version="1.0"
 run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 boot_splash/image="res://assets/ui/loading/shipmind_loading.png"
+config/icon="uid://y5wffvqpdty1"
 run/quit_on_go_back=false
 
 [autoload]
@@ -102,6 +103,10 @@ rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
 textures/vram_compression/import_s3tc_bptc=true
 textures/vram_compression/import_etc2_astc=true
+lights_and_shadows/directional_shadow/size=2048
+2d/shadow_atlas/size=1024
+2d/batching/uniform_set_cache_size=2048
+lights_and_shadows/positional_shadow/atlas_size=2048
 
 [summer]
 

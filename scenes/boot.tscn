@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://crmry7gk4wbkg"]
 
-[ext_resource type="Script" path="res://scripts/boot.gd" id="1_boot"]
+[ext_resource type="Script" uid="uid://bgjt858pd1fj8" path="res://scripts/boot.gd" id="1_boot"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro_screen.tscn" id="2_intro"]
 
-[node name="Boot" type="Node"]
+[node name="Boot" type="Node" unique_id=684259504]
 script = ExtResource("1_boot")
 
-[node name="IntroScreen" parent="." instance=ExtResource("2_intro")]
+[node name="IntroScreen" parent="." unique_id=903116928 instance=ExtResource("2_intro")]

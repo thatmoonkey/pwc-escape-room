@@ -31,6 +31,9 @@ signal puzzle_opened(puzzle_id: String)
 
 var _puzzle: Puzzle = null
 
+const KIOSK_MODEL_FILE := "futuristic-free-standing-terminal.glb"
+const KIOSK_SCREEN_TEXTURE := preload("res://assets/ui/screens/kiosk_mobile_green.png")
+
 
 func _ready() -> void:
 	super()
@@ -39,6 +42,7 @@ func _ready() -> void:
 		push_warning("Console '%s' has no Puzzle wired at '%s'" % [name, puzzle_path])
 	if fit_to_model:
 		_fit_to_model()
+	_apply_mobile_safe_kiosk_screens()
 
 
 func get_prompt() -> String:
@@ -147,3 +151,29 @@ func _collect_meshes(node: Node, found: Array[MeshInstance3D]) -> void:
 		if child is MeshInstance3D:
 			found.append(child)
 		_collect_meshes(child, found)
+
+
+## The source kiosk uses black base colours with emissive screen textures.
+## When a mobile renderer cannot resolve those textures, the screens become
+## completely black. Replace only its emissive surfaces with one unshaded,
+## lossless texture; the kiosk body and every other console model stay intact.
+func _apply_mobile_safe_kiosk_screens() -> void:
+	var model: Node3D = get_node_or_null("Model") as Node3D
+	if model == null or model.scene_file_path.get_file() != KIOSK_MODEL_FILE:
+		return
+
+	var screen_material := StandardMaterial3D.new()
+	screen_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	screen_material.albedo_color = Color.WHITE
+	screen_material.albedo_texture = KIOSK_SCREEN_TEXTURE
+	screen_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+
+	var meshes: Array[MeshInstance3D] = []
+	_collect_meshes(model, meshes)
+	for mesh in meshes:
+		if mesh.mesh == null:
+			continue
+		for surface in mesh.mesh.get_surface_count():
+			var source := mesh.get_active_material(surface) as StandardMaterial3D
+			if source != null and source.emission_enabled:
+				mesh.set_surface_override_material(surface, screen_material)
