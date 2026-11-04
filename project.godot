@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="PWC_AI_SPACE_ADVENTURE"
-config/description="An Intelligent Operating Model experience aboard the survey ship Adamant Verity."
+config/name="PwC_AI_space_adventure"
+config/description="An interactive Intelligent Operating Model experience aboard the survey ship Adamant Verity, brought to you by PwC"
 config/version="1.0"
 run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
