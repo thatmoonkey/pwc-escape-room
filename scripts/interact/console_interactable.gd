@@ -153,21 +153,22 @@ func _collect_meshes(node: Node, found: Array[MeshInstance3D]) -> void:
 		_collect_meshes(child, found)
 
 
-## The source kiosk uses black base colours with emissive screen textures.
-## When a mobile renderer cannot resolve those textures, the screens become
-## completely black. Replace only its emissive surfaces with one unshaded,
-## lossless texture; the kiosk body and every other console model stay intact.
+## Imported console screens commonly have a black base colour and put all of
+## their detail in an emissive texture. On mobile that combination can resolve
+## to a completely black surface. Draw every emissive console surface as an
+## unshaded albedo surface instead, preserving its original screen artwork.
+## The SHIPMIND kiosk uses the branded, lossless fallback texture. Materials
+## are shared per texture, so this does not create one material per mesh.
 func _apply_mobile_safe_kiosk_screens() -> void:
 	var model: Node3D = get_node_or_null("Model") as Node3D
-	if model == null or model.scene_file_path.get_file() != KIOSK_MODEL_FILE:
+	if model == null:
 		return
 
-	var screen_material := StandardMaterial3D.new()
-	screen_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	screen_material.albedo_color = Color.WHITE
-	screen_material.albedo_texture = KIOSK_SCREEN_TEXTURE
-	screen_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-
+	var is_kiosk: bool = model.scene_file_path.get_file() == KIOSK_MODEL_FILE
+	if String(name).to_lower().contains("kiosk"):
+		is_kiosk = true
+	var materials: Dictionary = {}
+	var replaced: int = 0
 	var meshes: Array[MeshInstance3D] = []
 	_collect_meshes(model, meshes)
 	for mesh in meshes:
@@ -175,5 +176,30 @@ func _apply_mobile_safe_kiosk_screens() -> void:
 			continue
 		for surface in mesh.mesh.get_surface_count():
 			var source := mesh.get_active_material(surface) as StandardMaterial3D
-			if source != null and source.emission_enabled:
-				mesh.set_surface_override_material(surface, screen_material)
+			if source == null:
+				continue
+			if not source.emission_enabled and source.emission_texture == null:
+				continue
+
+			var texture: Texture2D = source.emission_texture
+			if is_kiosk:
+				texture = KIOSK_SCREEN_TEXTURE
+			var key: int = 0 if texture == null else texture.get_instance_id()
+			if not materials.has(key):
+				var screen_material := StandardMaterial3D.new()
+				screen_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+				screen_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+				if texture != null:
+					screen_material.albedo_color = Color.WHITE
+					screen_material.albedo_texture = texture
+				else:
+					screen_material.albedo_color = source.emission
+				materials[key] = screen_material
+			mesh.set_surface_override_material(surface, materials[key] as Material)
+			replaced += 1
+
+	if OS.is_debug_build():
+		print("[Console] %s model=%s unshaded_screens=%d" % [
+			name, model.scene_file_path.get_file(), replaced])
+	if is_kiosk and replaced == 0:
+		push_warning("Console '%s': no emissive kiosk screen surfaces were found." % name)
