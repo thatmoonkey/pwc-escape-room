@@ -266,6 +266,9 @@ func _install_rig(rig_path: String, current: Node3D) -> Node3D:
 	var rig: Node3D = scene.instantiate()
 	rig.transform = transform
 	parent.add_child(rig)
+	## A fresh node would otherwise interpolate from the origin on its first
+	## drawn frame after a mode switch.
+	rig.reset_physics_interpolation()
 	rig.name = "Player"
 	return rig
 

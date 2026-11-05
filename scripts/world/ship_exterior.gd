@@ -112,6 +112,9 @@ func _build_star_field() -> void:
 		multi.set_instance_transform(i, Transform3D(Basis(), _star_offsets[i]))
 	_stars = MultiMeshInstance3D.new()
 	_stars.name = "StarField"
+	## Written every frame from _process, not by physics: interpolating it only
+	## lags the drift a tick and logs a warning.
+	_stars.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_stars.multimesh = multi
 	_stars.material_override = material
 	add_child(_stars)
@@ -193,4 +196,3 @@ func _update_drifting_rocks(delta: float) -> void:
 				side * randf_range(HULL_HALF_BEAM, rock_radius + HULL_HALF_BEAM),
 				randf_range(-rock_radius * 0.4, rock_radius * 0.4),
 				rock.position.z + rock_length * 1.5)
-

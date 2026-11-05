@@ -15,6 +15,11 @@ extends CharacterBody3D
 @export var bob_strength: float = 0.03
 @export var pitch_limit_degrees: float = 82.0
 
+## The most the view may turn in one physics tick, in radians (about 8.6
+## degrees). A fast flick still lands; a stray capture frame cannot spin the
+## crew round and leave them walking into a wall.
+const LOOK_MAX_STEP := 0.15
+
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var interactor: Interactor = $Head/Camera3D/Interactor
@@ -51,6 +56,8 @@ func _apply_look() -> void:
 	var look: Vector2 = InputRouter.consume_look() * look_scale
 	if is_zero_approx(look.x) and is_zero_approx(look.y):
 		return
+	look.x = clampf(look.x, -LOOK_MAX_STEP, LOOK_MAX_STEP)
+	look.y = clampf(look.y, -LOOK_MAX_STEP, LOOK_MAX_STEP)
 	# Yaw on the body, pitch on the head - never both on the camera.
 	rotate_y(-look.x)
 	var limit: float = deg_to_rad(pitch_limit_degrees)
@@ -89,7 +96,9 @@ func _apply_bob(delta: float) -> void:
 	if speed < 0.4 or not is_on_floor():
 		camera.position = camera.position.lerp(Vector3.ZERO, 8.0 * delta)
 		return
-	_bob_time += delta * 9.0
+	# The stride follows the pace: a fixed rate read as a vibration rather than
+	# a walk, and it never settled when the speed changed.
+	_bob_time += delta * (4.0 + speed * 1.5)
 	camera.position.y = sin(_bob_time) * bob_strength
 	camera.position.x = sin(_bob_time * 0.5) * bob_strength * 0.5
 

@@ -348,6 +348,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_camera() -> void:
 	_camera = Camera3D.new()
 	_camera.name = "CutsceneCamera"
+	## Driven from _process, frame by frame: interpolating it would fight the
+	## shot and add a physics tick of lag to every camera move.
+	_camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_camera.fov = 70.0
 	_camera.near = 0.1
 	_camera.far = 6000.0

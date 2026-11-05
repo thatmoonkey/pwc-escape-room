@@ -60,6 +60,10 @@ const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", 
 
 var _move_touch: int = -1
 var _look_touch: int = -1
+## The actions THIS layer pressed. Releasing an action it never pressed is
+## what dropped the keyboard's move keys mid-stride on touch-capable desktops:
+## the stick centred, released the winner's held key, and the crew stuttered.
+var _owned: Dictionary = {}
 var _move_center: Vector2 = Vector2.ZERO
 var _look_center: Vector2 = Vector2.ZERO
 var _move_dir: Vector2 = Vector2.ZERO
@@ -266,11 +270,13 @@ func _set_move(vector: Vector2) -> void:
 
 
 func _action(action: StringName, pressed: bool) -> void:
-	var is_on: bool = Input.is_action_pressed(action)
-	if pressed and not is_on:
-		Input.action_press(action)
-	elif not pressed and is_on:
+	if pressed:
+		if not _owned.has(action):
+			Input.action_press(action)
+			_owned[action] = true
+	elif _owned.has(action):
 		Input.action_release(action)
+		_owned.erase(action)
 
 
 ## Left pressed after a deactivation would walk the crew into a wall forever.
@@ -285,6 +291,7 @@ func _release_all() -> void:
 	_set_move(Vector2.ZERO)
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
+	_owned.clear()
 	_return_stick(move_base, move_radius, true)
 	_return_stick(look_base, look_radius, false)
 
