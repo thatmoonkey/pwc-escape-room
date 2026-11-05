@@ -1,10 +1,12 @@
 class_name TouchControls
 extends CanvasLayer
 
-## Mobile input layer: two joysticks and the action buttons.
+## Mobile input layer: two joysticks and no buttons.
 ##
 ## The sticks TELEPORT: tap the lower half of the screen and the nearest
 ## stick centres under your thumb, so you never have to hunt for it.
+## There is no jump button: every touch outside a stick is either a look
+## drag or an interact tap, so nothing can swallow a stick's release.
 ##
 ## LEFT thumb: the move stick - a ring with a smaller knob you drag inside
 ## it. The ring's edge is the limit of travel.
@@ -26,10 +28,12 @@ extends CanvasLayer
 ## The move stick. The ring is how far the knob can travel; dead zone is the
 ## fraction of the ring that counts as rest. The stick sits at the bottom-left
 ## until a touch claims it.
-@export var move_radius: float = 80.0
-@export var move_knob_radius: float = 32.0
+@export var move_radius: float = 100.0
+@export var move_knob_radius: float = 40.0
 @export var move_dead_zone: float = 0.18
-@export var stick_margin: Vector2 = Vector2(34, 34)
+## The margin keeps the sticks off the screen edge and above the home-bar
+## safe area; larger x pulls them inward, larger y lifts them off the bottom.
+@export var stick_margin: Vector2 = Vector2(72, 96)
 ## The sticks only teleport within the lower half of the screen: a tap higher
 ## up is a look drag, not a stick claim.
 @export var stick_grab_region: float = 0.5
@@ -37,8 +41,8 @@ extends CanvasLayer
 ## The look stick. The knob's deflection is a turn RATE in radians per second
 ## at full deflection - slow enough to keep the view readable, fast enough to
 ## turn when you mean it.
-@export var look_radius: float = 80.0
-@export var look_knob_radius: float = 32.0
+@export var look_radius: float = 100.0
+@export var look_knob_radius: float = 40.0
 @export var look_dead_zone: float = 0.16
 @export var look_yaw_speed: float = 2.3
 @export var look_pitch_speed: float = 1.7
@@ -109,6 +113,13 @@ func _mouse_drives() -> bool:
 
 
 func _process(delta: float) -> void:
+	# When an overlay (terminal, cards, pause menu) blocks input, the thumb
+	# that was on a stick loses its release event: the stick would stay
+	# claimed and the camera would keep spinning with the last deflection.
+	# Force-release the sticks so nothing survives a blocked frame.
+	if InputRouter.ui_blocking or not root.visible:
+		_release_all()
+		return
 	# The look stick is a rate, not a delta: every frame the view turns by the
 	# knob's deflection, so it turns smoothly and stops dead when you let go.
 	if root.visible and _look_dir.length_squared() > 0.0001:

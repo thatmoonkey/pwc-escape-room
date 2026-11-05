@@ -39,9 +39,9 @@ anchor_bottom = 1.0
 mouse_filter = 2
 
 [node name="MoveStick" type="Control" parent="Root"]
-custom_minimum_size = Vector2(160, 160)
-offset_right = 160.0
-offset_bottom = 160.0
+custom_minimum_size = Vector2(200, 200)
+offset_right = 200.0
+offset_bottom = 200.0
 mouse_filter = 2
 
 [node name="Ring" type="Panel" parent="Root/MoveStick"]
@@ -52,17 +52,17 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ring")
 
 [node name="Knob" type="Panel" parent="Root/MoveStick"]
-offset_left = 48.0
-offset_top = 48.0
-offset_right = 112.0
-offset_bottom = 112.0
+offset_left = 60.0
+offset_top = 60.0
+offset_right = 140.0
+offset_bottom = 140.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
 
 [node name="LookStick" type="Control" parent="Root"]
-custom_minimum_size = Vector2(160, 160)
-offset_right = 160.0
-offset_bottom = 160.0
+custom_minimum_size = Vector2(200, 200)
+offset_right = 200.0
+offset_bottom = 200.0
 mouse_filter = 2
 
 [node name="Ring" type="Panel" parent="Root/LookStick"]
@@ -73,10 +73,10 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ring")
 
 [node name="Knob" type="Panel" parent="Root/LookStick"]
-offset_left = 48.0
-offset_top = 48.0
-offset_right = 112.0
-offset_bottom = 112.0
+offset_left = 60.0
+offset_top = 60.0
+offset_right = 140.0
+offset_bottom = 140.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
 
