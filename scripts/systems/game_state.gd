@@ -83,6 +83,12 @@ static var run_running: bool = false
 ## from the score rather than scored at zero.
 static var placements: Dictionary = {}
 
+## Whether the crew have completed the touch-controls walkthrough (move stick
+## first, look stick second). Like the callsign this is the player's, not the
+## run's, so reset() leaves it alone: once learned, the controls are never
+## re-taught. First-time players start with the move stick only.
+static var touch_tutorial_done: bool = false
+
 
 static func reset() -> void:
 	restored.clear()
@@ -321,6 +327,7 @@ static func save() -> void:
 			"appetite": OperatingModel.appetite_id,
 		},
 		"placements": placements,
+		"touch_tutorial_done": touch_tutorial_done,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -373,6 +380,7 @@ static func load_data() -> void:
 	if saved_placements is Dictionary:
 		placements = saved_placements
 		_restore_placements()
+	touch_tutorial_done = bool(data.get("touch_tutorial_done", false))
 
 
 ## Keeps only placements whose level is still a level. A save from the
