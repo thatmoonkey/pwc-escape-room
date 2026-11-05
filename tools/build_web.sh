@@ -38,6 +38,9 @@ sed -i '' "s/__BUILD_VERSION__/$VERSION/g" "$OUT/index.html"
 grep -q "BUILD $VERSION" "$OUT/index.html" \
   || { echo "build_web: version stamp missing from index.html" >&2; exit 1; }
 
+# Network-first navigation so installed PWAs always launch the newest build.
+python3 "$REPO/tools/patch_sw.py" "$OUT/index.service.worker.js" || exit 1
+
 # Headers required for the audio/XR threading (docs/platforms.md).
 cat > "$OUT/netlify.toml" <<'EOF'
 [[headers]]
