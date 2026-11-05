@@ -29,7 +29,6 @@ const INK := Color(0.93, 0.89, 0.85)
 const MUTED := Color(0.72, 0.66, 0.62)
 
 var _root: Control = null
-var _mode_buttons: Dictionary = {}
 var _resume_button: Button = null
 var _reset_button: Button = null
 var _reset_confirm: HBoxContainer = null
@@ -60,7 +59,6 @@ func open() -> void:
 	# The clock stops while the crew are in the menu, and restarts on RESUME.
 	GameState.run_running = false
 	_disarm_reset()
-	_refresh_mode_chips()
 	# The menu is keyboard- and gamepad-reachable from here: focus lands on
 	# RESUME, and Tab walks on to the SHIPMIND BOARD.
 	if _resume_button != null:
@@ -225,41 +223,6 @@ func _build() -> void:
 	audio_panel.name = "AudioPanel"
 	column.add_child(audio_panel)
 
-	column.add_child(_spacer(6))
-	var mode_caption := Label.new()
-	mode_caption.text = "INPUT MODE  -  TEST SWITCH"
-	mode_caption.add_theme_font_size_override("font_size", 11)
-	mode_caption.add_theme_color_override("font_color", MUTED)
-	column.add_child(mode_caption)
-	var chips := HBoxContainer.new()
-	chips.add_theme_constant_override("separation", 6)
-	var group := ButtonGroup.new()
-	group.allow_unpress = false
-	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
-		var chip := Button.new()
-		chip.text = InputMode.label(int(value))
-		chip.toggle_mode = true
-		chip.button_group = group
-		chip.focus_mode = Control.FOCUS_NONE
-		chip.add_theme_font_size_override("font_size", 12)
-		chip.add_theme_color_override("font_color", MUTED)
-		chip.add_theme_color_override("font_hover_color", WHITE)
-		chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
-		var idle := _ghost_style()
-		chip.add_theme_stylebox_override("normal", idle)
-		var hovered := _ghost_style()
-		hovered.border_color = TANGERINE
-		chip.add_theme_stylebox_override("hover", hovered)
-		var chosen := _ghost_style()
-		chosen.bg_color = GOLD
-		chosen.border_color = GOLD
-		chip.add_theme_stylebox_override("pressed", chosen)
-		chip.add_theme_stylebox_override("focus", idle)
-		chip.pressed.connect(_on_mode_chip.bind(int(value)))
-		_mode_buttons[int(value)] = chip
-		chips.add_child(chip)
-	column.add_child(chips)
-
 	column.add_child(_spacer(10))
 	var menu_button := Button.new()
 	menu_button.text = "MAIN MENU"
@@ -420,16 +383,3 @@ func _spacer(height: float) -> Control:
 	spacer.custom_minimum_size = Vector2(0.0, height)
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return spacer
-
-
-# --- Controls --------------------------------------------------------------------
-
-func _on_mode_chip(value: int) -> void:
-	InputMode.set_mode(int(value))
-	_refresh_mode_chips()
-
-
-func _refresh_mode_chips() -> void:
-	for value in _mode_buttons:
-		var chip: Button = _mode_buttons[value]
-		chip.set_pressed_no_signal(int(value) == InputMode.mode)

@@ -17,9 +17,6 @@ extends CanvasLayer
 ## player who does not should not pay for it. Sheet copy runs smaller and
 ## tolerates longer paragraphs; the anchor stays almost empty.
 ##
-## Input mode is chosen here too, as three chips in the corner. It is a testing
-## control, so it is honest about that: small, out of the fiction's way, and
-## labelled as a test switch.
 ##
 ## Behaviour the card keeps from its earlier life: the mandate is captured HERE,
 ## before the crew can see a single bay, because consistency is measured against
@@ -80,9 +77,6 @@ var _sheet: Control = null
 var _sheet_title: Label = null
 var _sheet_body: VBoxContainer = null
 
-var _mode_buttons: Dictionary = {}
-var _mode_note: Label = null
-var _mode_watch: int = -1
 var _audio_button: Button = null
 var _audio_glyph: Glyph = null
 var _audio_popup: PanelContainer = null
@@ -207,12 +201,6 @@ func _process(_delta: float) -> void:
 	# open card enforces its own visibility, every frame.
 	if _open and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	# The mode chips cannot receive a change notification - the mode layer is a
-	# plain static, deliberately signal-free - so the card notices the change
-	# the same way the station controller does: by watching for it.
-	if InputMode.mode != _mode_watch:
-		_mode_watch = InputMode.mode
-		_refresh_mode_chips()
 	# The corner speaker tracks the mixer the same way: the AudioPanel writes
 	# the mixer directly, so this corner re-reads it instead of being told.
 	_refresh_audio_button()
@@ -482,10 +470,8 @@ func _controls_rows() -> Dictionary:
 			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
 			{"icon": "chevron", "lead": "SHIFT", "text": "sprint - hold it down the long corridors."},
 			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one. Some crew just need to know."},
-			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, switch input mode, or return here."},
+			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, or return here."},
 		]
-	rows.append({"text": "Switch between desktop, mobile and VR with the chips in the "
-		+ "corner of this screen."})
 	return {"kicker": "INPUT", "title": "Controls", "rows": rows}
 
 
@@ -655,7 +641,7 @@ func _build() -> void:
 
 	_build_sheet()
 	_build_mandate_popup()
-	_build_mode_chips()
+	_build_corner_audio()
 
 
 func _goal_tiles() -> HBoxContainer:
@@ -1120,9 +1106,9 @@ func _curiosity_button(label_text: String, rows_provider: Callable) -> Button:
 	return button
 
 
-# --- Mode chips -------------------------------------------------------------------
+# --- Corner audio chip -------------------------------------------------------------
 
-func _build_mode_chips() -> void:
+func _build_corner_audio() -> void:
 	var chips := HBoxContainer.new()
 	chips.name = "ModeChips"
 	chips.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -1169,69 +1155,6 @@ func _build_mode_chips() -> void:
 	chips.add_child(_audio_button)
 
 	_build_audio_popup()
-
-	var group := ButtonGroup.new()
-	group.allow_unpress = false
-	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
-		var chip := _mode_chip(int(value), group)
-		_mode_buttons[int(value)] = chip
-		chips.add_child(chip)
-
-	_mode_note = Label.new()
-	_mode_note.name = "ModeNote"
-	_mode_note.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_mode_note.offset_left = -440.0
-	_mode_note.offset_top = 44.0
-	_mode_note.offset_right = -20.0
-	_mode_note.offset_bottom = 60.0
-	_mode_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_mode_note.add_theme_font_size_override("font_size", _ui_text(11))
-	_mode_note.add_theme_color_override("font_color", MUTED)
-	_mode_note.text = "input mode  -  test switch"
-	_root.add_child(_mode_note)
-	_mode_watch = InputMode.mode
-	_refresh_mode_chips()
-
-
-func _mode_chip(value: int, group: ButtonGroup) -> Button:
-	var chip := Button.new()
-	chip.name = "Mode_%d" % value
-	chip.toggle_mode = true
-	chip.button_group = group
-	chip.focus_mode = Control.FOCUS_NONE
-	chip.text = InputMode.label(value)
-	chip.add_theme_font_size_override("font_size", _ui_text(12))
-	chip.add_theme_color_override("font_color", MUTED)
-	chip.add_theme_color_override("font_hover_color", WHITE)
-	chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
-	var idle := StyleBoxFlat.new()
-	idle.bg_color = Color(0, 0, 0, 0.35)
-	idle.border_color = Color(0.4, 0.32, 0.26)
-	idle.set_border_width_all(1)
-	idle.set_corner_radius_all(3)
-	idle.content_margin_left = 10.0
-	idle.content_margin_right = 10.0
-	idle.content_margin_top = 3.0
-	idle.content_margin_bottom = 3.0
-	chip.add_theme_stylebox_override("normal", idle)
-	var hovered: StyleBoxFlat = idle.duplicate()
-	hovered.border_color = TANGERINE
-	chip.add_theme_stylebox_override("hover", hovered)
-	var chosen: StyleBoxFlat = idle.duplicate()
-	chosen.bg_color = GOLD
-	chosen.border_color = GOLD
-	chip.add_theme_stylebox_override("pressed", chosen)
-	chip.add_theme_stylebox_override("focus", idle)
-	chip.pressed.connect(_on_mode_chip.bind(value))
-	return chip
-
-
-func _on_mode_chip(value: int) -> void:
-	if InputMode.set_mode(value):
-		_mode_note.text = "input mode  -  test switch"
-	else:
-		_mode_note.text = "No OpenXR runtime found - VR stays off for now."
-	_refresh_mode_chips()
 
 
 ## The mixer popup. A small panel anchored under the corner button, carrying
@@ -1316,12 +1239,6 @@ func _refresh_audio_button() -> void:
 	if _audio_glyph != null:
 		_audio_glyph.icon = "sound_off" if silent else "sound_on"
 		_audio_glyph.tint = MUTED if silent else GOLD
-
-
-func _refresh_mode_chips() -> void:
-	for value in _mode_buttons:
-		var chip: Button = _mode_buttons[value]
-		chip.set_pressed_no_signal(int(value) == InputMode.mode)
 
 
 # --- Sheet ----------------------------------------------------------------------
