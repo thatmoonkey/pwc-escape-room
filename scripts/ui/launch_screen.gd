@@ -539,8 +539,9 @@ func _button_h() -> float:
 
 func _ui_text(base: int) -> int:
 	## A touch floor on text: a phone screen is read at arm's length, not at a
-	## monitor's distance, so small labels step up to a size that reads.
-	return int(round(float(base) * Platform.ui_scale()))
+	## monitor's distance, so small labels step up to a size that reads. The
+	## clamp runs after the multiplier so nothing can land below the floor.
+	return max(int(round(float(base) * Platform.ui_scale())), Brand.SIZE_SMALL)
 
 
 func _fit_to_viewport() -> void:
@@ -855,14 +856,14 @@ func _build_mandate_popup() -> void:
 	_objective_line = Label.new()
 	_objective_line.name = "ObjectiveLine"
 	_objective_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_objective_line.add_theme_font_size_override("font_size", 15)
+	_objective_line.add_theme_font_size_override("font_size", 30)
 	_objective_line.add_theme_color_override("font_color", WHITE)
 	declared_column.add_child(_objective_line)
 
 	_appetite_line = Label.new()
 	_appetite_line.name = "AppetiteLine"
 	_appetite_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_appetite_line.add_theme_font_size_override("font_size", 15)
+	_appetite_line.add_theme_font_size_override("font_size", 30)
 	_appetite_line.add_theme_color_override("font_color", WHITE)
 	declared_column.add_child(_appetite_line)
 	_refresh_declared()
@@ -970,7 +971,7 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	title.offset_top = 7.0
 	title.offset_bottom = 29.0
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", INK)
 	button.add_child(title)
 
@@ -1047,7 +1048,7 @@ func _set_hint(text: String) -> void:
 ## so the state is obvious rather than an outline that reads as faint.
 func _style_action_button(button: Button) -> void:
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.add_theme_font_size_override("font_size", 19)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", Color.WHITE)
 	button.add_theme_color_override("font_hover_color", Color.WHITE)
 	button.add_theme_color_override("font_pressed_color", Color.WHITE)
@@ -1282,7 +1283,7 @@ func _build_sheet() -> void:
 
 	_sheet_title = Label.new()
 	_sheet_title.name = "Title"
-	_sheet_title.add_theme_font_size_override("font_size", 24)
+	_sheet_title.add_theme_font_size_override("font_size", 30)
 	_sheet_title.add_theme_color_override("font_color", WHITE)
 	column.add_child(_sheet_title)
 
@@ -1349,7 +1350,7 @@ func _sub(text: String) -> Label:
 	label.name = "Sub"
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", 30)
 	label.add_theme_color_override("font_color", GOLD)
 	return label
 

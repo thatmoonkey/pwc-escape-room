@@ -597,7 +597,7 @@ func _build_overlay() -> void:
 
 	_caption_label = Label.new()
 	_caption_label.name = "Caption"
-	_caption_label.add_theme_font_size_override("font_size", 18)
+	_caption_label.add_theme_font_size_override("font_size", 30)
 	_caption_label.modulate = Color(0.92, 0.87, 0.82)
 	_caption_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_caption_label.size = Vector2(780.0, 220.0)

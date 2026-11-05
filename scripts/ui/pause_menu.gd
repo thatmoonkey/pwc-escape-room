@@ -178,7 +178,7 @@ func _build() -> void:
 
 	var kicker := Label.new()
 	kicker.text = "ADAMANT VERITY"
-	kicker.add_theme_font_size_override("font_size", 12)
+	kicker.add_theme_font_size_override("font_size", 30)
 	kicker.add_theme_color_override("font_color", PAPAYA)
 	column.add_child(kicker)
 
@@ -216,7 +216,7 @@ func _build() -> void:
 	# sound effects" are different requests and one toggle cannot answer both.
 	var audio_caption := Label.new()
 	audio_caption.text = "AUDIO"
-	audio_caption.add_theme_font_size_override("font_size", 11)
+	audio_caption.add_theme_font_size_override("font_size", 30)
 	audio_caption.add_theme_color_override("font_color", MUTED)
 	column.add_child(audio_caption)
 	var audio_panel := AudioPanel.new()
@@ -227,7 +227,7 @@ func _build() -> void:
 	var menu_button := Button.new()
 	menu_button.text = "MAIN MENU"
 	menu_button.focus_mode = Control.FOCUS_NONE
-	menu_button.add_theme_font_size_override("font_size", 14)
+	menu_button.add_theme_font_size_override("font_size", 30)
 	menu_button.add_theme_color_override("font_color", PAPAYA)
 	menu_button.add_theme_color_override("font_hover_color", GOLD)
 	var outlined := _ghost_style()
@@ -244,7 +244,7 @@ func _build() -> void:
 	_reset_button.text = "RESET PROGRESS"
 	_reset_button.focus_mode = Control.FOCUS_NONE
 	_reset_button.tooltip_text = "Wipes the mission record and starts the run again."
-	_reset_button.add_theme_font_size_override("font_size", 13)
+	_reset_button.add_theme_font_size_override("font_size", 30)
 	_reset_button.add_theme_color_override("font_color", MUTED)
 	_reset_button.add_theme_color_override("font_hover_color", PAPAYA)
 	var reset_rest := _ghost_style()
@@ -273,7 +273,7 @@ func _build() -> void:
 	reset_yes.focus_mode = Control.FOCUS_NONE
 	reset_yes.custom_minimum_size = Vector2(0.0, 38.0)
 	reset_yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	reset_yes.add_theme_font_size_override("font_size", 13)
+	reset_yes.add_theme_font_size_override("font_size", 30)
 	reset_yes.add_theme_color_override("font_color", Color.WHITE)
 	reset_yes.add_theme_color_override("font_hover_color", Color.WHITE)
 	var yes_fill := StyleBoxFlat.new()
@@ -294,7 +294,7 @@ func _build() -> void:
 	reset_no.text = "CANCEL"
 	reset_no.focus_mode = Control.FOCUS_NONE
 	reset_no.custom_minimum_size = Vector2(120.0, 38.0)
-	reset_no.add_theme_font_size_override("font_size", 13)
+	reset_no.add_theme_font_size_override("font_size", 30)
 	reset_no.add_theme_color_override("font_color", MUTED)
 	reset_no.add_theme_color_override("font_hover_color", GOLD)
 	var no_style := _ghost_style()
@@ -309,7 +309,7 @@ func _build() -> void:
 	_reset_note.name = "ResetNote"
 	_reset_note.text = "Clears every decision and the mandate, then starts over."
 	_reset_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_reset_note.add_theme_font_size_override("font_size", 11)
+	_reset_note.add_theme_font_size_override("font_size", 30)
 	_reset_note.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	column.add_child(_reset_note)
 
@@ -348,7 +348,7 @@ func _primary_button(label_text: String, handler: Callable) -> Button:
 	button.text = label_text
 	button.custom_minimum_size = Vector2(0.0, 50.0)
 	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
 	button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
 	var fill := StyleBoxFlat.new()

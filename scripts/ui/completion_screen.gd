@@ -751,6 +751,7 @@ func _is_portrait() -> bool:
 
 ## One type scale for the screen, stepped up where the only pointer is a thumb
 ## and again in a headset, where the panel is read from further away. The
-## multiplier is Platform's, shared with every other overlay.
+## multiplier is Platform's, shared with every other overlay. The floor rule
+## clamps after the multiplier so nothing ever renders below the reading floor.
 func _px(base: float) -> int:
-	return int(round(base * Platform.ui_scale()))
+	return max(int(round(base * Platform.ui_scale())), Brand.SIZE_SMALL)

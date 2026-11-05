@@ -605,7 +605,7 @@ func _gap(height: float) -> Control:
 ## the fingertip's comfortable target. Both scale back down on a desktop. The
 ## multiplier itself lives in Platform, so every overlay steps up together.
 func _text_size(base: int) -> int:
-	return int(round(float(base) * Platform.ui_scale()))
+	return max(int(round(float(base) * Platform.ui_scale())), Brand.SIZE_SMALL)
 
 
 func _button_height() -> float:
