@@ -28,6 +28,7 @@ var _open: bool = false
 var _body: VBoxContainer = null
 var _scroll: ScrollContainer = null
 var _meters: GridContainer = null
+var _dismiss: Button = null
 
 
 func _ready() -> void:
@@ -50,22 +51,39 @@ func _build_frame() -> void:
 		child.queue_free()
 	var margin := MarginContainer.new()
 	margin.name = "Margin"
-	var side: int = 34 if _is_touch() else 30
+	var side: int = 24 if _is_touch() else 30
 	margin.add_theme_constant_override("margin_left", side)
 	margin.add_theme_constant_override("margin_right", side)
-	margin.add_theme_constant_override("margin_top", 26)
-	margin.add_theme_constant_override("margin_bottom", 22)
+	margin.add_theme_constant_override("margin_top", 18 if _is_touch() else 26)
+	margin.add_theme_constant_override("margin_bottom", 14 if _is_touch() else 22)
 	card.add_child(margin)
+	## The reading scrolls; the way out does not.
+	var stack := VBoxContainer.new()
+	stack.name = "Stack"
+	stack.add_theme_constant_override("separation", 10)
+	margin.add_child(stack)
 	_scroll = ScrollContainer.new()
 	_scroll.name = "Scroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(_scroll)
+	stack.add_child(_scroll)
 	_body = VBoxContainer.new()
 	_body.name = "Body"
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body.add_theme_constant_override("separation", 10)
 	_scroll.add_child(_body)
+
+	_dismiss = Button.new()
+	_dismiss.name = "Dismiss"
+	_dismiss.text = "DISMISS"
+	## A pointer target, not a keyboard stop - the whole card already answers
+	## a click or a key.
+	_dismiss.focus_mode = Control.FOCUS_NONE
+	_dismiss.custom_minimum_size = Vector2(0.0, 44.0 if _is_touch() else 34.0)
+	_dismiss.add_theme_font_size_override("font_size", _px(15))
+	_dismiss.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	_dismiss.pressed.connect(dismiss)
+	stack.add_child(_dismiss)
 
 
 func show_card(system_id: String) -> void:
@@ -312,18 +330,31 @@ func _relayout() -> void:
 		return
 	var view: Vector2 = get_viewport().get_visible_rect().size
 	var width: float = minf(view.x - 56.0, 880.0 if not _is_portrait() else view.x - 32.0)
-	## The panel hugs its reading: a card with three lines in it should not leave
-	## two thirds of a screen of empty panel under them. It only grows to the cap
-	## when the reading actually needs the room, and past that the scroll takes
-	## over - the panel itself still never moves.
-	var wanted: float = 240.0
-	if _body != null and is_instance_valid(_body):
-		wanted = _body.get_combined_minimum_size().y + 26.0 + 22.0 + 8.0
-	var height: float = minf(view.y - 56.0, maxf(wanted, 240.0))
-	card.size = Vector2(maxf(width, 280.0), maxf(height, 240.0))
+	card.size.x = maxf(width, 280.0)
+	card.size.y = minf(card.size.y, view.y - 56.0)
 	card.position = (view - card.size) * 0.5
 	if _meters != null and is_instance_valid(_meters):
 		_meters.columns = 1 if _is_portrait() else 2
+	_fit_height.call_deferred()
+
+
+## The panel hugs its reading: a card with three lines in it should not leave
+## two thirds of a screen of empty panel under them. The measurement has to
+## happen after a layout pass at the new width - a wrapped label measured
+## before it reports the height it would need at the old, narrow width, which
+## is how the panel used to end up full height every time.
+func _fit_height() -> void:
+	if card == null or not is_instance_valid(card) or not _open:
+		return
+	await get_tree().process_frame
+	if card == null or not is_instance_valid(card) or not _open:
+		return
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	var wanted: float = _body.get_combined_minimum_size().y + 54.0
+	if _dismiss != null and is_instance_valid(_dismiss):
+		wanted += _dismiss.get_combined_minimum_size().y + 10.0
+	card.size.y = minf(view.y - 56.0, maxf(wanted, 200.0))
+	card.position = (view - card.size) * 0.5
 
 
 func _is_portrait() -> bool:

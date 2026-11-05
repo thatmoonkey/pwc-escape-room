@@ -224,7 +224,7 @@ func _update_tutorial_arrow() -> void:
 	tutorial_arrow.rotation = (target - anchor).angle()
 	if not tutorial_arrow.visible:
 		tutorial_arrow.visible = true
-		if not _arrow_bob.is_valid():
+		if _arrow_bob == null or not _arrow_bob.is_valid():
 			_arrow_bob = create_tween().set_loops()
 			_arrow_bob.tween_property(tutorial_arrow, "scale",
 				Vector2(1.18, 1.18), 0.4).set_trans(Tween.TRANS_SINE)

@@ -278,6 +278,11 @@ static func _apply_channel(channel: String) -> void:
 static func _start_loop(group: String, path: String, level: float) -> void:
 	var player: AudioStreamPlayer = _loop_voice(group, path, level)
 	if player == null:
+		## A fresh fallback player is added deferred and starts itself on
+		## tree_entered, so "no player yet" here is a bed on its way, not a
+		## failure. Warning about it made every boot look broken.
+		if _spare_loops.has(group) or _pending.has(group):
+			return
 		push_warning("Sfx: no player in group '%s' available for '%s'." % [group, path])
 		return
 	if player.playing:
@@ -327,6 +332,15 @@ static func _loop_voice(group: String, path: String, level: float) -> AudioStrea
 			## saved with a stream already on it would otherwise keep the
 			## volume it was saved with and quietly ignore the mixer.
 			_apply_level(player, channel, level)
+			## A bed that began on the boot screen (before this scene had its
+			## own players) hands the track over instead of playing twice.
+			var carried: AudioStreamPlayer = _spare_loops.get(group, null)
+			if carried != null and is_instance_valid(carried):
+				if carried.playing:
+					player.play(carried.get_playback_position())
+				carried.stop()
+				_spare_loops.erase(group)
+				_pending.erase(group)
 			return player
 	var spare: AudioStreamPlayer = _spare_loops.get(group, null)
 	if spare != null and is_instance_valid(spare):

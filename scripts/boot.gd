@@ -14,6 +14,11 @@ var _loading: CanvasLayer = null
 func _ready() -> void:
 	var intro := $IntroScreen as IntroScreen
 	intro.finished.connect(_on_intro_finished)
+	## The beds start with the story, not after it: the boot screen and the
+	## whole intro used to play in silence until the station had loaded.
+	Sfx.load_settings()
+	Sfx.play_ambience()
+	Sfx.play_music()
 	_build_loading_message()
 	_start_load.call_deferred()
 

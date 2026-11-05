@@ -80,7 +80,9 @@ static func ui_scale() -> float:
 	if kind() == Kind.VR:
 		return 1.4
 	if touch_ui():
-		return 1.2
+		## The phone tier used to add a fifth to every overlay on top of base
+		## sizes already drawn for a tablet: boxes and modals came out too big.
+		return 1.0
 	return 1.0
 
 
