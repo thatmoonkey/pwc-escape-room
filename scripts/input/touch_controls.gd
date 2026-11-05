@@ -55,7 +55,11 @@ extends CanvasLayer
 @onready var move_knob: Control = $Root/MoveStick/Knob
 @onready var look_base: Control = $Root/LookStick
 @onready var look_knob: Control = $Root/LookStick/Knob
-@onready var hint: Label = $Root/Hint
+@onready var tutorial_card: PanelContainer = $Root/TutorialCard
+@onready var tutorial_title: Label = $Root/TutorialCard/Margin/VBox/Title
+@onready var tutorial_text: Label = $Root/TutorialCard/Margin/VBox/Text
+@onready var tutorial_progress: ProgressBar = $Root/TutorialCard/Margin/VBox/Progress
+@onready var tutorial_arrow: Label = $Root/TutorialArrow
 
 const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", "move_back"]
 
@@ -73,6 +77,7 @@ var _tutorial_stage: int = TutorialStage.BOTH
 var _move_seen: Dictionary = {}
 var _aim_wired: bool = false
 var _console_in_focus: bool = false
+var _console_prompt_open: bool = false
 
 var _move_touch: int = -1
 var _look_touch: int = -1
@@ -148,20 +153,86 @@ func _pop_in(base: Control) -> void:
 	tween.tween_property(base, "modulate:a", 1.0, 0.18)
 
 
-## The teaching line. While a console is in reach and the look stick has been
-## taught, the line becomes the tap instruction - the prompt arrives with the
-## target, not before, so it teaches the use the crew can actually make.
+## The teaching card. Each walkthrough stage gets a SHIPMIND-style card dead
+## centre - a directive title, one instruction in large type and a progress
+## bar - instead of a small line at the bottom nobody reads while steering.
+## After the walkthrough the card returns only while a console is in reach,
+## so the tap instruction arrives with the target.
 func _refresh_hint() -> void:
-	if _console_in_focus and _tutorial_stage != TutorialStage.MOVE_ONLY:
-		hint.text = "tap the console to use it"
-		return
 	match _tutorial_stage:
 		TutorialStage.MOVE_ONLY:
-			hint.text = "drag the stick to move around"
+			_show_card("WALK THE SHIP",
+				"Drag the stick to move around -\nforward, back, left and right",
+				float(_move_seen.size()) / MOVE_ACTIONS.size())
 		TutorialStage.LOOK_ONLY:
-			hint.text = "drag the stick to look around"
+			_show_card("LOOK AROUND",
+				"Drag the stick to look around\nand take in the bridge", 0.0)
 		TutorialStage.BOTH:
-			hint.text = "left thumb: move - right thumb: look - tap the world: use"
+			if _console_in_focus and not _console_prompt_open:
+				_show_card("USE IT", "Tap the console to use it", -1.0)
+				_console_prompt_open = true
+			elif not _console_in_focus and _console_prompt_open:
+				_console_prompt_open = false
+				_hide_card()
+
+
+## One teaching card: the directive title, the instruction in large type and
+## a progress bar (-1 hides the bar). The arrow is separate - it points at a
+## stick, not at text.
+func _show_card(title: String, text: String, progress: float) -> void:
+	tutorial_title.text = title
+	tutorial_text.text = text
+	if progress < 0.0:
+		tutorial_progress.visible = false
+	else:
+		tutorial_progress.visible = true
+		tutorial_progress.value = progress * tutorial_progress.max_value
+	if not tutorial_card.visible:
+		tutorial_card.visible = true
+		_pop_in(tutorial_card)
+
+
+func _hide_card() -> void:
+	tutorial_card.visible = false
+	tutorial_arrow.visible = false
+
+
+## The arrow floats between the card and the stick it is teaching, pointing
+## at the stick. It hides while the thumb holds the stick - they found it -
+## and returns when the stick glides home.
+func _update_tutorial_arrow() -> void:
+	var teaching: Control = null
+	if _tutorial_stage == TutorialStage.MOVE_ONLY and move_base.visible:
+		teaching = move_base
+	elif _tutorial_stage == TutorialStage.LOOK_ONLY and look_base.visible:
+		teaching = look_base
+	var thumb_holds: bool = (_tutorial_stage == TutorialStage.MOVE_ONLY \
+		and _move_touch != -1) or (_tutorial_stage == TutorialStage.LOOK_ONLY \
+		and _look_touch != -1)
+	if teaching == null or thumb_holds:
+		if tutorial_arrow.visible:
+			tutorial_arrow.visible = false
+			_arrow_bob.kill()
+		return
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	var center: Vector2 = view * 0.5
+	var target: Vector2 = teaching.position \
+		+ Vector2(teaching.size.x, teaching.size.y) * 0.5
+	var toward: Vector2 = (center - target).normalized()
+	var anchor: Vector2 = target + toward * 150.0
+	tutorial_arrow.position = anchor - Vector2(28.0, 30.0)
+	tutorial_arrow.rotation = (target - anchor).angle()
+	if not tutorial_arrow.visible:
+		tutorial_arrow.visible = true
+		if not _arrow_bob.is_valid():
+			_arrow_bob = create_tween().set_loops()
+			_arrow_bob.tween_property(tutorial_arrow, "scale",
+				Vector2(1.18, 1.18), 0.4).set_trans(Tween.TRANS_SINE)
+			_arrow_bob.tween_property(tutorial_arrow, "scale",
+				Vector2.ONE, 0.4).set_trans(Tween.TRANS_SINE)
+
+
+var _arrow_bob: Tween
 
 
 ## The teaching line follows the crew's aim: the player reports when the ray
@@ -252,6 +323,9 @@ func _process(delta: float) -> void:
 	# knob settling rather than disappearing.
 	_ease_knob(move_knob, move_radius, delta)
 	_ease_knob(look_knob, look_radius, delta)
+	# The arrow follows the stick it teaches - the stick teleports and glides,
+	# so the pointer has to track it every frame, not sit where it spawned.
+	_update_tutorial_arrow()
 
 
 func _ease_knob(knob: Control, radius: float, delta: float) -> void:
@@ -298,6 +372,11 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 		var is_tap: bool = position.distance_to(_pending_start) < TAP_MAX_TRAVEL
 		_pending_touch = -1
 		if is_tap and _move_touch == -1 and _look_touch == -1:
+			# The tap is the use the prompt was teaching: dismiss it, whether
+			# or not the console actually reacts - the lesson is done.
+			if _console_prompt_open:
+				_console_prompt_open = false
+				_hide_card()
 			InputRouter.queue_interact()
 		return
 	if index == _move_touch:
