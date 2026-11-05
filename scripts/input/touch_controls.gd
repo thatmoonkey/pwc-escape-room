@@ -4,9 +4,7 @@ extends CanvasLayer
 ## Mobile input layer: two joysticks and the action buttons.
 ##
 ## The sticks TELEPORT: tap the lower half of the screen and the nearest
-## stick centres under your thumb, so you never have to hunt for it. The
-## JUMP button floats above the right stick and tapping it never moves the
-## stick - a button is a button, not a joystick.
+## stick centres under your thumb, so you never have to hunt for it.
 ##
 ## LEFT thumb: the move stick - a ring with a smaller knob you drag inside
 ## it. The ring's edge is the limit of travel.
@@ -53,7 +51,6 @@ extends CanvasLayer
 @onready var move_knob: Control = $Root/MoveStick/Knob
 @onready var look_base: Control = $Root/LookStick
 @onready var look_knob: Control = $Root/LookStick/Knob
-@onready var jump_button: Button = $Root/JumpButton
 
 const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", "move_back"]
 
@@ -71,9 +68,6 @@ func _ready() -> void:
 	_layout_sticks()
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
-	if root.visible:
-		jump_button.button_down.connect(func() -> void: Input.action_press("jump"))
-		jump_button.button_up.connect(func() -> void: Input.action_release("jump"))
 	get_viewport().size_changed.connect(_layout_sticks)
 
 
@@ -159,8 +153,6 @@ const TAP_MAX_TRAVEL := 18.0
 
 
 func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
-	if jump_button != null and jump_button.get_global_rect().has_point(position):
-		return
 	if pressed:
 		# Every touch is a candidate tap first: it only becomes a stick once the
 		# thumb moves, so a quick touch-and-release is always a use, never a
@@ -282,7 +274,6 @@ func _release_all() -> void:
 	_set_move(Vector2.ZERO)
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
-	Input.action_release("jump")
 	_return_stick(move_base, move_radius, true)
 	_return_stick(look_base, look_radius, false)
 

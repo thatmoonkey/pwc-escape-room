@@ -90,6 +90,7 @@ var _audio_catcher: Control = null
 var _objective_line: Label = null
 var _appetite_line: Label = null
 var _chooser_note: Label = null
+var _confirm: Button = null
 
 
 func _ready() -> void:
@@ -322,6 +323,8 @@ func _refresh_declared() -> void:
 		_appetite_line.add_theme_color_override("font_color", WHITE)
 	if _chooser_note != null:
 		_chooser_note.visible = not _mandate_declared()
+	if _confirm != null:
+		_confirm.disabled = not _mandate_declared()
 
 
 func _on_objective_chosen(objective_id: String) -> void:
@@ -329,7 +332,6 @@ func _on_objective_chosen(objective_id: String) -> void:
 	_set_hint("")
 	_refresh_declared()
 	_refresh_tiles()
-	_maybe_seal()
 
 
 func _on_appetite_chosen(appetite_id: String) -> void:
@@ -337,18 +339,14 @@ func _on_appetite_chosen(appetite_id: String) -> void:
 	_set_hint("")
 	_refresh_declared()
 	_refresh_tiles()
-	_maybe_seal()
 
 
-## Both halves picked: the popup folds itself away after a beat - long enough
-## for the crew to read the mandate they just wrote - because a form that
-## stays open after it is done reads as unfinished.
-func _maybe_seal() -> void:
-	if not _mandate_declared() or not _chooser_open:
+## The crew confirm the mandate they wrote: the popup folds away and the tile
+## reads SEALED. BEGIN still hands over the ship.
+func _on_confirm_pressed() -> void:
+	if not _mandate_declared():
 		return
-	await get_tree().create_timer(1.1).timeout
-	if not is_inside_tree() or not _mandate_declared():
-		return
+	_refresh_tiles()
 	_close_chooser()
 
 
@@ -477,8 +475,6 @@ func _controls_rows() -> Dictionary:
 				"text": "interact - tap a console, or use the round button."},
 			{"icon": "chevron", "lead": "SPRINT",
 				"text": "the toggle on the left - hold the corridor pace up."},
-			{"icon": "chevron", "lead": "JUMP",
-				"text": "the button beside interact - a small hop."},
 		]
 	else:
 		rows = [
@@ -670,10 +666,6 @@ func _goal_tiles() -> HBoxContainer:
 
 	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE",
 		"Say what the mission is for."))
-	row.add_child(_goal_tile("decisions", "sliders", "FIVE DECISIONS",
-		"Say how much SHIPMIND decides."))
-	row.add_child(_goal_tile("fly", "rocket", "FLY HOME",
-		"Take the ship to KEPLER-442b."))
 	return row
 
 
@@ -825,6 +817,13 @@ func _build_mandate_popup() -> void:
 	# The scroll keeps the list inside the panel when it outgrows the screen;
 	# on a phone the panel is the screen, so the list fills it instead of
 	# scrolling a window that could just be taller.
+	var stack := VBoxContainer.new()
+	stack.name = "Stack"
+	stack.add_theme_constant_override("separation", 8)
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(stack)
+
 	var scroll := ScrollContainer.new()
 	scroll.name = "Scroll"
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -832,7 +831,7 @@ func _build_mandate_popup() -> void:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	if not DisplayServer.is_touchscreen_available():
 		scroll.custom_minimum_size = Vector2(640.0, 560.0)
-	panel.add_child(scroll)
+	stack.add_child(scroll)
 	scroll.add_child(column)
 
 	column.add_child(_kicker("DECLARE THE MANDATE"))
@@ -910,12 +909,24 @@ func _build_mandate_popup() -> void:
 		_appetite_buttons[id] = button
 		column.add_child(button)
 
-	# The seal line, under the buttons: the quiet instruction that makes the
-	# auto-seal legible rather than surprising.
-	_chooser_note = _micro("Pick one of each - your mandate writes itself above, and the tile seals.")
+	# The seal line and the confirm sit UNDER the scroller, so the one control
+	# the screen exists for is always in reach, however long the list gets.
+	_chooser_note = _micro("Pick one of each, then confirm your mandate.")
 	_chooser_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(_gap(6))
-	column.add_child(_chooser_note)
+	_chooser_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(_chooser_note)
+
+	# The seal is a button, not a timer: the crew state the mandate, then
+	# confirm it. The mandate is the only thing this screen requires.
+	_confirm = Button.new()
+	_confirm.name = "ConfirmMandate"
+	_confirm.text = "CONFIRM MANDATE"
+	_confirm.custom_minimum_size = Vector2(0.0, _button_h())
+	_confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_action_button(_confirm)
+	_confirm.pressed.connect(_on_confirm_pressed)
+	stack.add_child(_confirm)
+	_refresh_declared()
 
 
 ## A mandate option button: name only while unchosen, name plus its definition

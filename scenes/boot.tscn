@@ -2,8 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bgjt858pd1fj8" path="res://scripts/boot.gd" id="1_boot"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro_screen.tscn" id="2_intro"]
+[ext_resource type="Script" uid="uid://dhwayk85wnkum" path="res://scripts/ui/rotate_prompt.gd" id="3_rotate"]
 
 [node name="Boot" type="Node" unique_id=684259504]
 script = ExtResource("1_boot")
+
+[node name="RotatePrompt" type="CanvasLayer" parent="." unique_id=1785215652]
+script = ExtResource("3_rotate")
 
 [node name="IntroScreen" parent="." unique_id=903116928 instance=ExtResource("2_intro")]

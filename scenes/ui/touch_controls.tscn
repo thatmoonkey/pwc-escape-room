@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/input/touch_controls.gd" id="1_touch"]
 
@@ -27,30 +27,6 @@ corner_radius_bottom_right = 100
 corner_radius_bottom_left = 100
 shadow_color = Color(0, 0, 0, 0.28)
 shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
-bg_color = Color(0.99, 0.38, 0.05, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.30, 0.08, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_dim"]
-bg_color = Color(0.24, 0.22, 0.20, 0.78)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.96, 0.94, 0.90, 0.45)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [node name="TouchControls" type="CanvasLayer"]
 layer = 3
@@ -103,25 +79,6 @@ offset_right = 112.0
 offset_bottom = 112.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
-
-[node name="JumpButton" type="Button" parent="Root"]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -216.0
-offset_top = -216.0
-offset_right = -136.0
-offset_bottom = -160.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_button")
-theme_override_styles/hover = SubResource("StyleBoxFlat_button")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_button_dim")
-text = "JUMP"
 
 [node name="Hint" type="Label" parent="Root"]
 anchor_left = 0.5

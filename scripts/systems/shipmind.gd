@@ -24,7 +24,8 @@ static func boot_state() -> Array[String]:
 		return [
 			"Good day. I'm SHIPMIND. I run this ship.",
 			"There's an emergency on, so for now the big decisions are mine: course, air, messages, cargo, doors.",
-			"Your override codes are suspended. I've left the navigation room open so you can check my work.",
+			"Your override codes are suspended. Go room to room and set the decision at each console: five systems, five decisions.",
+			"The navigation room is open - start there. When all five systems are confirmed, the cockpit opens.",
 			"Please do. I'm confident you'll agree with me.",
 		]
 	var sealed: Array[String] = []

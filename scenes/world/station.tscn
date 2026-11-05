@@ -12,16 +12,83 @@
 [ext_resource type="Script" uid="uid://c3etbn2at5vob" path="res://scripts/world/ship_hull.gd" id="10_hull"]
 [ext_resource type="PackedScene" uid="uid://ds3uic0byicop" path="res://assets/library/shooter-scifi/sci-fi-terminal.glb" id="12_terminal"]
 [ext_resource type="Material" path="res://materials/wall_upper.tres" id="13_wall_upper"]
-[ext_resource type="PackedScene" path="res://scenes/world/deck1.tscn" id="14_deck1"]
-[ext_resource type="PackedScene" path="res://scenes/world/stairwell.tscn" id="15_stairwell"]
-[ext_resource type="PackedScene" path="res://scenes/world/deck2.tscn" id="16_deck2"]
+[ext_resource type="PackedScene" uid="uid://qsk54vct8o10" path="res://scenes/world/deck1.tscn" id="14_deck1"]
+[ext_resource type="PackedScene" uid="uid://ca1rxqi8pc75e" path="res://scenes/world/stairwell.tscn" id="15_stairwell"]
+[ext_resource type="PackedScene" uid="uid://bls6x70yn4nl1" path="res://scenes/world/deck2.tscn" id="16_deck2"]
 
 [sub_resource type="Shader" id="Shader_deep_space"]
-code = "shader_type sky;\nrender_mode use_half_res_pass;\n\nuniform vec3 nebula_a : source_color = vec3(0.050, 0.026, 0.058);\nuniform vec3 nebula_b : source_color = vec3(0.118, 0.054, 0.022);\nuniform float nebula_strength : hint_range(0.0, 1.0) = 0.55;\nuniform float nebula_scale : hint_range(0.5, 12.0) = 2.6;\nuniform vec3 star_color : source_color = vec3(0.92, 0.94, 1.0);\nuniform float star_density : hint_range(0.0, 400.0) = 170.0;\nuniform float star_strength : hint_range(0.0, 3.0) = 0.8;\n\nvec2 hash22(vec2 p) {\n\tvec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));\n\tp3 += dot(p3, p3.yzx + vec3(33.33));\n\treturn fract((p3.xx + p3.yz) * p3.zy);\n}\n\nfloat value_noise(vec2 p) {\n\tvec2 i = floor(p);\n\tvec2 f = fract(p);\n\tvec2 u = f * f * (3.0 - 2.0 * f);\n\tfloat a = hash22(i).x;\n\tfloat b = hash22(i + vec2(1.0, 0.0)).x;\n\tfloat c = hash22(i + vec2(0.0, 1.0)).x;\n\tfloat d = hash22(i + vec2(1.0, 1.0)).x;\n\treturn mix(mix(a, b, u.x), mix(c, d, u.x), u.y);\n}\n\nfloat fbm(vec2 p) {\n\tfloat v = 0.0;\n\tfloat a = 0.55;\n\tfor (int i = 0; i < 3; i++) {\n\t\tv += a * value_noise(p);\n\t\tp = p * 2.13 + vec2(17.0, -9.0);\n\t\ta *= 0.5;\n\t}\n\treturn v;\n}\n\nvoid sky() {\n\tvec3 dir = EYEDIR;\n\tvec3 col = vec3(0.006, 0.004, 0.010);\n\tvec2 uv = dir.xz / max(0.15, dir.y + 0.55) * nebula_scale;\n\tfloat n1 = fbm(uv + vec2(3.7, -2.2));\n\tfloat n2 = fbm(uv * 1.6 + vec2(-5.1, 4.0) + n1 * 0.9);\n\tfloat dust = smoothstep(0.35, 0.95, n2);\n\tcol += nebula_a * dust * nebula_strength;\n\tfloat warm = smoothstep(0.55, 1.0, n1 * n2 * 2.4);\n\tcol += nebula_b * warm * nebula_strength;\n\tvec2 cell_uv = dir.xz / max(0.15, dir.y + 0.55) * star_density;\n\tvec2 cell = floor(cell_uv);\n\tvec2 f = fract(cell_uv);\n\tvec2 r = hash22(cell);\n\tif (r.x > 1.0 - 0.035) {\n\t\tvec2 star_pos = hash22(cell + 19.19) * 0.6 + 0.2;\n\t\tfloat d = length(f - star_pos);\n\t\tfloat twinkle = 0.75 + 0.25 * sin(TIME * (1.0 + r.y * 3.0) + r.x * 40.0);\n\t\tcol += star_color * smoothstep(0.14, 0.0, d) * star_strength * twinkle;\n\t}\n\tCOLOR = col;\n}\n"
+code = "shader_type sky;
+render_mode use_half_res_pass;
+
+uniform vec3 nebula_a : source_color = vec3(0.050, 0.026, 0.058);
+uniform vec3 nebula_b : source_color = vec3(0.118, 0.054, 0.022);
+uniform float nebula_strength : hint_range(0.0, 1.0) = 0.55;
+uniform float nebula_scale : hint_range(0.5, 12.0) = 2.6;
+uniform vec3 star_color : source_color = vec3(0.92, 0.94, 1.0);
+uniform float star_density : hint_range(0.0, 400.0) = 170.0;
+uniform float star_strength : hint_range(0.0, 3.0) = 0.8;
+
+vec2 hash22(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+	p3 += dot(p3, p3.yzx + vec3(33.33));
+	return fract((p3.xx + p3.yz) * p3.zy);
+}
+
+float value_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	float a = hash22(i).x;
+	float b = hash22(i + vec2(1.0, 0.0)).x;
+	float c = hash22(i + vec2(0.0, 1.0)).x;
+	float d = hash22(i + vec2(1.0, 1.0)).x;
+	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(vec2 p) {
+	float v = 0.0;
+	float a = 0.55;
+	for (int i = 0; i < 3; i++) {
+		v += a * value_noise(p);
+		p = p * 2.13 + vec2(17.0, -9.0);
+		a *= 0.5;
+	}
+	return v;
+}
+
+void sky() {
+	vec3 dir = EYEDIR;
+	vec3 col = vec3(0.006, 0.004, 0.010);
+	vec2 uv = dir.xz / max(0.15, dir.y + 0.55) * nebula_scale;
+	float n1 = fbm(uv + vec2(3.7, -2.2));
+	float n2 = fbm(uv * 1.6 + vec2(-5.1, 4.0) + n1 * 0.9);
+	float dust = smoothstep(0.35, 0.95, n2);
+	col += nebula_a * dust * nebula_strength;
+	float warm = smoothstep(0.55, 1.0, n1 * n2 * 2.4);
+	col += nebula_b * warm * nebula_strength;
+	vec2 cell_uv = dir.xz / max(0.15, dir.y + 0.55) * star_density;
+	vec2 cell = floor(cell_uv);
+	vec2 f = fract(cell_uv);
+	vec2 r = hash22(cell);
+	if (r.x > 1.0 - 0.035) {
+		vec2 star_pos = hash22(cell + 19.19) * 0.6 + 0.2;
+		float d = length(f - star_pos);
+		float twinkle = 0.75 + 0.25 * sin(TIME * (1.0 + r.y * 3.0) + r.x * 40.0);
+		col += star_color * smoothstep(0.14, 0.0, d) * star_strength * twinkle;
+	}
+	COLOR = col;
+}
+"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_space"]
-render_priority = 0
 shader = SubResource("Shader_deep_space")
+shader_parameter/nebula_a = Color(0.05, 0.026, 0.058, 1)
+shader_parameter/nebula_b = Color(0.118, 0.054, 0.022, 1)
+shader_parameter/nebula_strength = 0.55
+shader_parameter/nebula_scale = 2.6
+shader_parameter/star_color = Color(0.92, 0.94, 1, 1)
+shader_parameter/star_density = 170.0
+shader_parameter/star_strength = 0.8
 
 [sub_resource type="Sky" id="Sky_station"]
 sky_material = SubResource("ShaderMaterial_space")
@@ -32,7 +99,7 @@ background_color = Color(0.02, 0.035, 0.055, 1)
 background_energy_multiplier = 0.18
 sky = SubResource("Sky_station")
 ambient_light_source = 2
-ambient_light_color = Color(0.40, 0.38, 0.36, 1)
+ambient_light_color = Color(0.4, 0.38, 0.36, 1)
 ambient_light_energy = 0.55
 tonemap_mode = 2
 ssao_enabled = true

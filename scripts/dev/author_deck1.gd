@@ -172,7 +172,7 @@ func _build() -> void:
 	## The SHIPMIND kiosk stands in the junction, off the spine so the crew walk
 	## past it, and the navigation console sits in the navigation room.
 	var kiosk := _console(interactables, "ShipmindKiosk", Vector3(-3.5, 0.0, 3.5), P_KIOSK,
-		_console_yaw(KIOSK_YAW), "Hub", KIOSK_PROMPT, Vector3(1.7, 1.7, 1.25))
+		_console_yaw(KIOSK_YAW + HALF_TURN), "Hub", KIOSK_PROMPT, Vector3(1.7, 1.7, 1.25))
 	_puzzle(kiosk, "Hub", S_HUB, {"system_title": "SHIPMIND KIOSK"})
 	var nav := _console(interactables, "NavConsole", Vector3(5.25, 0.0, 11.5), P_DESK,
 		_console_yaw(STARBOARD_ROOM_YAW), "Nav", NAV_PROMPT, Vector3(1.7, 1.7, 1.25))
