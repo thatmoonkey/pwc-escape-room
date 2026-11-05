@@ -7,6 +7,10 @@ extends CharacterBody3D
 ## heavier than the ship is. Reads only InputMap actions and InputRouter, so
 ## the touch layer and the XR rig drive the exact same body.
 
+## Emitted when the aim ray's focus changes, so the touch layer can swap its
+## teaching line to the tap instruction the moment a console is in reach.
+signal aim_target_changed(in_focus: bool)
+
 @export var walk_speed: float = 3.4
 @export var sprint_speed: float = 5.6
 @export var jump_height: float = 0.85
@@ -32,6 +36,10 @@ var _gravity: float = 9.8
 func _ready() -> void:
 	add_to_group("player")
 	_gravity = float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8))
+	# The touch layer's teaching line follows the aim: a console in reach is
+	# the moment to say "tap it", so the ray's target drives a signal.
+	interactor.target_changed.connect(
+		func(target: Interactable) -> void: aim_target_changed.emit(target != null))
 
 
 func _physics_process(delta: float) -> void:

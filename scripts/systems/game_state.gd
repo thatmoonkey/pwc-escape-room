@@ -301,9 +301,12 @@ static func has_save() -> bool:
 ## Wipes progress in memory and on disk. The developer reset panel uses this, and
 ## it has to delete the file as well as clear the dictionary: clearing memory
 ## alone would leave the old progress sitting in the save file, which load_data
-## would read straight back on the next load.
+## would read straight back on the next load. A full wipe is a fresh crew, so the
+## touch-controls walkthrough runs again too - reset() alone (a new run) never
+## re-teaches it.
 static func clear_save() -> void:
 	reset()
+	touch_tutorial_done = false
 	if not has_save():
 		return
 	var err: int = DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))

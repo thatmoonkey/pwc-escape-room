@@ -71,6 +71,8 @@ enum TutorialStage {
 }
 var _tutorial_stage: int = TutorialStage.BOTH
 var _move_seen: Dictionary = {}
+var _aim_wired: bool = false
+var _console_in_focus: bool = false
 
 var _move_touch: int = -1
 var _look_touch: int = -1
@@ -92,6 +94,9 @@ func _ready() -> void:
 	_center_knob(move_knob, move_radius, move_knob_radius)
 	_center_knob(look_knob, look_radius, look_knob_radius)
 	get_viewport().size_changed.connect(_layout_sticks)
+	# The aim signal lives on the player, which may not be in the tree yet:
+	# the wiring defers one frame so the group lookup always finds it.
+	call_deferred("_wire_aim")
 
 
 ## First-time crews learn the sticks in two steps: walk, then look. The stage
@@ -103,21 +108,79 @@ func _setup_tutorial() -> void:
 	else:
 		_tutorial_stage = TutorialStage.MOVE_ONLY
 	_apply_tutorial_stage()
+	# The walkthrough opens with a pop, so the first stick reads as arriving
+	# rather than simply being there. The same pop plays on every later
+	# arrival, so every handover lands with the same reveal.
+	for base in [move_base, look_base]:
+		if base.visible:
+			_pop_in(base)
 
 
 ## Stage visibility and the teaching line. The look stick stays hidden until
 ## the crew have walked the ship, and the hint names the one skill the stage
 ## is teaching - naming both at once is how nobody reads either.
 func _apply_tutorial_stage() -> void:
-	move_base.visible = _tutorial_stage != TutorialStage.LOOK_ONLY
-	look_base.visible = _tutorial_stage != TutorialStage.MOVE_ONLY
+	var move_shown: bool = _tutorial_stage != TutorialStage.LOOK_ONLY
+	var look_shown: bool = _tutorial_stage != TutorialStage.MOVE_ONLY
+	var move_was: bool = move_base.visible
+	var look_was: bool = look_base.visible
+	move_base.visible = move_shown
+	look_base.visible = look_shown
+	if move_shown and not move_was:
+		_pop_in(move_base)
+	if look_shown and not look_was:
+		_pop_in(look_base)
+	_refresh_hint()
+
+
+## A stick that appears arrives with a pop: it scales up past its rest size
+## and settles, so a stage handover reads as a reveal rather than a flicker.
+func _pop_in(base: Control) -> void:
+	if base == null:
+		return
+	base.pivot_offset = base.size * 0.5
+	var tween := create_tween()
+	base.modulate.a = 0.0
+	base.scale = Vector2(0.5, 0.5)
+	tween.set_parallel(true)
+	tween.tween_property(base, "scale", Vector2.ONE, 0.45) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(base, "modulate:a", 1.0, 0.18)
+
+
+## The teaching line. While a console is in reach and the look stick has been
+## taught, the line becomes the tap instruction - the prompt arrives with the
+## target, not before, so it teaches the use the crew can actually make.
+func _refresh_hint() -> void:
+	if _console_in_focus and _tutorial_stage != TutorialStage.MOVE_ONLY:
+		hint.text = "tap the console to use it"
+		return
 	match _tutorial_stage:
 		TutorialStage.MOVE_ONLY:
-			hint.text = "move the stick to move around"
+			hint.text = "drag the stick to move around"
 		TutorialStage.LOOK_ONLY:
-			hint.text = "move the stick to look around"
+			hint.text = "drag the stick to look around"
 		TutorialStage.BOTH:
 			hint.text = "left thumb: move - right thumb: look - tap the world: use"
+
+
+## The teaching line follows the crew's aim: the player reports when the ray
+## lands on an interactable, and the hint swaps to the tap instruction while
+## it does. Wired once, the first time the layer is asked for anything.
+func _wire_aim() -> void:
+	if _aim_wired:
+		return
+	_aim_wired = true
+	var player: Node = get_tree().get_first_node_in_group("player")
+	if player != null and player.has_signal("aim_target_changed"):
+		player.aim_target_changed.connect(_on_aim_target_changed)
+
+
+func _on_aim_target_changed(in_focus: bool) -> void:
+	if in_focus == _console_in_focus:
+		return
+	_console_in_focus = in_focus
+	_refresh_hint()
 
 
 ## Walk the crew to the next stage of the walkthrough. The move stage hands
