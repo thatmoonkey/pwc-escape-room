@@ -29,6 +29,7 @@ const INK := Color(0.93, 0.89, 0.85)
 const MUTED := Color(0.72, 0.66, 0.62)
 
 var _root: Control = null
+var _card: PanelContainer = null
 var _resume_button: Button = null
 var _reset_button: Button = null
 var _reset_confirm: HBoxContainer = null
@@ -157,7 +158,6 @@ func _build() -> void:
 	var card := PanelContainer.new()
 	card.name = "Card"
 	card.set_anchors_preset(Control.PRESET_CENTER)
-	card.custom_minimum_size = Vector2(380.0, 0.0)
 	card.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	card.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var style := StyleBoxFlat.new()
@@ -171,6 +171,9 @@ func _build() -> void:
 	style.content_margin_bottom = 28.0
 	card.add_theme_stylebox_override("panel", style)
 	_root.add_child(card)
+	_card = card
+	_clamp_card_to_safe_zone()
+	card.get_viewport().size_changed.connect(_clamp_card_to_safe_zone)
 
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
@@ -312,6 +315,16 @@ func _build() -> void:
 	_reset_note.add_theme_font_size_override("font_size", 30)
 	_reset_note.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	column.add_child(_reset_note)
+
+
+## The safe zone: the card is centred, but its 380px minimum width would ride
+## the bezel on a narrow phone - it shrinks to live inside the margins.
+func _clamp_card_to_safe_zone() -> void:
+	if _card == null or _root == null:
+		return
+	var view: Vector2 = _root.get_viewport_rect().size
+	var inset: float = Brand.safe_inset(view)
+	_card.custom_minimum_size.x = minf(380.0, maxf(view.x - inset * 2.0, 240.0))
 
 
 ## The first press asks; it never wipes anything by itself. The explicit pair

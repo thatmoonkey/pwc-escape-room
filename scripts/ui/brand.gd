@@ -50,6 +50,18 @@ const SIZE_BODY := 30
 ## A choice button's own text, at the floor like every other touch label.
 const SIZE_COMPACT := 30
 
+## Screen-edge safe zone - the TV title-safe margin, or in graphic-design
+## terms the minimum margin between UI chrome and the display's edge. A
+## fraction of the shorter viewport edge, with an absolute floor so a phone
+## in landscape (short edge ~360) still keeps honest distance from the bezel.
+## Ask Brand.safe_inset() with the live viewport size; re-apply on resize.
+const SAFE_ZONE_RATIO := 0.03
+const SAFE_ZONE_FLOOR := 24.0
+
+
+static func safe_inset(viewport_size: Vector2) -> float:
+	return maxf(SAFE_ZONE_FLOOR, minf(viewport_size.x, viewport_size.y) * SAFE_ZONE_RATIO)
+
 # --- The TUI voice ------------------------------------------------------------
 
 ## The ship's own machine text: the readout, the screen header and status, the
