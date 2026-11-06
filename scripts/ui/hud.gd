@@ -56,6 +56,7 @@ var _score_signature: String = ""
 ## The code-built strip.
 var _strip: VBoxContainer = null
 var _menu_button_ref: Button = null
+var _applied_text_size: int = 0
 var _mandate_objective_glyph: Glyph = null
 var _mandate_appetite_glyph: Glyph = null
 var _mandate_label: Label = null
@@ -92,6 +93,11 @@ func _process(delta: float) -> void:
 	if GameState.run_running:
 		GameState.tick(delta)
 	_refresh_score()
+	## The menu's TEXT SIZE control retunes the info popups live; the readout
+	## corrects itself on the next frame, like the score.
+	if Brand.info_text_size != _applied_text_size:
+		_applied_text_size = Brand.info_text_size
+		_apply_text_size()
 
 
 func clear_prompt() -> void:
@@ -123,10 +129,10 @@ func set_compact(value: bool) -> void:
 func _apply_touch_layout(touch: bool) -> void:
 	if subtitle == null:
 		return
-	## The subtitle reads at the same floor as every other touch popup. The
-	## old double-size step predated the 30px reading floor and shouted.
-	subtitle_text.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
-	subtitle_speaker.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	## The subtitle reads at the menu's TEXT SIZE choice - the same floor as
+	## every other info popup, at every setting.
+	subtitle_text.add_theme_font_size_override("font_size", Brand.info_text_size)
+	subtitle_speaker.add_theme_font_size_override("font_size", Brand.info_text_size)
 	if touch:
 		subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		subtitle.anchor_top = 0.0
@@ -144,6 +150,14 @@ func _apply_touch_layout(touch: bool) -> void:
 ## pills, buttons and captions keep a margin from every display edge, and the
 ## subtitle's width clamps to the live viewport instead of a fixed 860px that
 ## a narrow window would push through the margins. Re-applied on resize.
+func _apply_text_size() -> void:
+	## The SHIPMIND subtitle, its speaker kicker and the interaction prompt all
+	## read at the menu's TEXT SIZE choice.
+	subtitle_text.add_theme_font_size_override("font_size", Brand.info_text_size)
+	subtitle_speaker.add_theme_font_size_override("font_size", Brand.info_text_size)
+	prompt_label.add_theme_font_size_override("font_size", Brand.info_text_size)
+
+
 func _apply_safe_area() -> void:
 	if root == null:
 		return

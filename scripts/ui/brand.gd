@@ -80,6 +80,10 @@ const SIZE_TUI_SMALL := 30
 ## The screen title, in the machine voice, a step above the body floor.
 const SIZE_TUI_TITLE := 36
 
+## The menu's TEXT SIZE control writes it; every info popup reads it. Defaults
+## to the reading floor (L), and load_data() restores the saved choice.
+static var info_text_size: int = 30
+
 ## Console screens carry the most text in the game, so their type runs at a
 ## scale of its own - 10% under the floor for now. One constant retunes every
 ## console screen at once; raise or lower to taste.
