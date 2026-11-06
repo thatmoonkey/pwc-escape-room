@@ -30,6 +30,7 @@ const MUTED := Color(0.72, 0.66, 0.62)
 
 var _root: Control = null
 var _mode_buttons: Dictionary = {}
+var _resume_button: Button = null
 var _reset_button: Button = null
 var _reset_confirm: HBoxContainer = null
 var _reset_note: Label = null
@@ -60,6 +61,10 @@ func open() -> void:
 	GameState.run_running = false
 	_disarm_reset()
 	_refresh_mode_chips()
+	# The menu is keyboard- and gamepad-reachable from here: focus lands on
+	# RESUME, and Tab walks on to the SHIPMIND BOARD.
+	if _resume_button != null:
+		_resume_button.grab_focus()
 
 
 func close() -> void:
@@ -186,7 +191,8 @@ func _build() -> void:
 	column.add_child(title)
 
 	column.add_child(_spacer(8))
-	column.add_child(_primary_button("RESUME", close))
+	_resume_button = _primary_button("RESUME", close)
+	column.add_child(_resume_button)
 	column.add_child(_spacer(4))
 
 	# The live SHIPMIND standings, readable mid-run. The board replaces the
@@ -194,7 +200,7 @@ func _build() -> void:
 	# already stopped because the menu underneath it is open.
 	var board_button := Button.new()
 	board_button.text = "SHIPMIND BOARD"
-	board_button.focus_mode = Control.FOCUS_NONE
+	board_button.focus_mode = Control.FOCUS_ALL
 	board_button.add_theme_font_size_override("font_size", 14)
 	board_button.add_theme_color_override("font_color", PAPAYA)
 	board_button.add_theme_color_override("font_hover_color", GOLD)
