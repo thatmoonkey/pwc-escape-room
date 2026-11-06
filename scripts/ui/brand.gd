@@ -80,6 +80,14 @@ const SIZE_TUI_SMALL := 30
 ## The screen title, in the machine voice, a step above the body floor.
 const SIZE_TUI_TITLE := 36
 
+## Console screens carry the most text in the game, so their type runs at a
+## scale of its own - 10% under the floor for now. One constant retunes every
+## console screen at once; raise or lower to taste.
+const CONSOLE_TEXT_SCALE := 0.9
+
+static func console_size(base: int) -> int:
+	return int(round(base * CONSOLE_TEXT_SCALE))
+
 static var _tui_font: Font = null
 
 ## The bundled TUI face, loaded once. Returns null if the resource is missing

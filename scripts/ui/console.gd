@@ -121,11 +121,11 @@ func _ready() -> void:
 	dim.gui_input.connect(_on_dim_input)
 	## The machine voice is the flyouts' own face; the band and footer are the
 	## console's chrome, so they read in the machine voice too.
-	Brand.apply_tui(band_title, Brand.SIZE_TUI_TITLE)
-	Brand.apply_tui(band_status, Brand.SIZE_TUI_SMALL)
-	Brand.apply_tui(footer, Brand.SIZE_TUI_SMALL)
-	Brand.apply_tui(readout_title, Brand.SIZE_TUI_TITLE)
-	Brand.apply_tui(shipmind_title, Brand.SIZE_TUI_TITLE)
+	Brand.apply_tui(band_title, Brand.console_size(Brand.SIZE_TUI_TITLE))
+	Brand.apply_tui(band_status, Brand.console_size(Brand.SIZE_TUI_SMALL))
+	Brand.apply_tui(footer, Brand.console_size(Brand.SIZE_TUI_SMALL))
+	Brand.apply_tui(readout_title, Brand.console_size(Brand.SIZE_TUI_TITLE))
+	Brand.apply_tui(shipmind_title, Brand.console_size(Brand.SIZE_TUI_TITLE))
 	readout_close.pressed.connect(func() -> void: _close_overlay("readout"))
 	shipmind_close.pressed.connect(func() -> void: _close_overlay("shipmind"))
 	_build_close_button()
@@ -147,7 +147,7 @@ func _build_close_button() -> void:
 	button.text = "CLOSE"
 	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size = Vector2(0.0, 44.0 if touch_mode() else 32.0)
-	button.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	button.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_LABEL))
 	button.add_theme_color_override("font_color", Brand.ACCENT_TINT)
 	button.pressed.connect(close)
 	band.get_node("Margin/HBox").add_child(button)
@@ -168,7 +168,7 @@ func _lore_tile(title: String, overlay: String) -> Button:
 	tile.toggle_mode = true
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.custom_minimum_size = Vector2(0.0, TILE_HEIGHT)
-	tile.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	tile.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_LABEL))
 	tile.add_theme_color_override("font_color", Brand.NEUTRAL)
 	tile.add_theme_color_override("font_hover_color", Brand.INK)
 	tile.add_theme_color_override("font_pressed_color", Brand.ACCENT_TINT)
@@ -297,7 +297,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 		stop_label.text = stop
 		stop_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		stop_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		stop_label.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+		stop_label.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_SMALL))
 		stop_label.add_theme_color_override("font_color", Brand.NEUTRAL)
 		level_labels.add_child(stop_label)
 	work_box.add_child(level_labels)
@@ -338,7 +338,7 @@ func _draw_spectrum(block: Dictionary) -> void:
 	_commit.text = String(block.get("submit_label", "COMMIT THE PLACEMENT"))
 	_commit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_commit.custom_minimum_size = Vector2(0.0, BUTTON_FLOOR)
-	_commit.add_theme_font_size_override("font_size", Brand.SIZE_DATA)
+	_commit.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_DATA))
 	_commit.add_theme_color_override("font_color", Brand.SURFACE)
 	_commit.add_theme_color_override("font_hover_color", Brand.SURFACE)
 	_commit.add_theme_color_override("font_pressed_color", Brand.SURFACE)
@@ -363,7 +363,7 @@ func _options_work(state: ScreenState) -> void:
 func _section_label(step: String, title: String) -> Label:
 	var label := Label.new()
 	label.text = "%s  %s" % [step, title]
-	label.add_theme_font_size_override("font_size", Brand.SIZE_TUI_SMALL)
+	label.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_TUI_SMALL))
 	label.add_theme_color_override("font_color", Brand.ACCENT_TINT)
 	return label
 
@@ -378,7 +378,7 @@ func _choice_tile(label: String, _id: String) -> Button:
 	var tile_h: float = BUTTON_FLOOR if touch_mode() else BUTTON_FLOOR - 10.0
 	tile.custom_minimum_size = Vector2(0.0, tile_h)
 	tile.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	tile.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	tile.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_LABEL))
 	tile.add_theme_color_override("font_color", Brand.NEUTRAL)
 	tile.add_theme_color_override("font_hover_color", Brand.INK)
 	tile.add_theme_color_override("font_pressed_color", Brand.ACCENT_TINT)
@@ -396,7 +396,7 @@ func _make_option_button(entry: Dictionary) -> Button:
 	button.custom_minimum_size = Vector2(0.0,
 		BUTTON_FLOOR if touch_mode() else BUTTON_FLOOR - 10.0)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	button.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_LABEL))
 	button.add_theme_color_override("font_color", Brand.NEUTRAL)
 	button.add_theme_color_override("font_hover_color", Brand.INK)
 	button.add_theme_stylebox_override("normal", _tile_box(Brand.SURFACE, Brand.NEUTRAL))
@@ -584,7 +584,7 @@ func _add_flyout_line(body: VBoxContainer, value: String, tone: String) -> void:
 	var label := Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Brand.apply_tui(label, Brand.SIZE_TUI)
+	Brand.apply_tui(label, Brand.console_size(Brand.SIZE_TUI))
 	label.modulate = TONES.get(tone, TONES["data"])
 	label.text = ("SHIPMIND:  " + value) if tone == "shipmind" else value
 	body.add_child(label)
@@ -617,12 +617,12 @@ func _detail_panel() -> Array:
 	box.add_theme_constant_override("separation", 3)
 	panel.add_child(box)
 	var kicker := Label.new()
-	kicker.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	kicker.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_SMALL))
 	kicker.add_theme_color_override("font_color", Brand.ACCENT_TINT)
 	box.add_child(kicker)
 	var body := Label.new()
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	body.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_SMALL))
 	body.add_theme_color_override("font_color", Brand.NEUTRAL_LIGHT)
 	box.add_child(body)
 	panel.visible = false
@@ -649,7 +649,7 @@ func _note_label(text: String, tint: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
+	label.add_theme_font_size_override("font_size", Brand.console_size(Brand.SIZE_SMALL))
 	label.add_theme_color_override("font_color", tint)
 	return label
 
