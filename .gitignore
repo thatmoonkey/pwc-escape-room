@@ -13,3 +13,6 @@
 build/
 export_web/
 *.pck
+
+# Netlify functions dependencies (bundled at deploy)
+node_modules/

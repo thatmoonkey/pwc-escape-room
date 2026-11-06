@@ -26,6 +26,19 @@ inject = anchor + """
 						return response
 					}
 				} catch (e) { /* offline: fall through to cache */ }
+			}
+			// PWC PATCH (2): the engine files do the same. index.html is
+			// network-first, but a cache-first pck/wasm would keep an installed
+			// app running an old build forever; offline, the cache still answers.
+			const isEngineFile = /\\.(pck|wasm|zip)$/.test(local || url)
+			if (isEngineFile) {
+				try {
+					const response = await self.fetch(event.request)
+					if (response && response.ok) {
+						await cache.put(event.request, response.clone())
+						return response
+					}
+				} catch (e) { /* offline: fall through to cache */ }
 			}"""
 
 if anchor not in src:
