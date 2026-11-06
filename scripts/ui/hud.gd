@@ -55,6 +55,7 @@ var _score_signature: String = ""
 
 ## The code-built strip.
 var _strip: VBoxContainer = null
+var _menu_button_ref: Button = null
 var _mandate_objective_glyph: Glyph = null
 var _mandate_appetite_glyph: Glyph = null
 var _mandate_label: Label = null
@@ -82,6 +83,9 @@ func _ready() -> void:
 	## save arrived.
 	refresh_objective()
 	_refresh_score()
+	## The safe zone is measured against the live viewport, so it re-applies
+	## whenever the window changes shape under us.
+	get_viewport().size_changed.connect(_apply_safe_area)
 
 
 func _process(delta: float) -> void:
@@ -124,24 +128,52 @@ func _apply_touch_layout(touch: bool) -> void:
 	subtitle_speaker.add_theme_font_size_override("font_size", int(30.0 * scale))
 	if touch:
 		subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
-		subtitle.anchor_left = 0.5
-		subtitle.anchor_right = 0.5
 		subtitle.anchor_top = 0.0
 		subtitle.anchor_bottom = 0.0
-		subtitle.offset_left = -430.0
-		subtitle.offset_right = 430.0
-		subtitle.offset_top = 18.0
-		subtitle.offset_bottom = 120.0
 	else:
 		subtitle.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-		subtitle.anchor_left = 0.5
-		subtitle.anchor_right = 0.5
 		subtitle.anchor_top = 1.0
 		subtitle.anchor_bottom = 1.0
-		subtitle.offset_left = -430.0
-		subtitle.offset_right = 430.0
-		subtitle.offset_top = -196.0
-		subtitle.offset_bottom = -112.0
+	subtitle.anchor_left = 0.5
+	subtitle.anchor_right = 0.5
+	_apply_safe_area()
+
+
+## The safe zone: nothing in the HUD rides the bezel. TV title-safe thinking -
+## pills, buttons and captions keep a margin from every display edge, and the
+## subtitle's width clamps to the live viewport instead of a fixed 860px that
+## a narrow window would push through the margins. Re-applied on resize.
+func _apply_safe_area() -> void:
+	if root == null:
+		return
+	var view: Vector2 = root.get_viewport_rect().size
+	var inset: float = Brand.safe_inset(view)
+	if _strip != null:
+		_strip.offset_left = inset
+		_strip.offset_top = inset
+	if _callsign_label != null:
+		_callsign_label.offset_top = inset
+		# The callsign sits left of the MENU button, sharing its top line.
+		_callsign_label.offset_right = -(inset + 90.0)
+		_callsign_label.offset_left = -(inset + 346.0)
+	if _menu_button_ref != null:
+		_menu_button_ref.offset_top = inset
+		_menu_button_ref.offset_bottom = inset + 28.0
+		_menu_button_ref.offset_right = -inset
+		_menu_button_ref.offset_left = -inset - 78.0
+	if _detail != null:
+		_detail.offset_left = inset
+		_detail.offset_top = inset + 112.0
+	if subtitle != null:
+		var half_width: float = minf(430.0, view.x * 0.5 - inset)
+		subtitle.offset_left = -half_width
+		subtitle.offset_right = half_width
+		if _compact:
+			subtitle.offset_top = inset
+			subtitle.offset_bottom = inset + 102.0
+		else:
+			subtitle.offset_top = -196.0
+			subtitle.offset_bottom = -112.0
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -353,7 +385,8 @@ func _build_strip() -> void:
 	_callsign_label.add_theme_font_size_override("font_size", 30)
 	root.add_child(_callsign_label)
 
-	root.add_child(_menu_button())
+	_menu_button_ref = _menu_button()
+	root.add_child(_menu_button_ref)
 
 	_build_detail()
 
