@@ -199,7 +199,7 @@ func _build() -> void:
 	var board_button := Button.new()
 	board_button.text = "SHIPMIND BOARD"
 	board_button.focus_mode = Control.FOCUS_ALL
-	board_button.add_theme_font_size_override("font_size", 14)
+	board_button.add_theme_font_size_override("font_size", 30)
 	board_button.add_theme_color_override("font_color", PAPAYA)
 	board_button.add_theme_color_override("font_hover_color", GOLD)
 	var board_style := _ghost_style()
