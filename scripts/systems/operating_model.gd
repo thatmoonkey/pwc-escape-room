@@ -188,16 +188,19 @@ const WHO_RUNS_IT := {
 	"human_only": "The crew make this call themselves. SHIPMIND is not asked.",
 }
 
-## What the player has declared. Empty until the boot screen records it: a
-## placement made before this exists would have nothing to be consistent with,
-## which is why it is a prerequisite rather than flavour.
-static var objective_id: String = ""
-static var appetite_id: String = ""
+## What the player has declared. In this build the mandate is FIXED - the
+## launch screen no longer asks for one, so the declaration is written here at
+## load and never cleared: every placement reads it from the start.
+## "Home in one piece" with a "balanced" appetite is the neutral run a crew
+## would have chosen for themselves.
+static var objective_id: String = "home_intact"
+static var appetite_id: String = "balanced"
 
 
 static func reset() -> void:
-	objective_id = ""
-	appetite_id = ""
+	## A full reset is a fresh run, not a new mandate: the declaration survives
+	## by design, so a reset never strands the model half-declared.
+	pass
 
 
 ## The boot screen's declaration. BOTH ids must be known or NEITHER is stored:

@@ -23,14 +23,14 @@ func main_state() -> ScreenState:
 	state.status = "ONLINE"
 	state.accent = Brand.ACCENT_TINT
 	state.rule()
-	state.speak("Hello, Reyes. Good to see you up and about. What do you need?")
+	state.speak("Hello, Reyes. What do you need?")
 	state.rule()
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
-	state.dim("This kiosk is read-only. It changes nothing - it just tells you where you stand.")
+	state.dim("Read-only - it only tells you where you stand.")
 	state.option("status", "How am I doing?", "The five decisions, and what's next.", "primary", "info")
-	state.option("debrief", "The record", "Every decision you've made, read back.", "normal", "info")
+	state.option("debrief", "The record", "Every decision, read back.", "normal", "info")
 	state.option("log", "The log", "Everything that's happened, in order.")
-	state.option("ask", "Ask SHIPMIND something", "It always has a view.", "quiet", "shipmind")
+	state.option("ask", "Ask SHIPMIND", "It always has a view.", "quiet", "shipmind")
 	state.option("close", "Step away from the kiosk")
 	return state
 
@@ -43,7 +43,7 @@ func status_state() -> ScreenState:
 	state.rule()
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
 	if not GameState.has_mandate():
-		state.warn("No mandate on the record yet. Declare one on the briefing card, or nothing here can be judged.")
+		state.warn("No mandate yet. Declare one on the briefing card.")
 	state.rule()
 	for system_id in GameState.SYSTEMS:
 		var label: String = GameState.display_name(system_id)
@@ -60,8 +60,8 @@ func status_state() -> ScreenState:
 				GameState.system_index(system_id), label])
 	state.rule()
 	if GameState.all_restored():
-		state.ok("All five decisions are made. The bridge door at the front of this deck is unlocked.")
-		state.option("plot_home", "Where do I fly from here?", "The helm is forward, through the bridge door.", "primary")
+		state.ok("All five decisions made. The bridge is unlocked.")
+		state.option("plot_home", "Where do I fly?", "Forward, through the bridge door.", "primary")
 	else:
 		## The id, not the display name: the line names the bay the way the
 		## doorway plates do, which needs the number the id maps to.
@@ -71,9 +71,9 @@ func status_state() -> ScreenState:
 				next_bay = system_id
 				break
 		if next_bay != "":
-			state.text("NEXT   Bay %d, %s. The console there is live - walk in and make the decision." % [
+			state.text("NEXT   Bay %d, %s. Console is live - make the call." % [
 				GameState.system_index(next_bay), GameState.display_name(next_bay)])
-			state.dim("Make all five decisions and the bridge unlocks.")
+			state.dim("All five unlocks the bridge.")
 	state.option("debrief", "The record")
 	state.option("simulate", "[DEV] Simulate a finished run", "Marks all five decisions made, to preview the record.", "quiet")
 	state.option("back", "Back")
@@ -88,7 +88,7 @@ func log_state() -> ScreenState:
 	state.accent = Color(0.93, 0.86, 0.76)
 	state.rule()
 	if GameState.override_log.is_empty():
-		state.dim("Nothing yet. SHIPMIND has had its own way so far.")
+		state.dim("Nothing yet. SHIPMIND has had its way so far.")
 	else:
 		for entry in GameState.override_log:
 			state.text("- %s" % String(entry))
@@ -107,10 +107,10 @@ func ask_state() -> ScreenState:
 	state.rule()
 	if _ask_index % 2 == 1:
 		state.speak(Shipmind.hub_idle())
-		state.speak("I'm not hiding anything from you. I'm ordering your attention. Those are different things, and only one of them is dishonest.")
+		state.speak("I'm ordering your attention, not hiding anything. Only one of those is dishonest.")
 	else:
 		state.speak(Shipmind.small_print())
-		state.speak("You can have every raw feed at once if you like. Crew have found it overwhelming before.")
+		state.speak("You can see every raw feed. Crew have found it overwhelming before.")
 	state.rule()
 	state.option("ask", "Say something else", "", "quiet", "shipmind")
 	state.option("back", "Back")
@@ -136,7 +136,7 @@ func debrief_state() -> ScreenState:
 			for line in Score.reflection_lines(system_id):
 				state.dim("      %s" % line)
 		else:
-			state.dim("      Nobody has made this decision. It scores nothing in either direction until you do.")
+			state.dim("      Not made. Scores nothing until you do.")
 		state.rule()
 	if not GameState.override_log.is_empty():
 		state.text("THE LOG")
@@ -144,7 +144,7 @@ func debrief_state() -> ScreenState:
 			state.text("- %s" % String(entry))
 		state.rule()
 	_score_block(state)
-	state.dim("The record is the point of the exercise. The rooms were just the way in.")
+	state.dim("The record is the point. The rooms were the way in.")
 	state.option("back", "Back")
 	state.option("close", "Close")
 	return state
@@ -156,15 +156,15 @@ func win_state() -> ScreenState:
 	state.status = "MISSION COMPLETE"
 	state.accent = Brand.ACCENT_TINT
 	state.rule()
-	state.speak("Course set for KEPLER-442b. The model is configured and I am flying it.")
-	state.speak("For the record, I still think Route A was within tolerance. That view is now a view, not the model.")
+	state.speak("Course set for KEPLER-442b. I am flying it.")
+	state.speak("For the record: I still hold that Route A was within tolerance.")
 	state.rule()
-	state.ok("NAVIGATION - LIFE SUPPORT - COMMS - CARGO - ENGINEERING - all five decisions made")
+	state.ok("NAVIGATION - LIFE SUPPORT - COMMS - CARGO - ENGINEERING - all five made")
 	state.rule()
 	for system_id in GameState.SYSTEMS:
 		state.text("%d.  %s" % [GameState.system_index(system_id), Score.placement_line(system_id)])
 	state.rule()
-	state.dim("Thank you for configuring this ship's judgement deliberately.")
+	state.dim("Thank you for configuring this ship's judgement.")
 	state.option("back", "Back")
 	state.option("close", "Close")
 	return state
@@ -179,8 +179,8 @@ func post_flight_state() -> ScreenState:
 	state.status = "%d OF %d DECISIONS MADE" % [Score.placed_count(), GameState.SYSTEMS.size()]
 	state.accent = Brand.ACCENT_TINT
 	state.rule()
-	state.speak("Course is set and the ship is under way. I'm still here, and I'm still logging.")
-	state.speak("Every one of these decisions ran on my judgement until you configured them. That is the whole of my design.")
+	state.speak("Under way. I'm still here, still logging.")
+	state.speak("Each decision ran on my judgement until you set it. That is my design.")
 	state.rule()
 	for system_id in GameState.SYSTEMS:
 		state.text("%d.  %s   [%s]" % [
@@ -191,7 +191,7 @@ func post_flight_state() -> ScreenState:
 			for line in Score.reflection_lines(system_id):
 				state.dim("      %s" % line)
 		else:
-			state.dim("      Not made, and not scored in either direction.")
+			state.dim("      Not made, not scored.")
 		state.rule()
 	if not GameState.override_log.is_empty():
 		state.text("THE LOG")
@@ -199,7 +199,7 @@ func post_flight_state() -> ScreenState:
 			state.text("- %s" % String(entry))
 		state.rule()
 	_score_block(state)
-	state.dim("The record is the point of the exercise. The rooms were just the way in.")
+	state.dim("The record is the point. The rooms were the way in.")
 	state.option("debrief_final", "Re-read the decisions")
 	state.option("close", "Close the record")
 	return state
@@ -217,7 +217,7 @@ func _score_block(state: ScreenState) -> void:
 		Score.total(), Score.max_total(), Score.placed_count(), GameState.SYSTEMS.size()])
 	state.text("   MATCHES YOUR MANDATE   %s" % _axis_line(Score.mean_consistency()))
 	state.text("   FITS THE STAKES        %s" % _axis_line(Score.mean_coherence()))
-	state.dim("      Time is not scored. There is no clock in this total, and no penalty for changing your mind.")
+	state.dim("      Time isn't scored. Changing your mind is free.")
 	state.rule()
 	for system_id in GameState.SYSTEMS:
 		state.text("   %s - %s" % [GameState.display_name(system_id), Score.decision_summary(system_id)])

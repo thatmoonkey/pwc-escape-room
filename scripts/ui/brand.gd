@@ -33,17 +33,22 @@ const NEUTRAL := Color(0.631373, 0.658824, 0.701961)
 ## The type scale, in pixels. Sizes only for now: the families (Georgia for
 ## headlines, body and SHIPMIND's voice, Arial Bold for sub-heads and labels,
 ## Arial for data) belong to the brand layer and land here with it.
-const SIZE_TITLE := 20
-const SIZE_DATA := 16
-const SIZE_LABEL := 15
-const SIZE_SMALL := 13
+##
+## THE FLOOR RULE: nothing in the game may render smaller than the intro
+## screen's title - the smallest comfortable reading size on a phone held at
+## arm's length. Body, data, labels and choices all sit at that floor; a
+## screen's title sits a step above it so a title still reads as a title.
+const SIZE_TITLE := 36
+const SIZE_DATA := 30
+const SIZE_LABEL := 30
+const SIZE_SMALL := 30
 
-## The terminal's readout body, one step under the data size. A decision screen
-## prints a long readout and then stacks eleven choices under it, so the body
-## size is set where the copy still reads and the whole screen still fits.
-const SIZE_BODY := 15
-## A choice button's own text, one step under that again, for the same reason.
-const SIZE_COMPACT := 14
+## The terminal's readout body and the decision choices, at the floor. A
+## decision screen prints a long readout and stacks eleven choices under it,
+## so that screen now scrolls: legibility wins over density.
+const SIZE_BODY := 30
+## A choice button's own text, at the floor like every other touch label.
+const SIZE_COMPACT := 30
 
 # --- The TUI voice ------------------------------------------------------------
 
@@ -56,13 +61,12 @@ const SIZE_COMPACT := 14
 ## web export carries it and no platform font is trusted. A monospace face also
 ## reads as terminal output at small sizes, which is what the readout is.
 const FONT_TUI_PATH := "res://assets/fonts/ShareTechMono-Regular.ttf"
-## The readout body. Smaller than the brand body on purpose: a terminal prints
-## more characters per line than a document, and the density is part of the look.
-const SIZE_TUI := 13
-## Kickers, the footer and the status line, one step under the readout.
-const SIZE_TUI_SMALL := 11
-## The screen title, in the machine voice.
-const SIZE_TUI_TITLE := 17
+## The readout body, at the floor: legibility wins over the terminal's density.
+const SIZE_TUI := 30
+## Kickers, the footer and the status line, at the floor like everything else.
+const SIZE_TUI_SMALL := 30
+## The screen title, in the machine voice, a step above the body floor.
+const SIZE_TUI_TITLE := 36
 
 static var _tui_font: Font = null
 

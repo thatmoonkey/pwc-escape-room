@@ -29,7 +29,6 @@ const INK := Color(0.93, 0.89, 0.85)
 const MUTED := Color(0.72, 0.66, 0.62)
 
 var _root: Control = null
-var _mode_buttons: Dictionary = {}
 var _resume_button: Button = null
 var _reset_button: Button = null
 var _reset_confirm: HBoxContainer = null
@@ -60,7 +59,6 @@ func open() -> void:
 	# The clock stops while the crew are in the menu, and restarts on RESUME.
 	GameState.run_running = false
 	_disarm_reset()
-	_refresh_mode_chips()
 	# The menu is keyboard- and gamepad-reachable from here: focus lands on
 	# RESUME, and Tab walks on to the SHIPMIND BOARD.
 	if _resume_button != null:
@@ -180,7 +178,7 @@ func _build() -> void:
 
 	var kicker := Label.new()
 	kicker.text = "ADAMANT VERITY"
-	kicker.add_theme_font_size_override("font_size", 12)
+	kicker.add_theme_font_size_override("font_size", 30)
 	kicker.add_theme_color_override("font_color", PAPAYA)
 	column.add_child(kicker)
 
@@ -201,7 +199,7 @@ func _build() -> void:
 	var board_button := Button.new()
 	board_button.text = "SHIPMIND BOARD"
 	board_button.focus_mode = Control.FOCUS_ALL
-	board_button.add_theme_font_size_override("font_size", 14)
+	board_button.add_theme_font_size_override("font_size", 30)
 	board_button.add_theme_color_override("font_color", PAPAYA)
 	board_button.add_theme_color_override("font_hover_color", GOLD)
 	var board_style := _ghost_style()
@@ -218,53 +216,18 @@ func _build() -> void:
 	# sound effects" are different requests and one toggle cannot answer both.
 	var audio_caption := Label.new()
 	audio_caption.text = "AUDIO"
-	audio_caption.add_theme_font_size_override("font_size", 11)
+	audio_caption.add_theme_font_size_override("font_size", 30)
 	audio_caption.add_theme_color_override("font_color", MUTED)
 	column.add_child(audio_caption)
 	var audio_panel := AudioPanel.new()
 	audio_panel.name = "AudioPanel"
 	column.add_child(audio_panel)
 
-	column.add_child(_spacer(6))
-	var mode_caption := Label.new()
-	mode_caption.text = "INPUT MODE  -  TEST SWITCH"
-	mode_caption.add_theme_font_size_override("font_size", 11)
-	mode_caption.add_theme_color_override("font_color", MUTED)
-	column.add_child(mode_caption)
-	var chips := HBoxContainer.new()
-	chips.add_theme_constant_override("separation", 6)
-	var group := ButtonGroup.new()
-	group.allow_unpress = false
-	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
-		var chip := Button.new()
-		chip.text = InputMode.label(int(value))
-		chip.toggle_mode = true
-		chip.button_group = group
-		chip.focus_mode = Control.FOCUS_NONE
-		chip.add_theme_font_size_override("font_size", 12)
-		chip.add_theme_color_override("font_color", MUTED)
-		chip.add_theme_color_override("font_hover_color", WHITE)
-		chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
-		var idle := _ghost_style()
-		chip.add_theme_stylebox_override("normal", idle)
-		var hovered := _ghost_style()
-		hovered.border_color = TANGERINE
-		chip.add_theme_stylebox_override("hover", hovered)
-		var chosen := _ghost_style()
-		chosen.bg_color = GOLD
-		chosen.border_color = GOLD
-		chip.add_theme_stylebox_override("pressed", chosen)
-		chip.add_theme_stylebox_override("focus", idle)
-		chip.pressed.connect(_on_mode_chip.bind(int(value)))
-		_mode_buttons[int(value)] = chip
-		chips.add_child(chip)
-	column.add_child(chips)
-
 	column.add_child(_spacer(10))
 	var menu_button := Button.new()
 	menu_button.text = "MAIN MENU"
 	menu_button.focus_mode = Control.FOCUS_NONE
-	menu_button.add_theme_font_size_override("font_size", 14)
+	menu_button.add_theme_font_size_override("font_size", 30)
 	menu_button.add_theme_color_override("font_color", PAPAYA)
 	menu_button.add_theme_color_override("font_hover_color", GOLD)
 	var outlined := _ghost_style()
@@ -281,7 +244,7 @@ func _build() -> void:
 	_reset_button.text = "RESET PROGRESS"
 	_reset_button.focus_mode = Control.FOCUS_NONE
 	_reset_button.tooltip_text = "Wipes the mission record and starts the run again."
-	_reset_button.add_theme_font_size_override("font_size", 13)
+	_reset_button.add_theme_font_size_override("font_size", 30)
 	_reset_button.add_theme_color_override("font_color", MUTED)
 	_reset_button.add_theme_color_override("font_hover_color", PAPAYA)
 	var reset_rest := _ghost_style()
@@ -310,7 +273,7 @@ func _build() -> void:
 	reset_yes.focus_mode = Control.FOCUS_NONE
 	reset_yes.custom_minimum_size = Vector2(0.0, 38.0)
 	reset_yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	reset_yes.add_theme_font_size_override("font_size", 13)
+	reset_yes.add_theme_font_size_override("font_size", 30)
 	reset_yes.add_theme_color_override("font_color", Color.WHITE)
 	reset_yes.add_theme_color_override("font_hover_color", Color.WHITE)
 	var yes_fill := StyleBoxFlat.new()
@@ -331,7 +294,7 @@ func _build() -> void:
 	reset_no.text = "CANCEL"
 	reset_no.focus_mode = Control.FOCUS_NONE
 	reset_no.custom_minimum_size = Vector2(120.0, 38.0)
-	reset_no.add_theme_font_size_override("font_size", 13)
+	reset_no.add_theme_font_size_override("font_size", 30)
 	reset_no.add_theme_color_override("font_color", MUTED)
 	reset_no.add_theme_color_override("font_hover_color", GOLD)
 	var no_style := _ghost_style()
@@ -346,7 +309,7 @@ func _build() -> void:
 	_reset_note.name = "ResetNote"
 	_reset_note.text = "Clears every decision and the mandate, then starts over."
 	_reset_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_reset_note.add_theme_font_size_override("font_size", 11)
+	_reset_note.add_theme_font_size_override("font_size", 30)
 	_reset_note.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	column.add_child(_reset_note)
 
@@ -385,7 +348,7 @@ func _primary_button(label_text: String, handler: Callable) -> Button:
 	button.text = label_text
 	button.custom_minimum_size = Vector2(0.0, 50.0)
 	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
 	button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
 	var fill := StyleBoxFlat.new()
@@ -420,16 +383,3 @@ func _spacer(height: float) -> Control:
 	spacer.custom_minimum_size = Vector2(0.0, height)
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return spacer
-
-
-# --- Controls --------------------------------------------------------------------
-
-func _on_mode_chip(value: int) -> void:
-	InputMode.set_mode(int(value))
-	_refresh_mode_chips()
-
-
-func _refresh_mode_chips() -> void:
-	for value in _mode_buttons:
-		var chip: Button = _mode_buttons[value]
-		chip.set_pressed_no_signal(int(value) == InputMode.mode)

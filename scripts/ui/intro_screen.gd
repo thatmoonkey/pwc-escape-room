@@ -454,13 +454,16 @@ func _build_words() -> void:
 	column.name = "Column"
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_theme_constant_override("separation", 10)
+	column.add_theme_constant_override("separation", 12)
 	margin.add_child(column)
 
 	var kicker := Label.new()
 	kicker.name = "Kicker"
 	kicker.text = "THE SITUATION"
-	kicker.add_theme_font_size_override("font_size", _text_size(15))
+	## The title's size is the floor for every label on this screen: the
+	## briefing must read at arm's length, so nothing drops below it. The
+	## kicker keeps heading weight through its papaya colour instead.
+	kicker.add_theme_font_size_override("font_size", _text_size(30))
 	kicker.add_theme_color_override("font_color", PAPAYA)
 	## The words are centred on their ground rather than ranged left against the
 	## seam: the ground is a third of a landscape screen, and a left-ranged
@@ -473,6 +476,10 @@ func _build_words() -> void:
 	title.text = "WHY YOU'RE HERE"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", _text_size(30))
+	## The title defines the screen's text floor, so it cannot grow for
+	## weight - a dark outline reads as the bold the mono face has none of.
+	title.add_theme_constant_override("outline_size", 3)
+	title.add_theme_color_override("font_outline_color", Color(0.06, 0.032, 0.022, 0.85))
 	title.add_theme_color_override("font_color", WHITE)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
@@ -484,21 +491,21 @@ func _build_words() -> void:
 	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(rule)
 
-	column.add_child(_gap(14))
+	column.add_child(_gap(16))
 
 	_beat_label = Label.new()
 	_beat_label.name = "Beat"
 	_beat_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_beat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_beat_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_beat_label.custom_minimum_size = Vector2(0.0, 90.0 if Platform.touch_ui() else 150.0)
-	_beat_label.add_theme_font_size_override("font_size", _text_size(19))
-	_beat_label.add_theme_constant_override("line_spacing", 6)
+	_beat_label.custom_minimum_size = Vector2(0.0, 140.0 if Platform.touch_ui() else 200.0)
+	_beat_label.add_theme_font_size_override("font_size", _text_size(30))
+	_beat_label.add_theme_constant_override("line_spacing", 8)
 	_beat_label.add_theme_color_override("font_color", BODY)
 	_beat_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_beat_label)
 
-	column.add_child(_gap(8))
+	column.add_child(_gap(10))
 
 	var progress := HBoxContainer.new()
 	progress.name = "Progress"
@@ -508,20 +515,20 @@ func _build_words() -> void:
 	for i in BEATS.size():
 		var dash := ColorRect.new()
 		dash.name = "Dash%d" % i
-		dash.custom_minimum_size = Vector2(30.0, 3.0)
-		dash.pivot_offset = Vector2(15.0, 1.5)
+		dash.custom_minimum_size = Vector2(44.0, 4.0)
+		dash.pivot_offset = Vector2(22.0, 2.0)
 		dash.rotation = -0.42
 		progress.add_child(dash)
 		_dashes.append(dash)
 	_counter = Label.new()
 	_counter.name = "Counter"
-	_counter.add_theme_font_size_override("font_size", _text_size(13))
+	_counter.add_theme_font_size_override("font_size", _text_size(30))
 	_counter.add_theme_color_override("font_color", MUTED)
 	_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	progress.add_child(_counter)
 
-	column.add_child(_gap(18))
+	column.add_child(_gap(22))
 
 	var actions := HBoxContainer.new()
 	actions.name = "Actions"
@@ -535,7 +542,7 @@ func _build_words() -> void:
 	# a fixed 220px button plus the skip button used to overrun its right edge.
 	_button.custom_minimum_size = Vector2(0.0, _button_height())
 	_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_button.add_theme_font_size_override("font_size", _text_size(19))
+	_button.add_theme_font_size_override("font_size", _text_size(30))
 	_button.add_theme_color_override("font_color", Color(0.10, 0.06, 0.04))
 	_button.add_theme_color_override("font_hover_color", Color(0.10, 0.06, 0.04))
 	_button.add_theme_color_override("font_pressed_color", Color(0.10, 0.06, 0.04))
@@ -557,7 +564,7 @@ func _build_words() -> void:
 	skip_button.text = "SKIP"
 	skip_button.focus_mode = Control.FOCUS_NONE
 	skip_button.custom_minimum_size = Vector2(0.0, _button_height())
-	skip_button.add_theme_font_size_override("font_size", _text_size(15))
+	skip_button.add_theme_font_size_override("font_size", _text_size(30))
 	skip_button.add_theme_color_override("font_color", MUTED)
 	skip_button.add_theme_color_override("font_hover_color", GOLD)
 	skip_button.add_theme_color_override("font_pressed_color", GOLD)
@@ -578,7 +585,8 @@ func _build_words() -> void:
 	var keys := Label.new()
 	keys.name = "Keys"
 	keys.text = "ENTER to continue  -  ESC to skip"
-	keys.add_theme_font_size_override("font_size", _text_size(12))
+	keys.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	keys.add_theme_font_size_override("font_size", _text_size(30))
 	keys.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
 	keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	keys.visible = not Platform.touch_ui()
@@ -597,11 +605,13 @@ func _gap(height: float) -> Control:
 ## the fingertip's comfortable target. Both scale back down on a desktop. The
 ## multiplier itself lives in Platform, so every overlay steps up together.
 func _text_size(base: int) -> int:
-	return int(round(float(base) * Platform.ui_scale()))
+	return max(int(round(float(base) * Platform.ui_scale())), Brand.SIZE_SMALL)
 
 
 func _button_height() -> float:
-	return Platform.touch_target(48.0) + (8.0 if Platform.touch_ui() else 0.0)
+	## The button row carries 30px type now, so the boxes grew with it:
+	## a 48px-high button could not hold the label without clipping it.
+	return Platform.touch_target(56.0) + (8.0 if Platform.touch_ui() else 0.0)
 
 
 # --- The drawn frame ------------------------------------------------------------

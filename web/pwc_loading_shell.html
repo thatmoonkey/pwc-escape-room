@@ -46,11 +46,30 @@
 			.pwc-detail { font-size:14px; margin-bottom:18px; }
 			.pwc-foot { margin-top:20px; }
 		}
+		/* --- Forced landscape --- */
+		#pwc-rotate {
+			position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center;
+			background:#080b10; color:var(--ink); text-align:center; padding:24px;
+		}
+		#pwc-rotate .inner { max-width:380px; }
+		#pwc-rotate .glyph { font-size:56px; margin-bottom:18px; display:inline-block; transform:rotate(-90deg); }
+		#pwc-rotate .big { font-size:clamp(22px,6vw,34px); font-weight:750; letter-spacing:-.02em; margin-bottom:12px; }
+		#pwc-rotate .small { color:var(--muted); font-size:clamp(14px,4vw,17px); line-height:1.5; }
 		@media (prefers-reduced-motion:reduce) { #pwc-loading,.pwc-fill { transition:none; } .pwc-indeterminate .pwc-fill { animation:none; } }
 	</style>
 	$GODOT_HEAD_INCLUDE
 </head>
 <body>
+	<!-- Forced landscape: shown before the loading card, and again whenever the
+		phone goes portrait. Sits above everything (z-index 30 > loading 20). -->
+	<div id="pwc-rotate" role="alert" aria-live="assertive" aria-label="Turn your phone sideways">
+		<div class="inner">
+			<div class="glyph" aria-hidden="true">📱</div>
+			<div class="big">Turn your phone sideways</div>
+			<div class="small">This mission is played in landscape. The ship is built for a wide screen.</div>
+		</div>
+	</div>
+
 	<canvas id="canvas">Your browser does not support the canvas element.</canvas>
 	<noscript>This mission needs JavaScript enabled.</noscript>
 
@@ -69,6 +88,84 @@
 	<script>
 		const GODOT_THREADS_ENABLED = false;
 		const engine = new Engine($GODOT_CONFIG);
+
+		// Atomic build updates: after the game starts, this page pings for a
+		// newer build. The service worker's network-first navigation already
+		// delivered the newest index.html, but the engine and game data may
+		// still be the cached old set - the classic "new number, old game".
+		// A version stamp lives in the footer; when the network's index.html
+		// carries a different one, the page tells the player and reloads once,
+		// so the shell and the package always belong to the same build.
+		const PWC_BUILD = '__BUILD_VERSION__';
+		(function () {
+			let checked = false;
+			function checkForUpdate() {
+				if (checked) return;
+				checked = true;
+				// cache:'no-store' bypasses the service worker for the stamp
+				// itself - the point is to compare against what is live, not
+				// what the worker believes is current.
+				fetch('index.html', { cache: 'no-store' })
+					.then(function (r) { return r.text(); })
+					.then(function (html) {
+						const match = html.match(/BUILD ([a-zA-Z0-9-]+)/);
+						const live = match ? match[1] : null;
+						// Only ever reload for a build strictly newer than the one
+						// running. The stamp's shape is b<count>-<hash>-<time>, so
+						// the count orders builds: a stale worker can serve an OLD
+						// index.html here, and reloading onto it would fight the
+						// download (the ping fires while the package is still
+						// arriving) - a loop that never lets the game finish
+						// loading. Anything unreadable means leave the player be.
+						const count = function (v) {
+							const m = /^b(\d+)-/.exec(String(v));
+							return m ? parseInt(m[1], 10) : 0;
+						};
+						if (live && live !== PWC_BUILD && count(live) > count(PWC_BUILD)) {
+							const detail = document.getElementById('pwc-detail');
+							const title = document.getElementById('pwc-title');
+							const overlay = document.getElementById('pwc-loading');
+							overlay.style.display = 'flex';
+							overlay.classList.remove('is-hidden');
+							title.textContent = 'New build available';
+							detail.textContent = 'A newer build (' + live + ') is on the server. Loading it now.';
+							setTimeout(function () { location.reload(); }, 1600);
+						}
+					})
+					.catch(function () { /* offline: the running build stands */ });
+			}
+			// Check once the game has claimed the frame - the engine's own
+			// startup is the moment the package versions can actually diverge.
+			window.addEventListener('load', function () {
+				setTimeout(checkForUpdate, 3000);
+			});
+		}());
+
+		// Forced landscape: the rotate screen owns the page the moment the
+		// viewport is taller than it is wide - before any loading begins, and
+		// again at any point in the session. Only a real phone/touch device
+		// triggers it: a narrow desktop window never sees it.
+		(function () {
+			const rotate = document.getElementById('pwc-rotate');
+			const coarse = window.matchMedia('(pointer: coarse)');
+			function isPortrait() {
+				return window.innerHeight > window.innerWidth;
+			}
+			function isTouchDevice() {
+				return coarse.matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+			}
+			function check() {
+				if (isTouchDevice() && isPortrait()) {
+					rotate.style.display = 'flex';
+				} else {
+					rotate.style.display = 'none';
+				}
+			}
+			check();
+			window.addEventListener('resize', check);
+			window.addEventListener('orientationchange', check);
+			if (coarse.addEventListener) coarse.addEventListener('change', check);
+		}());
 
 		(function () {
 			const overlay = document.getElementById('pwc-loading');

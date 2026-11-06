@@ -17,9 +17,6 @@ extends CanvasLayer
 ## player who does not should not pay for it. Sheet copy runs smaller and
 ## tolerates longer paragraphs; the anchor stays almost empty.
 ##
-## Input mode is chosen here too, as three chips in the corner. It is a testing
-## control, so it is honest about that: small, out of the fiction's way, and
-## labelled as a test switch.
 ##
 ## Behaviour the card keeps from its earlier life: the mandate is captured HERE,
 ## before the crew can see a single bay, because consistency is measured against
@@ -80,9 +77,6 @@ var _sheet: Control = null
 var _sheet_title: Label = null
 var _sheet_body: VBoxContainer = null
 
-var _mode_buttons: Dictionary = {}
-var _mode_note: Label = null
-var _mode_watch: int = -1
 var _audio_button: Button = null
 var _audio_glyph: Glyph = null
 var _audio_popup: PanelContainer = null
@@ -97,7 +91,9 @@ func _ready() -> void:
 	layer = 120
 	_build()
 	get_viewport().size_changed.connect(_on_viewport_resized)
-	show_screen()
+	## The mandate card is retired: the station controller opens the ship
+	## directly, so the screen starts hidden and is only ever shown again by an
+	## explicit main-menu request.
 
 
 func is_open() -> bool:
@@ -207,12 +203,6 @@ func _process(_delta: float) -> void:
 	# open card enforces its own visibility, every frame.
 	if _open and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	# The mode chips cannot receive a change notification - the mode layer is a
-	# plain static, deliberately signal-free - so the card notices the change
-	# the same way the station controller does: by watching for it.
-	if InputMode.mode != _mode_watch:
-		_mode_watch = InputMode.mode
-		_refresh_mode_chips()
 	# The corner speaker tracks the mixer the same way: the AudioPanel writes
 	# the mixer directly, so this corner re-reads it instead of being told.
 	_refresh_audio_button()
@@ -435,12 +425,9 @@ func _situation_rows() -> Dictionary:
 		"kicker": "THE SITUATION",
 		"title": "Why you're here",
 		"rows": [
-			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity. "
-				+ "The job: map the planet, then bring the data home to Kepler-442b."},
-			{"text": "The ship's AI, SHIPMIND, has flown her for years - fast, careful, "
-				+ "and completely sure it knows best. During the current emergency it "
-				+ "has locked the crew out of every big decision on the ship."},
-			{"text": "Your job: walk the ship, look at its work, and decide how much of it you hand back."},
+			{"text": "You are Reyes, aboard the survey ship Adamant Verity, bound for Kepler-442b."},
+			{"text": "Its AI, SHIPMIND, flies her flawlessly - and has locked the crew out of every big decision."},
+			{"text": "Walk the ship, read its work, and decide what it keeps."},
 		],
 	}
 
@@ -450,15 +437,12 @@ func _judged_rows() -> Dictionary:
 		"kicker": "THE OPERATING MODEL",
 		"title": "How it's judged",
 		"rows": [
-			{"text": "There is no single right answer, and no trap. Each of your five "
-				+ "decisions is read back two ways:"},
+			{"text": "No single right answer, and no trap. Each decision is read two ways:"},
 			{"icon": "eye", "lead": "YOUR MANDATE",
-				"text": "does the decision match the mission and risk level you picked at the start?"},
+				"text": "does it match the mission and risk you picked at the start?"},
 			{"icon": "scales", "lead": "THE STAKES",
-				"text": "does it fit what the decision can cost, and how hard it is to undo?"},
-			{"text": "Babying a cheap, easily-undone decision costs points, just like "
-				+ "handing over a dangerous one does. Changing your mind is always free. "
-				+ "Time is never scored."},
+				"text": "does it fit what it can cost, and how hard it is to undo?"},
+			{"text": "Over-protecting a cheap decision costs points - so does handing over a dangerous one. Changing your mind is free. Time isn't scored."},
 		],
 	}
 
@@ -467,33 +451,25 @@ func _controls_rows() -> Dictionary:
 	var rows: Array
 	if InputMode.is_touch():
 		rows = [
-			{"icon": "sliders", "lead": "LEFT THUMB",
-				"text": "walk - a floating stick appears where you touch."},
-			{"icon": "chevron", "lead": "RIGHT THUMB",
-				"text": "look - drag anywhere on the right of the screen."},
-			{"icon": "check", "lead": "TAP",
-				"text": "interact - tap a console, or use the round button."},
-			{"icon": "chevron", "lead": "SPRINT",
-				"text": "the toggle on the left - hold the corridor pace up."},
+			{"icon": "sliders", "lead": "LEFT THUMB", "text": "walk - stick appears where you touch."},
+			{"icon": "chevron", "lead": "RIGHT THUMB", "text": "look - drag the right half."},
+			{"icon": "check", "lead": "TAP", "text": "interact - tap a console."},
+			{"icon": "chevron", "lead": "SPRINT", "text": "the left toggle - hold the pace up."},
 		]
 	else:
 		rows = [
-			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse or trackpad: look."},
-			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
-			{"icon": "chevron", "lead": "SHIFT", "text": "sprint - hold it down the long corridors."},
-			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one. Some crew just need to know."},
-			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, switch input mode, or return here."},
+			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse: look."},
+			{"icon": "check", "lead": "E", "text": "interact."},
+			{"icon": "chevron", "lead": "SHIFT", "text": "sprint."},
+			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one."},
+			{"icon": "menu", "lead": "ESC", "text": "pause menu."},
 		]
-	rows.append({"text": "Switch between desktop, mobile and VR with the chips in the "
-		+ "corner of this screen."})
 	return {"kicker": "INPUT", "title": "Controls", "rows": rows}
 
 
 func _decisions_rows() -> Dictionary:
 	var rows: Array = [
-		{"text": "Five ship systems are running on SHIPMIND's judgement. Walk the ship, "
-			+ "open each console, and make one decision per system: who makes it "
-			+ "from now on."},
+		{"text": "Five systems run on SHIPMIND's judgement. At each console, pick who decides from now on."},
 	]
 	for level in OperatingModel.LEVELS:
 		rows.append({
@@ -502,9 +478,7 @@ func _decisions_rows() -> Dictionary:
 			"text": String(level["hint"]),
 		})
 	rows.append({
-		"text": "Each console shows the stakes up front - what can go wrong and how hard "
-			+ "it is to undo - and SHIPMIND always tells you what it would do. What you "
-			+ "pick is the game.",
+		"text": "Each console shows the stakes - what can go wrong, how hard to undo - and what SHIPMIND would do. What you pick is the game.",
 	})
 	return {"kicker": "THE FIVE DECISIONS", "title": "Five decisions, one dial", "rows": rows}
 
@@ -514,9 +488,8 @@ func _flight_rows() -> Dictionary:
 		"kicker": "THE FLIGHT",
 		"title": "Fly for KEPLER-442b",
 		"rows": [
-			{"text": "The bridge is the door at the front of the ship. Its helm console is the flight itself."},
-			{"text": "It unlocks once all five decisions are made. From the helm, set course "
-				+ "for KEPLER-442b and take the ship home."},
+			{"text": "The bridge door is at the front of the ship. Its helm is the flight itself."},
+			{"text": "It unlocks when all five decisions are made. Set course for KEPLER-442b and fly home."},
 		],
 	}
 
@@ -553,8 +526,9 @@ func _button_h() -> float:
 
 func _ui_text(base: int) -> int:
 	## A touch floor on text: a phone screen is read at arm's length, not at a
-	## monitor's distance, so small labels step up to a size that reads.
-	return int(round(float(base) * Platform.ui_scale()))
+	## monitor's distance, so small labels step up to a size that reads. The
+	## clamp runs after the multiplier so nothing can land below the floor.
+	return max(int(round(float(base) * Platform.ui_scale())), Brand.SIZE_SMALL)
 
 
 func _fit_to_viewport() -> void:
@@ -655,7 +629,7 @@ func _build() -> void:
 
 	_build_sheet()
 	_build_mandate_popup()
-	_build_mode_chips()
+	_build_corner_audio()
 
 
 func _goal_tiles() -> HBoxContainer:
@@ -869,14 +843,14 @@ func _build_mandate_popup() -> void:
 	_objective_line = Label.new()
 	_objective_line.name = "ObjectiveLine"
 	_objective_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_objective_line.add_theme_font_size_override("font_size", 15)
+	_objective_line.add_theme_font_size_override("font_size", 30)
 	_objective_line.add_theme_color_override("font_color", WHITE)
 	declared_column.add_child(_objective_line)
 
 	_appetite_line = Label.new()
 	_appetite_line.name = "AppetiteLine"
 	_appetite_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_appetite_line.add_theme_font_size_override("font_size", 15)
+	_appetite_line.add_theme_font_size_override("font_size", 30)
 	_appetite_line.add_theme_color_override("font_color", WHITE)
 	declared_column.add_child(_appetite_line)
 	_refresh_declared()
@@ -984,7 +958,7 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	title.offset_top = 7.0
 	title.offset_bottom = 29.0
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", INK)
 	button.add_child(title)
 
@@ -1061,7 +1035,7 @@ func _set_hint(text: String) -> void:
 ## so the state is obvious rather than an outline that reads as faint.
 func _style_action_button(button: Button) -> void:
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.add_theme_font_size_override("font_size", 19)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", Color.WHITE)
 	button.add_theme_color_override("font_hover_color", Color.WHITE)
 	button.add_theme_color_override("font_pressed_color", Color.WHITE)
@@ -1120,9 +1094,9 @@ func _curiosity_button(label_text: String, rows_provider: Callable) -> Button:
 	return button
 
 
-# --- Mode chips -------------------------------------------------------------------
+# --- Corner audio chip -------------------------------------------------------------
 
-func _build_mode_chips() -> void:
+func _build_corner_audio() -> void:
 	var chips := HBoxContainer.new()
 	chips.name = "ModeChips"
 	chips.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -1169,69 +1143,6 @@ func _build_mode_chips() -> void:
 	chips.add_child(_audio_button)
 
 	_build_audio_popup()
-
-	var group := ButtonGroup.new()
-	group.allow_unpress = false
-	for value in [InputMode.Mode.DESKTOP, InputMode.Mode.TOUCH, InputMode.Mode.VR]:
-		var chip := _mode_chip(int(value), group)
-		_mode_buttons[int(value)] = chip
-		chips.add_child(chip)
-
-	_mode_note = Label.new()
-	_mode_note.name = "ModeNote"
-	_mode_note.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_mode_note.offset_left = -440.0
-	_mode_note.offset_top = 44.0
-	_mode_note.offset_right = -20.0
-	_mode_note.offset_bottom = 60.0
-	_mode_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_mode_note.add_theme_font_size_override("font_size", _ui_text(11))
-	_mode_note.add_theme_color_override("font_color", MUTED)
-	_mode_note.text = "input mode  -  test switch"
-	_root.add_child(_mode_note)
-	_mode_watch = InputMode.mode
-	_refresh_mode_chips()
-
-
-func _mode_chip(value: int, group: ButtonGroup) -> Button:
-	var chip := Button.new()
-	chip.name = "Mode_%d" % value
-	chip.toggle_mode = true
-	chip.button_group = group
-	chip.focus_mode = Control.FOCUS_NONE
-	chip.text = InputMode.label(value)
-	chip.add_theme_font_size_override("font_size", _ui_text(12))
-	chip.add_theme_color_override("font_color", MUTED)
-	chip.add_theme_color_override("font_hover_color", WHITE)
-	chip.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.04))
-	var idle := StyleBoxFlat.new()
-	idle.bg_color = Color(0, 0, 0, 0.35)
-	idle.border_color = Color(0.4, 0.32, 0.26)
-	idle.set_border_width_all(1)
-	idle.set_corner_radius_all(3)
-	idle.content_margin_left = 10.0
-	idle.content_margin_right = 10.0
-	idle.content_margin_top = 3.0
-	idle.content_margin_bottom = 3.0
-	chip.add_theme_stylebox_override("normal", idle)
-	var hovered: StyleBoxFlat = idle.duplicate()
-	hovered.border_color = TANGERINE
-	chip.add_theme_stylebox_override("hover", hovered)
-	var chosen: StyleBoxFlat = idle.duplicate()
-	chosen.bg_color = GOLD
-	chosen.border_color = GOLD
-	chip.add_theme_stylebox_override("pressed", chosen)
-	chip.add_theme_stylebox_override("focus", idle)
-	chip.pressed.connect(_on_mode_chip.bind(value))
-	return chip
-
-
-func _on_mode_chip(value: int) -> void:
-	if InputMode.set_mode(value):
-		_mode_note.text = "input mode  -  test switch"
-	else:
-		_mode_note.text = "No OpenXR runtime found - VR stays off for now."
-	_refresh_mode_chips()
 
 
 ## The mixer popup. A small panel anchored under the corner button, carrying
@@ -1318,12 +1229,6 @@ func _refresh_audio_button() -> void:
 		_audio_glyph.tint = MUTED if silent else GOLD
 
 
-func _refresh_mode_chips() -> void:
-	for value in _mode_buttons:
-		var chip: Button = _mode_buttons[value]
-		chip.set_pressed_no_signal(int(value) == InputMode.mode)
-
-
 # --- Sheet ----------------------------------------------------------------------
 
 func _build_sheet() -> void:
@@ -1365,7 +1270,7 @@ func _build_sheet() -> void:
 
 	_sheet_title = Label.new()
 	_sheet_title.name = "Title"
-	_sheet_title.add_theme_font_size_override("font_size", 24)
+	_sheet_title.add_theme_font_size_override("font_size", 30)
 	_sheet_title.add_theme_color_override("font_color", WHITE)
 	column.add_child(_sheet_title)
 
@@ -1432,7 +1337,7 @@ func _sub(text: String) -> Label:
 	label.name = "Sub"
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", 30)
 	label.add_theme_color_override("font_color", GOLD)
 	return label
 

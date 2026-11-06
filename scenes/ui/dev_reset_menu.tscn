@@ -50,18 +50,18 @@ theme_override_constants/separation = 12
 
 [node name="Kicker" type="Label" parent="Root/Card/Margin/VBox"]
 theme_override_colors/font_color = Color(1, 0.55, 0.12, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 30
 text = "DEVELOPER TOOL - NOT PART OF THE SHIP"
 
 [node name="Title" type="Label" parent="Root/Card/Margin/VBox"]
 theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 30
 text = "Reset and test"
 
 [node name="Status" type="Label" parent="Root/Card/Margin/VBox"]
 theme_override_colors/font_color = Color(0.93, 0.86, 0.76, 1)
 theme_override_constants/line_spacing = 4
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 30
 
 [node name="Rule" type="ColorRect" parent="Root/Card/Margin/VBox"]
 custom_minimum_size = Vector2(0, 1)
@@ -70,7 +70,7 @@ mouse_filter = 2
 
 [node name="Explanation" type="Label" parent="Root/Card/Margin/VBox"]
 theme_override_colors/font_color = Color(0.72, 0.8, 0.88, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 30
 autowrap_mode = 3
 text = "Each option reloads the scene as well as changing progress, so the bay doors, the windows and every console come back from the same state. Clearing the save alone would leave solved consoles still claiming to be under crew control."
 
@@ -95,6 +95,6 @@ text = "Close"
 
 [node name="Hint" type="Label" parent="Root/Card/Margin/VBox"]
 theme_override_colors/font_color = Color(0.6, 0.52, 0.46, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 30
 horizontal_alignment = 2
 text = "F8 toggles this panel   -   Escape closes it"

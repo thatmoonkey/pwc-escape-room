@@ -49,7 +49,7 @@ func _channel_row(channel: String) -> Control:
 	name_label.text = String(Sfx.CHANNEL_NAMES[channel])
 	name_label.custom_minimum_size = Vector2(96.0, 0.0)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 14)
+	name_label.add_theme_font_size_override("font_size", 30)
 	name_label.add_theme_color_override("font_color", BODY)
 	row.add_child(name_label)
 
@@ -60,7 +60,7 @@ func _channel_row(channel: String) -> Control:
 	mute.focus_mode = Control.FOCUS_NONE
 	mute.tooltip_text = "Silence this channel"
 	mute.custom_minimum_size = Vector2(64.0, 30.0)
-	mute.add_theme_font_size_override("font_size", 12)
+	mute.add_theme_font_size_override("font_size", 30)
 	_style_toggle(mute, "the channel plays")
 	mute.toggled.connect(_on_mute_toggled.bind(channel))
 	row.add_child(mute)
@@ -85,7 +85,7 @@ func _channel_row(channel: String) -> Control:
 	percent.custom_minimum_size = Vector2(44.0, 0.0)
 	percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	percent.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	percent.add_theme_font_size_override("font_size", 12)
+	percent.add_theme_font_size_override("font_size", 30)
 	percent.add_theme_color_override("font_color", MUTED)
 	row.add_child(percent)
 	_percent_labels[channel] = percent

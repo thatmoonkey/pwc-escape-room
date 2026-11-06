@@ -120,8 +120,8 @@ func _apply_touch_layout(touch: bool) -> void:
 	if subtitle == null:
 		return
 	var scale: float = 2.0 if touch else 1.0
-	subtitle_text.add_theme_font_size_override("font_size", int(17.0 * scale))
-	subtitle_speaker.add_theme_font_size_override("font_size", int(13.0 * scale))
+	subtitle_text.add_theme_font_size_override("font_size", int(30.0 * scale))
+	subtitle_speaker.add_theme_font_size_override("font_size", int(30.0 * scale))
 	if touch:
 		subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		subtitle.anchor_left = 0.5
@@ -350,7 +350,7 @@ func _build_strip() -> void:
 	_callsign_label.add_theme_color_override("font_color", PAPAYA)
 	_callsign_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_callsign_label.add_theme_constant_override("outline_size", 4)
-	_callsign_label.add_theme_font_size_override("font_size", 14)
+	_callsign_label.add_theme_font_size_override("font_size", 30)
 	root.add_child(_callsign_label)
 
 	root.add_child(_menu_button())
@@ -372,7 +372,7 @@ func _menu_button() -> Button:
 	button.offset_top = 16.0
 	button.offset_right = -22.0
 	button.offset_bottom = 44.0
-	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", MUTED)
 	button.add_theme_color_override("font_hover_color", GOLD)
 	button.add_theme_color_override("font_pressed_color", GOLD)
@@ -438,7 +438,7 @@ func _mandate_row_control() -> HBoxContainer:
 	_mandate_appetite_glyph = Glyph.make("question", 16.0, DIM)
 	inner.add_child(_mandate_appetite_glyph)
 	_mandate_label = Label.new()
-	_mandate_label.add_theme_font_size_override("font_size", 12)
+	_mandate_label.add_theme_font_size_override("font_size", 30)
 	_mandate_label.add_theme_color_override("font_color", MUTED)
 	_mandate_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_mandate_label.add_theme_constant_override("outline_size", 4)
@@ -473,7 +473,7 @@ func _chips_row_control() -> HBoxContainer:
 	_chip_counter.name = "Counter"
 	_chip_counter.text = "0/%d" % GameState.SYSTEMS.size()
 	_chip_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_chip_counter.add_theme_font_size_override("font_size", 12)
+	_chip_counter.add_theme_font_size_override("font_size", 30)
 	_chip_counter.add_theme_color_override("font_color", MUTED)
 	_chip_counter.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_chip_counter.add_theme_constant_override("outline_size", 4)
@@ -518,7 +518,7 @@ func _bars_row_control() -> HBoxContainer:
 		var name_label := Label.new()
 		name_label.text = String(axis_labels.get(axis, axis.to_upper()))
 		name_label.custom_minimum_size = Vector2(92.0, 0.0)
-		name_label.add_theme_font_size_override("font_size", 10)
+		name_label.add_theme_font_size_override("font_size", 30)
 		name_label.add_theme_color_override("font_color", MUTED)
 		name_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 		name_label.add_theme_constant_override("outline_size", 4)
@@ -535,7 +535,7 @@ func _bars_row_control() -> HBoxContainer:
 		var percent := Label.new()
 		percent.custom_minimum_size = Vector2(38.0, 0.0)
 		percent.text = "--"
-		percent.add_theme_font_size_override("font_size", 10)
+		percent.add_theme_font_size_override("font_size", 30)
 		percent.add_theme_color_override("font_color", MUTED)
 		percent.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 		percent.add_theme_constant_override("outline_size", 4)
@@ -566,7 +566,7 @@ func _build_detail() -> void:
 
 	_detail_label = Label.new()
 	_detail_label.name = "Text"
-	_detail_label.add_theme_font_size_override("font_size", 12)
+	_detail_label.add_theme_font_size_override("font_size", 30)
 	_detail_label.add_theme_color_override("font_color", INK)
 	_detail_label.add_theme_constant_override("line_spacing", 3)
 	margin.add_child(_detail_label)

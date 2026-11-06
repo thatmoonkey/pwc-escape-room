@@ -4,6 +4,11 @@
 # installed PWA can keep launching an old build indefinitely. This patch
 # flips navigation requests to network-first (cache is the offline
 # fallback), so every launch picks up the newest deploy.
+#
+# The full atomic-update story lives in the loading shell's own version ping:
+# after the game starts, the page checks for a newer build and reloads once if
+# it finds one - number, engine and game data landing together, without the
+# service worker forcing navigation from under a running session.
 import sys
 
 path = sys.argv[1]
@@ -28,9 +33,14 @@ inject = anchor + """
 				} catch (e) { /* offline: fall through to cache */ }
 			}
 			// PWC PATCH (2): the engine files do the same. index.html is
-			// network-first, but a cache-first pck/wasm would keep an installed
-			// app running an old build forever; offline, the cache still answers.
-			const isEngineFile = /\\.(pck|wasm|zip)$/.test(local || url)
+			// network-first on navigation, but a cache-first pck/wasm would
+			// keep an installed app running an old build forever. The shell's
+			// own build ping fetches index.html as a plain GET, which must
+			// reach the network too: the install-time cache holds index.html
+			// under its literal path (navigations cache the root URL), so a
+			// cache-first answer compares the live build against a dead one.
+			// Offline, the cache still answers.
+			const isEngineFile = /\\.(pck|wasm|zip|html|js)$/.test(local || url)
 			if (isEngineFile) {
 				try {
 					const response = await self.fetch(event.request)

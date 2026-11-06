@@ -192,9 +192,8 @@ func _build_board_page() -> void:
 	_content.add_child(_kicker("MISSION COMPLETE  —  YOUR RUN"))
 	_content.add_child(_title("PUT IT ON THE BOARD"))
 	_content.add_child(ScoreVisuals.caption(
-		"Score %d of %d across %d of %d decisions. The score is filled in from your "
-		% [Score.total(), Score.max_total(), Score.placed_count(), GameState.SYSTEMS.size()]
-		+ "record - change it if you want to.", Brand.NEUTRAL_LIGHT))
+		"Score %d of %d, from your record - change it if you want."
+		% [Score.total(), Score.max_total()], Brand.NEUTRAL_LIGHT))
 	_content.add_child(_rule())
 	_content.add_child(_form())
 	_status = _status_label(_status_text)
@@ -551,7 +550,7 @@ func _results_actions() -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	var note := ScoreVisuals.caption(
-		"Time is not scored, and changing your mind was always free.", Brand.NEUTRAL)
+		"Time isn't scored. Changing your mind is free.", Brand.NEUTRAL)
 	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(note)
@@ -564,7 +563,7 @@ func _board_actions() -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	var note := ScoreVisuals.caption(
-		"The board is kept on this device, so it works with or without a network.",
+		"The board lives on this device - works offline.",
 		Brand.NEUTRAL)
 	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -751,6 +750,7 @@ func _is_portrait() -> bool:
 
 ## One type scale for the screen, stepped up where the only pointer is a thumb
 ## and again in a headset, where the panel is read from further away. The
-## multiplier is Platform's, shared with every other overlay.
+## multiplier is Platform's, shared with every other overlay. The floor rule
+## clamps after the multiplier so nothing ever renders below the reading floor.
 func _px(base: float) -> int:
-	return int(round(base * Platform.ui_scale()))
+	return max(int(round(base * Platform.ui_scale())), Brand.SIZE_SMALL)

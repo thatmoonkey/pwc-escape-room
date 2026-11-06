@@ -5,7 +5,9 @@
 # updates. The version is derived from git, so it is reproducible and tells
 # you exactly which commit a phone is running.
 #
-# Usage: tools/build_web.sh [--deploy] [deploy message]
+# Usage: tools/build_web.sh [--deploy | --deploy-b] [deploy message]
+#   --deploy    ship to the main site (what the client sees)
+#   --deploy-b  ship to the parallel B site (in-progress testing)
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -52,8 +54,12 @@ EOF
 
 echo "build_web: done - $OUT ($(stat -f %z "$OUT/index.pck") bytes pck)"
 
-if [[ "${1:-}" == "--deploy" ]]; then
-  SITE_ID="ba9bc1fe-3b42-4b08-ac8a-ef114cdab0c0"
+if [[ "${1:-}" == "--deploy" || "${1:-}" == "--deploy-b" ]]; then
+  if [[ "$1" == "--deploy-b" ]]; then
+    SITE_ID="1e4fb986-4792-4d78-b964-79a6bb840741"   # pwc-iom-space-b
+  else
+    SITE_ID="ba9bc1fe-3b42-4b08-ac8a-ef114cdab0c0"   # pwc-iom-space
+  fi
   shift || true
   netlify deploy --prod --site "$SITE_ID" --dir "$OUT" \
     --message "web_pwa $VERSION ${1:-}" 2>&1 | grep -E "Deployed|Unique|error" || true

@@ -27,7 +27,7 @@ func intro_state() -> ScreenState:
 	placement_block(state, "WHO CONTROLS THE PERMISSIONS?", "")
 	state.rule()
 	state.option("ledger", "READ MORE CONTEXT DATA", "All fourteen, side by side.", "quiet", "info")
-	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "It will recommend the placement it wants.", "primary", "shipmind")
+	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "Its preferred call.", "primary", "shipmind")
 	state.option("close", "Step away from the console")
 	return state
 
@@ -88,8 +88,8 @@ func placed_state(level_id: String) -> ScreenState:
 	for line in Score.reflection_lines(puzzle_id):
 		state.text(line)
 	state.rule()
-	state.dim("Judged against the mandate you declared on the briefing card. Changing your mind is free.")
-	state.option("revise", "Change the decision", "Free. Nothing is charged for reconsidering.", "primary")
+	state.dim("Judged against your mandate. Changing your mind is free.")
+	state.option("revise", "Change the decision", "Free. No charge to reconsider.", "primary")
 	state.option("return", "Done - release the console", "The decision stands.", "primary")
 	return state
 

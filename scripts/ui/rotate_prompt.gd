@@ -198,5 +198,7 @@ func _gap(height: float) -> Control:
 
 
 ## One type scale for the card, from the same place every overlay reads it.
+## The floor rule clamps after the multiplier: no platform scale may render a
+## label below the game's reading floor.
 func _px(base: float) -> int:
-	return int(round(base * Platform.ui_scale()))
+	return max(int(round(base * Platform.ui_scale())), Brand.SIZE_SMALL)

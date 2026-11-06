@@ -77,5 +77,5 @@ func _build_loading_message() -> void:
 	label.size = Vector2(300.0, 32.0)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", Color(0.941, 0.722, 0.224))
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", 30)
 	_loading.add_child(label)

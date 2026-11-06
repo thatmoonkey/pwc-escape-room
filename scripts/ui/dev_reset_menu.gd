@@ -107,7 +107,7 @@ func _build_mode_row() -> void:
 
 	var caption := Label.new()
 	caption.text = "INPUT MODE"
-	caption.add_theme_font_size_override("font_size", 12)
+	caption.add_theme_font_size_override("font_size", 30)
 	row.add_child(caption)
 
 	var group := ButtonGroup.new()
@@ -117,7 +117,7 @@ func _build_mode_row() -> void:
 		chip.text = InputMode.label(int(value))
 		chip.toggle_mode = true
 		chip.button_group = group
-		chip.add_theme_font_size_override("font_size", 12)
+		chip.add_theme_font_size_override("font_size", 30)
 		chip.pressed.connect(_on_mode_button.bind(int(value)))
 		_mode_buttons[int(value)] = chip
 		row.add_child(chip)
@@ -179,7 +179,7 @@ func _build_teaser() -> void:
 	_teaser.add_theme_color_override("font_color", Color(1.0, 0.55, 0.12, 0.85))
 	_teaser.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.03, 1.0))
 	_teaser.add_theme_constant_override("outline_size", 4)
-	_teaser.add_theme_font_size_override("font_size", 13)
+	_teaser.add_theme_font_size_override("font_size", 30)
 	_teaser.text = "DEV TOOL   F8 or `  -  reset progress"
 	add_child(_teaser)
 
