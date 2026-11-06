@@ -14,11 +14,26 @@ extends Control
 ## Requires the LeaderboardClient autoload (LeaderboardClient.gd).
 ## A CLOSE control is built in (touch has no Escape key); `closed` fires from
 ## it or from Escape, and the host decides what happens next.
+##
+## Visual stack, bottom to top:
+##   1. leaderboard_crt.webp   — the glass plate (behind everything)
+##   2. leaderboard_frame.webp — the console frame; its window is transparent
+##   3. the text UI            — clipped to that window, over the glass
+##   4. crt_phosphor.gdshader  — scanlines/vignette, confined to the window
 
 signal closed
 
 const FONT_PATH := "res://library/shooter-scifi/fonts/ShareTechMono-Regular.ttf"
-const CRT_SHADER_PATH := "res://assets/ui/crt_phosphor.gdshader"  # adjust to where you save the shader
+const CRT_TEXTURE_PATH := "res://assets/ui/leaderboard_crt.webp"
+const FRAME_TEXTURE_PATH := "res://assets/ui/leaderboard_frame.webp"
+const CRT_SHADER_PATH := "res://assets/ui/crt_phosphor.gdshader"
+## Source-art dimensions and the frame's transparent window within them, in
+## image pixels. The text layer is laid out inside this rect.
+const IMG_SIZE := Vector2(2752, 1536)
+const WINDOW_RECT := Rect2(742, 279, 1268, 959)
+## Text is designed against a window this tall; _ui_scale follows the real one.
+const DESIGN_WINDOW_HEIGHT := 700.0
+const FONT_FLOOR := 30
 const MAX_ROWS := 10
 const ACTIVE_WINDOW_SECONDS := 900   # submissions younger than this read "ACTIVE"
 
@@ -40,6 +55,8 @@ var _pending_seconds := 0
 var _highlight := {}        # {"rank": int, "name": String} once a submission lands
 var _row_labels: Array = [] # per row: {"rank": int, "name": String, "labels": Array}
 
+var _text_root: Control
+var _crt_overlay: ColorRect
 var _title: Label
 var _clock: Label
 var _total: Label
@@ -54,8 +71,14 @@ var _cursor: ColorRect
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_ui_scale = clampf(get_viewport_rect().size.y / 1080.0, 0.5, 2.5)
 	_font = load(FONT_PATH)
+	# Defer one frame so `size` reflects the real viewport before layout.
+	call_deferred("_start")
+
+
+func _start() -> void:
+	_build_layers()
+	_layout()
 	_build_ui()
 	_connect_client()
 
@@ -102,37 +125,84 @@ func present_result(score: int, seconds: int, mode := "default") -> void:
 	_client().fetch_rank_preview(score, mode)
 
 
+# --- Layered background + window layout ---------------------------------------
+
+## The art layers: glass plate at the back, console frame over it. Both are
+## full-rect and cover-scaled, so they stay registered at any aspect ratio.
+func _build_layers() -> void:
+	var crt := TextureRect.new()
+	crt.texture = load(CRT_TEXTURE_PATH)
+	crt.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	crt.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	crt.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	crt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(crt)
+
+	var frame := TextureRect.new()
+	frame.texture = load(FRAME_TEXTURE_PATH)
+	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(frame)
+
+	# The text layer lives exactly inside the frame's transparent window.
+	# Clipped, so a long board can never bleed over the console art.
+	_text_root = Control.new()
+	_text_root.clip_contents = true
+	add_child(_text_root)
+
+
+## Map WINDOW_RECT from image space into screen space (cover scaling, centred)
+## and park the text layer there. Runs on build and on every resize.
+func _layout() -> void:
+	if _text_root == null:
+		return
+	var avail := size
+	if avail.x <= 0.0 or avail.y <= 0.0:
+		return
+	var s := maxf(avail.x / IMG_SIZE.x, avail.y / IMG_SIZE.y)
+	var origin := (avail - IMG_SIZE * s) * 0.5
+	var r := Rect2(origin + WINDOW_RECT.position * s, WINDOW_RECT.size * s)
+	_text_root.position = r.position
+	_text_root.size = r.size
+	if _crt_overlay:
+		_crt_overlay.position = r.position
+		_crt_overlay.size = r.size
+	_ui_scale = clampf(r.size.y / DESIGN_WINDOW_HEIGHT, 0.6, 3.0)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_layout()
+
+
 # --- UI construction ----------------------------------------------------------
 
 func _build_ui() -> void:
-	var bg := ColorRect.new()
-	bg.color = COL_BG
-	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(bg)
-
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", int(56 * _ui_scale))
-	margin.add_theme_constant_override("margin_right", int(56 * _ui_scale))
-	margin.add_theme_constant_override("margin_top", int(40 * _ui_scale))
-	margin.add_theme_constant_override("margin_bottom", int(36 * _ui_scale))
-	add_child(margin)
+	margin.add_theme_constant_override("margin_left", int(40 * _ui_scale))
+	margin.add_theme_constant_override("margin_right", int(40 * _ui_scale))
+	margin.add_theme_constant_override("margin_top", int(28 * _ui_scale))
+	margin.add_theme_constant_override("margin_bottom", int(24 * _ui_scale))
+	_text_root.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", int(10 * _ui_scale))
+	vbox.add_theme_constant_override("separation", int(6 * _ui_scale))
 	margin.add_child(vbox)
 
-	# Header — title block left, clock + PWR right.
+	# Header — title block left, clock + PWR + CLOSE right.
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 
 	var title_block := VBoxContainer.new()
 	title_block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title_block)
-	_title = _mk_label("SHIPMIND", 84, COL_BRIGHT)
+	_title = _mk_label("SHIPMIND", 64, COL_BRIGHT)
 	title_block.add_child(_title)
 	title_block.add_child(_mk_label(
-		"INTELLIGENT OPERATING MODEL SIMULATION — LEADERBOARD", 22, COL_DIM))
+		"INTELLIGENT OPERATING MODEL SIMULATION — LEADERBOARD", 20, COL_DIM))
 
 	var header_right := VBoxContainer.new()
 	header.add_child(header_right)
@@ -148,15 +218,13 @@ func _build_ui() -> void:
 	vbox.add_child(_projection)
 
 	# Table.
-	vbox.add_child(_rule())
 	_grid = GridContainer.new()
 	_grid.columns = 5
 	_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grid.add_theme_constant_override("h_separation", int(24 * _ui_scale))
-	_grid.add_theme_constant_override("v_separation", int(6 * _ui_scale))
+	_grid.add_theme_constant_override("h_separation", int(20 * _ui_scale))
+	_grid.add_theme_constant_override("v_separation", int(4 * _ui_scale))
 	vbox.add_child(_grid)
-	_add_row_cells(["RANK", "PILOT NAME", "SHIP TYPE", "SCORE", "STATUS"], COL_DIM, 22, false)
-	vbox.add_child(_rule())
+	_add_row_cells(["RANK", "PILOT NAME", "SHIP TYPE", "SCORE", "STATUS"], COL_DIM, 20, false)
 
 	# Callsign entry — hidden unless we're presenting a result.
 	_entry_row = HBoxContainer.new()
@@ -170,10 +238,10 @@ func _build_ui() -> void:
 	_name_edit.max_length = 24
 	_name_edit.placeholder_text = "—"
 	_name_edit.caret_blink = true
-	_name_edit.custom_minimum_size = Vector2(0, int(44 * _ui_scale))
+	_name_edit.custom_minimum_size = Vector2(0, int(40 * _ui_scale))
 	if _font:
 		_name_edit.add_theme_font_override("font", _font)
-	_name_edit.add_theme_font_size_override("font_size", int(24 * _ui_scale))
+	_name_edit.add_theme_font_size_override("font_size", maxi(int(24 * _ui_scale), FONT_FLOOR))
 	_name_edit.add_theme_color_override("font_color", COL_BRIGHT)
 	_name_edit.add_theme_color_override("caret_color", COL_PHOSPHOR)
 	_name_edit.add_theme_stylebox_override("normal", _field_style(COL_FAINT))
@@ -184,10 +252,10 @@ func _build_ui() -> void:
 	var log_button := Button.new()
 	log_button.text = "LOG ENTRY"
 	log_button.focus_mode = Control.FOCUS_NONE
-	log_button.custom_minimum_size = Vector2(0, int(44 * _ui_scale))
+	log_button.custom_minimum_size = Vector2(0, int(40 * _ui_scale))
 	if _font:
 		log_button.add_theme_font_override("font", _font)
-	log_button.add_theme_font_size_override("font_size", int(24 * _ui_scale))
+	log_button.add_theme_font_size_override("font_size", maxi(int(24 * _ui_scale), FONT_FLOOR))
 	log_button.add_theme_color_override("font_color", COL_BG)
 	log_button.add_theme_color_override("font_hover_color", COL_BG)
 	var btn_style := StyleBoxFlat.new()
@@ -200,8 +268,9 @@ func _build_ui() -> void:
 	log_button.pressed.connect(_on_log_entry)
 	_entry_row.add_child(log_button)
 
-	# Footer — segment blocks, status line, blinking cursor.
 	vbox.add_child(_rule())
+
+	# Footer — segment blocks, status line, blinking cursor.
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", int(18 * _ui_scale))
 	vbox.add_child(footer)
@@ -227,26 +296,16 @@ func _build_ui() -> void:
 	_cursor.custom_minimum_size = Vector2(int(14 * _ui_scale), int(24 * _ui_scale))
 	footer.add_child(_cursor)
 
-	# Corner brackets over the content area.
-	var brackets := _Brackets.new()
-	brackets.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	brackets.offset_left = 22
-	brackets.offset_top = 18
-	brackets.offset_right = -22
-	brackets.offset_bottom = -18
-	brackets.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(brackets)
-
-	# CRT overlay — scanlines, vignette, flicker. Topmost, input-transparent.
-	var crt := ColorRect.new()
-	crt.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	crt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Scanlines + vignette, confined to the window and input-transparent.
+	_crt_overlay = ColorRect.new()
+	_crt_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var shader: Shader = load(CRT_SHADER_PATH)
 	if shader:
 		var sm := ShaderMaterial.new()
 		sm.shader = shader
-		crt.material = sm
-	add_child(crt)
+		_crt_overlay.material = sm
+	add_child(_crt_overlay)
+	_layout()  # park the overlay on the window now that it exists
 
 	# Ambient timers: clock, cursor blink, phosphor flicker on the title.
 	var clock_timer := Timer.new()
@@ -287,7 +346,7 @@ func _on_board(entries: Array, total_players: int) -> void:
 		_add_row_cells(
 			["%02d" % rank, pilot.to_upper(), _ship_type_for(pilot),
 			 _fmt(int(entry.get("score", 0))), status],
-			COL_PHOSPHOR, 26, true, rank, pilot)
+			COL_PHOSPHOR, 24, true, rank, pilot)
 	if _status.text.begins_with("FETCHING"):
 		_status_line("STANDINGS CURRENT")
 	_apply_highlight()
@@ -324,7 +383,7 @@ func _client() -> Node:
 	return get_node("/root/LeaderboardClient")
 
 
-## Wire the autoload's signals to this screen. Called from _ready; _exit_tree
+## Wire the autoload's signals to this screen. Called from _start; _exit_tree
 ## undoes it, so a freed screen never answers a late leaderboard response.
 func _connect_client() -> void:
 	var c := _client()
@@ -359,16 +418,16 @@ func _add_row_cells(
 	for i in texts.size():
 		var l := _mk_label(String(texts[i]), base_size, color)
 		if i == 0:
-			l.custom_minimum_size.x = int(90 * _ui_scale)
+			l.custom_minimum_size.x = int(70 * _ui_scale)
 		elif i == 1 or i == 2:
 			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		elif i == 3:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			l.custom_minimum_size.x = int(240 * _ui_scale)
-		elif i == 4:
 			l.custom_minimum_size.x = int(200 * _ui_scale)
+		elif i == 4:
+			l.custom_minimum_size.x = int(170 * _ui_scale)
 		if is_data:
-			l.custom_minimum_size.y = int(40 * _ui_scale)
+			l.custom_minimum_size.y = int(34 * _ui_scale)
 			l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_grid.add_child(l)
 		labels.append(l)
@@ -451,7 +510,7 @@ func _mk_label(text: String, size: int, color: Color, align := HORIZONTAL_ALIGNM
 	l.horizontal_alignment = align
 	if _font:
 		l.add_theme_font_override("font", _font)
-	l.add_theme_font_size_override("font_size", int(size * _ui_scale))
+	l.add_theme_font_size_override("font_size", maxi(int(size * _ui_scale), FONT_FLOOR))
 	l.add_theme_color_override("font_color", color)
 	return l
 
@@ -484,7 +543,7 @@ func _mk_close_button() -> Button:
 	button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	if _font:
 		button.add_theme_font_override("font", _font)
-	button.add_theme_font_size_override("font_size", int(20 * _ui_scale))
+	button.add_theme_font_size_override("font_size", maxi(int(20 * _ui_scale), FONT_FLOOR))
 	button.add_theme_color_override("font_color", COL_PHOSPHOR)
 	button.add_theme_color_override("font_hover_color", COL_BRIGHT)
 	button.add_theme_color_override("font_pressed_color", COL_BRIGHT)
@@ -503,24 +562,3 @@ func _mk_close_button() -> Button:
 	button.add_theme_stylebox_override("focus", style)
 	button.pressed.connect(func(): closed.emit())
 	return button
-
-
-## Four amber corner brackets framing the content, like the reference bezel.
-class _Brackets extends Control:
-	var color := Color(1.0, 0.70, 0.26, 0.85)
-	var arm := 34.0
-	var width := 3.0
-
-	func _draw() -> void:
-		var p0 := Vector2.ZERO
-		var p1 := Vector2(size.x, 0)
-		var p2 := Vector2(0, size.y)
-		var p3 := size
-		draw_line(p0, p0 + Vector2(arm, 0), color, width)
-		draw_line(p0, p0 + Vector2(0, arm), color, width)
-		draw_line(p1, p1 + Vector2(-arm, 0), color, width)
-		draw_line(p1, p1 + Vector2(0, arm), color, width)
-		draw_line(p2, p2 + Vector2(arm, 0), color, width)
-		draw_line(p2, p2 + Vector2(0, -arm), color, width)
-		draw_line(p3, p3 + Vector2(-arm, 0), color, width)
-		draw_line(p3, p3 + Vector2(0, -arm), color, width)
