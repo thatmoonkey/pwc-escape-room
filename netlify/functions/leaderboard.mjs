@@ -151,7 +151,7 @@ async function postSubmit(store, req) {
     return json(200, {
       rank,
       total_players: board.entries.length,
-      entry: { ...prior.e, rank },
+      entry: publicEntry({ ...prior.e, rank }),
       neighbours: [],
     });
   }
