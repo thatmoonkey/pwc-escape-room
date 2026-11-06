@@ -582,16 +582,6 @@ func _build_words() -> void:
 
 	column.add_child(_gap(10))
 
-	var keys := Label.new()
-	keys.name = "Keys"
-	keys.text = "ENTER to continue  -  ESC to skip"
-	keys.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	keys.add_theme_font_size_override("font_size", _text_size(30))
-	keys.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
-	keys.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	keys.visible = not Platform.touch_ui()
-	column.add_child(keys)
-
 
 func _gap(height: float) -> Control:
 	var spacer := Control.new()
