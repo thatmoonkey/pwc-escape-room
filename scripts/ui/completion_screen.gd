@@ -51,6 +51,8 @@ var _last_submitted: String = ""
 ## back to the results and forward again.
 var _status_text: String = ""
 var _status_problem: bool = false
+## The live SHIPMIND uplink screen while it is up, hosted inside this layer.
+var _board: ShipmindLeaderboard = null
 
 
 func _ready() -> void:
@@ -84,6 +86,7 @@ func close() -> void:
 	if not _open:
 		return
 	_open = false
+	_discard_uplink()
 	root_visible(false)
 	InputRouter.set_ui_blocking(false)
 	for node in get_tree().get_nodes_in_group("input_layer"):
@@ -96,7 +99,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _open:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		close()
+		# The first escape closes the uplink screen if it is up, not the run.
+		if _board != null:
+			_close_uplink_board()
+		else:
+			close()
 		get_viewport().set_input_as_handled()
 
 
@@ -193,6 +200,9 @@ func _build_board_page() -> void:
 	_status = _status_label(_status_text)
 	_set_status(_status_text, _status_problem)
 	_content.add_child(_status)
+	_content.add_child(_gap(_px(6)))
+	_content.add_child(_uplink_actions())
+	_content.add_child(_gap(_px(6)))
 	_board_box = VBoxContainer.new()
 	_board_box.name = "Board"
 	_board_box.add_theme_constant_override("separation", 3)
@@ -499,6 +509,40 @@ func _refresh_board() -> void:
 		line.add_child(_cell_label(contact, 11, Brand.NEUTRAL))
 		_board_box.add_child(line)
 		rank += 1
+
+
+## The run can also go onto the live SHIPMIND uplink - the network board behind
+## the CRT terminal screen, stored on the server rather than this device. It
+## sits beside the device board rather than instead of it: the device board is
+## the offline-safe path, the uplink is the one the whole venue can see.
+func _uplink_actions() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	row.add_child(_primary_button("LOG IT ON THE SHIPMIND UPLINK", _open_uplink_board))
+	return row
+
+
+## The CRT screen covers this panel completely while it is up, so the root
+## steps out of the way; closing the board hands the form back untouched.
+func _open_uplink_board() -> void:
+	if _board != null:
+		return
+	_board = ShipmindLeaderboard.new()
+	add_child(_board)
+	_board.closed.connect(_close_uplink_board)
+	_board.present_result(Score.total(), int(GameState.elapsed))
+	_root.visible = false
+
+
+func _close_uplink_board() -> void:
+	_discard_uplink()
+	root_visible(_open)
+
+
+func _discard_uplink() -> void:
+	if _board != null:
+		_board.queue_free()
+		_board = null
 
 
 ## Page one's single action. It is the only primary control on the page, so

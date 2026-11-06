@@ -1,0 +1,9 @@
+{
+  "name": "pwc-leaderboard-functions",
+  "private": true,
+  "type": "module",
+  "description": "Netlify Functions for the SHIPMIND leaderboard API",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.7"
+  }
+}

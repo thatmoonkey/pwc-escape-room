@@ -12,6 +12,8 @@ extends Control
 ## The screen fetches the board, shows the projected placement, walks the
 ## player through callsign entry, submits, then highlights their new row.
 ## Requires the LeaderboardClient autoload (LeaderboardClient.gd).
+## A CLOSE control is built in (touch has no Escape key); `closed` fires from
+## it or from Escape, and the host decides what happens next.
 
 signal closed
 
@@ -137,6 +139,8 @@ func _build_ui() -> void:
 	_clock = _mk_label("", 20, COL_DIM, HORIZONTAL_ALIGNMENT_RIGHT)
 	header_right.add_child(_clock)
 	header_right.add_child(_mk_label("PWR ▮ ONLINE", 20, COL_DIM, HORIZONTAL_ALIGNMENT_RIGHT))
+	# Touch has no Escape key, so the board always carries its own way out.
+	header_right.add_child(_mk_close_button())
 
 	vbox.add_child(_rule())
 
@@ -320,6 +324,16 @@ func _client() -> Node:
 	return get_node("/root/LeaderboardClient")
 
 
+## Wire the autoload's signals to this screen. Called from _ready; _exit_tree
+## undoes it, so a freed screen never answers a late leaderboard response.
+func _connect_client() -> void:
+	var c := _client()
+	c.leaderboard_received.connect(_on_board)
+	c.rank_preview_received.connect(_on_rank_preview)
+	c.submit_completed.connect(_on_submitted)
+	c.request_failed.connect(_on_failed)
+
+
 func _on_log_entry() -> void:
 	var pilot := _name_edit.text.strip_edges()
 	if pilot.is_empty():
@@ -457,6 +471,38 @@ func _field_style(border: Color) -> StyleBoxFlat:
 	sb.content_margin_left = 12
 	sb.content_margin_right = 12
 	return sb
+
+
+## The exit: same bezel language as the rest of the terminal, sized for a thumb.
+## Emits `closed`, which the host decides how to answer (free the screen, or
+## hand the pause card back).
+func _mk_close_button() -> Button:
+	var button := Button.new()
+	button.text = "CLOSE ✕"
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(int(150 * _ui_scale), int(44 * _ui_scale))
+	button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	if _font:
+		button.add_theme_font_override("font", _font)
+	button.add_theme_font_size_override("font_size", int(20 * _ui_scale))
+	button.add_theme_color_override("font_color", COL_PHOSPHOR)
+	button.add_theme_color_override("font_hover_color", COL_BRIGHT)
+	button.add_theme_color_override("font_pressed_color", COL_BRIGHT)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(COL_BG, 0.0)
+	style.border_color = COL_DIM
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(2)
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	button.add_theme_stylebox_override("normal", style)
+	var hovered: StyleBoxFlat = style.duplicate()
+	hovered.border_color = COL_PHOSPHOR
+	button.add_theme_stylebox_override("hover", hovered)
+	button.add_theme_stylebox_override("pressed", hovered)
+	button.add_theme_stylebox_override("focus", style)
+	button.pressed.connect(func(): closed.emit())
+	return button
 
 
 ## Four amber corner brackets framing the content, like the reference bezel.

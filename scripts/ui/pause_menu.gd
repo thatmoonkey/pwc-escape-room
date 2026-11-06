@@ -30,9 +30,12 @@ const MUTED := Color(0.72, 0.66, 0.62)
 
 var _root: Control = null
 var _mode_buttons: Dictionary = {}
+var _resume_button: Button = null
 var _reset_button: Button = null
 var _reset_confirm: HBoxContainer = null
 var _reset_note: Label = null
+## The SHIPMIND standings screen while it is up, hosted inside this layer.
+var _board: ShipmindLeaderboard = null
 
 var _open: bool = false
 
@@ -58,6 +61,10 @@ func open() -> void:
 	GameState.run_running = false
 	_disarm_reset()
 	_refresh_mode_chips()
+	# The menu is keyboard- and gamepad-reachable from here: focus lands on
+	# RESUME, and Tab walks on to the SHIPMIND BOARD.
+	if _resume_button != null:
+		_resume_button.grab_focus()
 
 
 func close() -> void:
@@ -65,6 +72,7 @@ func close() -> void:
 		return
 	_open = false
 	visible = false
+	_discard_board()
 	InputRouter.set_ui_blocking(false)
 	# Only a run that has started has a clock to hand back; the flag is what
 	# GameState.tick reads, so restoring it here is the whole unpause.
@@ -83,14 +91,43 @@ func main_menu() -> void:
 		return
 	_open = false
 	visible = false
+	_discard_board()
 	GameState.run_running = false
 	main_menu_requested.emit()
+
+
+## The standings ride on top of the menu card in this same layer: the dim and
+## the card stay underneath, unreachable while the full-rect board is up, and
+## closing the board simply reveals the menu again. No controller wiring is
+## needed - the clock is stopped and the input block is already held by open().
+func _open_board() -> void:
+	if _board != null:
+		return
+	_board = ShipmindLeaderboard.new()
+	add_child(_board)
+	_board.closed.connect(_close_board)
+	_board.show_board()
+	_root.visible = false
+
+
+func _close_board() -> void:
+	_discard_board()
+	_root.visible = _open
+
+
+func _discard_board() -> void:
+	if _board != null:
+		_board.queue_free()
+		_board = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
 		return
-	if _open:
+	if _board != null:
+		# The standings screen is up: the first escape closes it, not the menu.
+		_close_board()
+	elif _open:
 		close()
 	elif not InputRouter.ui_blocking:
 		# Another overlay owns the screen; do not stack two modals.
@@ -154,8 +191,27 @@ func _build() -> void:
 	column.add_child(title)
 
 	column.add_child(_spacer(8))
-	column.add_child(_primary_button("RESUME", close))
+	_resume_button = _primary_button("RESUME", close)
+	column.add_child(_resume_button)
 	column.add_child(_spacer(4))
+
+	# The live SHIPMIND standings, readable mid-run. The board replaces the
+	# card while it is up and hands the card back when it closes; the clock is
+	# already stopped because the menu underneath it is open.
+	var board_button := Button.new()
+	board_button.text = "SHIPMIND BOARD"
+	board_button.focus_mode = Control.FOCUS_ALL
+	board_button.add_theme_font_size_override("font_size", 14)
+	board_button.add_theme_color_override("font_color", PAPAYA)
+	board_button.add_theme_color_override("font_hover_color", GOLD)
+	var board_style := _ghost_style()
+	board_style.border_color = TANGERINE
+	board_button.add_theme_stylebox_override("normal", board_style)
+	board_button.add_theme_stylebox_override("hover", board_style)
+	board_button.add_theme_stylebox_override("pressed", board_style)
+	board_button.add_theme_stylebox_override("focus", board_style)
+	board_button.pressed.connect(_open_board)
+	column.add_child(board_button)
 
 	# The mixer, not just a music switch: music, ambience and sfx each carry
 	# their own mute and fader, because "turn the music down" and "quiet the
@@ -310,6 +366,7 @@ func _confirm_reset() -> void:
 	_disarm_reset()
 	_open = false
 	visible = false
+	_discard_board()
 	GameState.run_running = false
 	reset_requested.emit()
 
