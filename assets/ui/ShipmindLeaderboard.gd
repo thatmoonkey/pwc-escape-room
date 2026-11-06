@@ -93,9 +93,12 @@ func _exit_tree() -> void:
 		return
 	for pair in [
 		["leaderboard_received", _on_board],
-		["rank_preview_received, _on_rank_preview]".replace(", _on_rank_preview]", "\", _on_rank_preview]"),
+		["rank_preview_received", _on_rank_preview],
+		["submit_completed", _on_submitted],
+		["request_failed", _on_failed],
 	]:
-		pass
+		if c.is_connected(pair[0], pair[1]):
+			c.disconnect(pair[0], pair[1])
 
 
 # --- Public API ---------------------------------------------------------------
