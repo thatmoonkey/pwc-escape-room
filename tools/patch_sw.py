@@ -4,6 +4,11 @@
 # installed PWA can keep launching an old build indefinitely. This patch
 # flips navigation requests to network-first (cache is the offline
 # fallback), so every launch picks up the newest deploy.
+#
+# The full atomic-update story lives in the loading shell's own version ping:
+# after the game starts, the page checks for a newer build and reloads once if
+# it finds one - number, engine and game data landing together, without the
+# service worker forcing navigation from under a running session.
 import sys
 
 path = sys.argv[1]

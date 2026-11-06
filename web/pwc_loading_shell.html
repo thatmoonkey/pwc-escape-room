@@ -89,6 +89,47 @@
 		const GODOT_THREADS_ENABLED = false;
 		const engine = new Engine($GODOT_CONFIG);
 
+		// Atomic build updates: after the game starts, this page pings for a
+		// newer build. The service worker's network-first navigation already
+		// delivered the newest index.html, but the engine and game data may
+		// still be the cached old set - the classic "new number, old game".
+		// A version stamp lives in the footer; when the network's index.html
+		// carries a different one, the page tells the player and reloads once,
+		// so the shell and the package always belong to the same build.
+		const PWC_BUILD = '__BUILD_VERSION__';
+		(function () {
+			let checked = false;
+			function checkForUpdate() {
+				if (checked) return;
+				checked = true;
+				// cache:'no-store' bypasses the service worker for the stamp
+				// itself - the point is to compare against what is live, not
+				// what the worker believes is current.
+				fetch('index.html', { cache: 'no-store' })
+					.then(function (r) { return r.text(); })
+					.then(function (html) {
+						const match = html.match(/BUILD ([a-zA-Z0-9-]+)/);
+						const live = match ? match[1] : null;
+						if (live && live !== PWC_BUILD) {
+							const detail = document.getElementById('pwc-detail');
+							const title = document.getElementById('pwc-title');
+							const overlay = document.getElementById('pwc-loading');
+							overlay.style.display = 'flex';
+							overlay.classList.remove('is-hidden');
+							title.textContent = 'New build available';
+							detail.textContent = 'A newer build (' + live + ') is on the server. Loading it now.';
+							setTimeout(function () { location.reload(); }, 1600);
+						}
+					})
+					.catch(function () { /* offline: the running build stands */ });
+			}
+			// Check once the game has claimed the frame - the engine's own
+			// startup is the moment the package versions can actually diverge.
+			window.addEventListener('load', function () {
+				setTimeout(checkForUpdate, 3000);
+			});
+		}());
+
 		// Forced landscape: the rotate screen owns the page the moment the
 		// viewport is taller than it is wide - before any loading begins, and
 		// again at any point in the session. Only a real phone/touch device
