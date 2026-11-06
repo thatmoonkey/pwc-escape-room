@@ -17,7 +17,7 @@ signal request_failed(action: String, message: String)
 
 ## Your Netlify site's URL. The Android build must use the full https://
 ## address; the web build can use the same one.
-const BASE_URL := "https://YOUR-SITE-NAME.netlify.app/api"
+const BASE_URL := "https://pwc-iom-space.netlify.app/api"
 const QUEUE_PATH := "user://leaderboard_queue.json"
 
 var _queue: Array = []

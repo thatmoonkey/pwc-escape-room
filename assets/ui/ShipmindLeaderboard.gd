@@ -16,7 +16,7 @@ extends Control
 signal closed
 
 const FONT_PATH := "res://library/shooter-scifi/fonts/ShareTechMono-Regular.ttf"
-const CRT_SHADER_PATH := "res://ui/crt_phosphor.gdshader"  # adjust to where you save the shader
+const CRT_SHADER_PATH := "res://assets/ui/crt_phosphor.gdshader"  # adjust to where you save the shader
 const MAX_ROWS := 10
 const ACTIVE_WINDOW_SECONDS := 900   # submissions younger than this read "ACTIVE"
 
