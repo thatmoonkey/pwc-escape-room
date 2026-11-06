@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/launch_screen.tscn" id="9_launch"]
 [ext_resource type="Script" uid="uid://dsbcwhtep4nr" path="res://scripts/ui/pause_menu.gd" id="10_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/completion_screen.tscn" id="12_eb6dy"]
+[ext_resource type="Script" uid="uid://dhwayk85wnkum" path="res://scripts/ui/rotate_prompt.gd" id="13_rotate"]
 
 [node name="Main" type="Node3D" unique_id=2043222375]
 script = ExtResource("1_game")
@@ -57,3 +58,6 @@ script = ExtResource("10_pause")
 [node name="OneShot2" type="AudioStreamPlayer" parent="Sfx" unique_id=1236860620 groups=["sfx_voice"]]
 
 [node name="OneShot3" type="AudioStreamPlayer" parent="Sfx" unique_id=1919885626 groups=["sfx_voice"]]
+
+[node name="RotatePrompt" type="CanvasLayer" parent="."]
+script = ExtResource("13_rotate")

@@ -9,34 +9,32 @@ extends CanvasLayer
 ## aside by itself the moment the device is wide again, on the same check the
 ## rest of the interface makes whenever the frame changes size.
 ##
-## IT NEVER LOCKS ANYBODY OUT. "READ IT ANYWAY" waves it away for the session -
-## for a tablet that cannot be turned, a browser window that will not resize, or
-## a crew member who simply wants to read on. It is shown only on a touch device
-## held tall: a desktop window that happens to be portrait is not a phone, and
-## the launch card's mode chips can force MOBILE when the layout is being
-## checked on a desk.
+## THE SHIP IS LANDSCAPE ONLY. There is no way past this card: a phone stays on
+## it until it is wide, and it returns the moment the device is turned tall
+## again. It is shown only on a touch device: a desktop window that happens to
+## be portrait is not a phone, and the launch card's mode chips can force MOBILE
+## when the layout is being checked on a desk.
 
 const PAPAYA := Color(0.863, 0.369, 0.153)
 const GOLD := Color(0.941, 0.722, 0.224)
 const WHITE := Color(1.0, 1.0, 1.0)
 const BODY := Color(0.93, 0.89, 0.85)
-const MUTED := Color(0.72, 0.66, 0.62)
 const GROUND := Color(0.06, 0.032, 0.022)
 
 var _root: Control = null
 var _column: VBoxContainer = null
-var _dismissed: bool = false
 ## Watched rather than signalled: the mode layer is a plain static with no
 ## signals, so this card notices a change the same way the launch card and the
 ## station controller do - by looking at it once a frame.
 var _mode_watch: int = -1
-## Set the first time the frame is wide. After that the card never returns:
-## a crew who has read the story once on a turned phone is not asked again.
-var _turned: bool = false
 
 
 func _ready() -> void:
 	layer = 140
+	## Ask the OS for landscape as well as holding the card: a phone that honours
+	## the request never reaches the card at all.
+	if OS.has_feature("mobile"):
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
 	_build()
 	get_viewport().size_changed.connect(_refresh)
 	_refresh()
@@ -55,16 +53,8 @@ func is_open() -> bool:
 	return _root != null and _root.visible
 
 
-func dismiss() -> void:
-	_dismissed = true
-	_refresh()
-
-
 func _refresh() -> void:
-	var portrait: bool = _is_portrait()
-	if not portrait:
-		_turned = true
-	var wanted: bool = portrait and not _turned and not _dismissed and InputMode.is_touch()
+	var wanted: bool = _is_portrait() and InputMode.is_touch()
 	if _root.visible != wanted:
 		_root.visible = wanted
 	if wanted:
@@ -157,33 +147,7 @@ func _build() -> void:
 	words.add_theme_color_override("font_color", BODY)
 	_column.add_child(words)
 
-	_column.add_child(_gap(_px(24.0)))
-
-	var button := Button.new()
-	button.name = "Anyway"
-	button.text = "READ IT ANYWAY"
-	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(_px(180.0), _px(44.0))
-	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	button.add_theme_font_size_override("font_size", _px(15))
-	button.add_theme_color_override("font_color", MUTED)
-	button.add_theme_color_override("font_hover_color", GOLD)
-	button.add_theme_color_override("font_pressed_color", GOLD)
-	var flat := StyleBoxFlat.new()
-	flat.bg_color = Color(0, 0, 0, 0)
-	flat.border_color = Color(0.42, 0.33, 0.26)
-	flat.set_border_width_all(1)
-	flat.set_corner_radius_all(3)
-	button.add_theme_stylebox_override("normal", flat)
-	var hover: StyleBoxFlat = flat.duplicate()
-	hover.border_color = GOLD
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", hover)
-	button.add_theme_stylebox_override("focus", flat)
-	button.pressed.connect(dismiss)
-	_column.add_child(button)
-
-	_column.add_child(_gap(_px(12.0)))
+	_column.add_child(_gap(_px(22.0)))
 
 	var hint := Label.new()
 	hint.name = "Hint"
