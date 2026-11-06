@@ -59,7 +59,7 @@ const SPECTRUM_STOPS := ["AUTOMATED", "REVIEW", "SIGN-OFF", "HUMAN-ONLY"]
 
 ## The footer is quiet: it is the only line of instruction the console has,
 ## and it is never the point of the screen.
-const FOOTER_DESKTOP := "TAP a tile to open it   -   ESC closes the console"
+const FOOTER_DESKTOP := "TAP a tile to open it   -   TAP CLOSE to leave"
 const FOOTER_TOUCH := "TAP a tile to open it   -   TAP CLOSE to leave"
 
 

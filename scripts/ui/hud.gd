@@ -400,7 +400,6 @@ func _menu_button() -> Button:
 	button.name = "MenuButton"
 	button.text = "MENU"
 	button.focus_mode = Control.FOCUS_NONE
-	button.tooltip_text = "Pause and options (Esc)"
 	button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	button.offset_left = -100.0
 	button.offset_top = 16.0
