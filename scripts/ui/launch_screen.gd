@@ -448,22 +448,12 @@ func _judged_rows() -> Dictionary:
 
 
 func _controls_rows() -> Dictionary:
-	var rows: Array
-	if InputMode.is_touch():
-		rows = [
-			{"icon": "sliders", "lead": "LEFT THUMB", "text": "walk - stick appears where you touch."},
-			{"icon": "chevron", "lead": "RIGHT THUMB", "text": "look - drag the right half."},
-			{"icon": "check", "lead": "TAP", "text": "interact - tap a console."},
-			{"icon": "chevron", "lead": "SPRINT", "text": "the left toggle - hold the pace up."},
-		]
-	else:
-		rows = [
-			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse: look."},
-			{"icon": "check", "lead": "E", "text": "interact."},
-			{"icon": "chevron", "lead": "SHIFT", "text": "sprint."},
-			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one."},
-			{"icon": "menu", "lead": "ESC", "text": "pause menu."},
-		]
+	var rows: Array = [
+		{"icon": "sliders", "lead": "LEFT THUMB", "text": "walk - stick appears where you touch."},
+		{"icon": "chevron", "lead": "RIGHT THUMB", "text": "look - drag the right half."},
+		{"icon": "check", "lead": "TAP", "text": "interact - tap a console."},
+		{"icon": "chevron", "lead": "SPRINT", "text": "the left toggle - hold the pace up."},
+	]
 	return {"kicker": "INPUT", "title": "Controls", "rows": rows}
 
 

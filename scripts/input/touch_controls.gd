@@ -61,8 +61,6 @@ extends CanvasLayer
 @onready var tutorial_progress: ProgressBar = $Root/TutorialCard/Margin/VBox/Progress
 @onready var tutorial_arrow: Label = $Root/TutorialArrow
 
-const MOVE_ACTIONS: Array[String] = ["move_left", "move_right", "move_forward", "move_back"]
-
 ## The controls are taught in three stages: the move stick alone (the crew
 ## walk before they look), then the look stick alone (the view before the
 ## world reacts), then both together. Stage completion is tracked so the
@@ -74,7 +72,6 @@ enum TutorialStage {
 	BOTH,
 }
 var _tutorial_stage: int = TutorialStage.BOTH
-var _move_seen: Dictionary = {}
 var _aim_wired: bool = false
 var _console_in_focus: bool = false
 var _console_prompt_open: bool = false
@@ -161,9 +158,7 @@ func _pop_in(base: Control) -> void:
 func _refresh_hint() -> void:
 	match _tutorial_stage:
 		TutorialStage.MOVE_ONLY:
-			_show_card("WALK THE SHIP",
-				"Drag the stick to walk\n- forward, back, left, right",
-				float(_move_seen.size()) / MOVE_ACTIONS.size())
+			_show_card("WALK THE SHIP", "Drag the stick to walk", -1.0)
 		TutorialStage.LOOK_ONLY:
 			_show_card("LOOK AROUND",
 				"Drag the stick to look around", 0.0)
@@ -365,6 +360,13 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 		# Every touch is a candidate tap first: it only becomes a stick once the
 		# thumb moves, so a quick touch-and-release is always a use, never a
 		# stick that briefly appeared.
+		# A thumb landing on the right half reveals the look stick at once -
+		# the walkthrough never makes the crew ask twice for the second stick.
+		if _tutorial_stage == TutorialStage.MOVE_ONLY:
+			var view: Vector2 = get_viewport().get_visible_rect().size
+			if position.x >= view.x * 0.5 \
+					and position.y > view.y * (1.0 - stick_grab_region):
+				_advance_tutorial()
 		_pending_touch = index
 		_pending_start = position
 		return
@@ -409,9 +411,9 @@ func _handle_drag(index: int, position: Vector2) -> void:
 
 ## A drag in the lower half of the screen claims the nearest stick and centres
 ## it under the thumb, so the stick is under the finger the moment it starts
-## to move - not under the finger it has to hunt for. During the walkthrough
-## only the stage's stick exists: a thumb on the other half of the screen is
-## neither a stick nor a use, so it teaches nothing the stage isn't teaching.
+## to move - not under the finger it has to hunt for. A thumb landing on the
+## right half during the walk lesson is the look stick asking in person: the
+## walkthrough steps aside at once and the stick claims under the thumb.
 func _claim_stick(index: int, position: Vector2) -> void:
 	var view: Vector2 = get_viewport().get_visible_rect().size
 	var in_grab: bool = position.y > view.y * (1.0 - stick_grab_region)
@@ -421,8 +423,9 @@ func _claim_stick(index: int, position: Vector2) -> void:
 		_move_center = position
 		move_base.position = position - Vector2(move_radius, move_radius)
 		_center_knob(move_knob, move_radius, move_knob_radius)
-	elif in_grab and _look_touch == -1 and position.x >= view.x * 0.5 \
-			and _tutorial_stage != TutorialStage.MOVE_ONLY:
+	elif in_grab and _look_touch == -1 and position.x >= view.x * 0.5:
+		if _tutorial_stage == TutorialStage.MOVE_ONLY:
+			_advance_tutorial()
 		_look_touch = index
 		_look_center = position
 		look_base.position = position - Vector2(look_radius, look_radius)
@@ -467,23 +470,11 @@ func _set_knob(knob: Control, radius: float, knob_radius: float, direction: Vect
 func _set_move(vector: Vector2) -> void:
 	# The walkthrough's first stage ends when the crew have pushed the stick
 	# every way the ship can go: a stage you can skip is a stick they never
-	# learned, so each direction must be felt before the look stick appears.
-	if _tutorial_stage == TutorialStage.MOVE_ONLY:
-		if vector.x < -0.5:
-			_move_seen["move_left"] = true
-		if vector.x > 0.5:
-			_move_seen["move_right"] = true
-		if vector.y < -0.5:
-			_move_seen["move_forward"] = true
-		if vector.y > 0.5:
-			_move_seen["move_back"] = true
-		var all_seen: bool = true
-		for direction in MOVE_ACTIONS:
-			if not _move_seen.get(direction, false):
-				all_seen = false
-				break
-		if all_seen:
-			_advance_tutorial()
+	## The walkthrough's first gate used to demand all four directions before
+	## the look stick appeared; any real deflection teaches the stick, so the
+	## look stick arrives the moment the crew walks at all.
+	if _tutorial_stage == TutorialStage.MOVE_ONLY and vector != Vector2.ZERO:
+		_advance_tutorial()
 	_action("move_left", vector.x < -0.5)
 	_action("move_right", vector.x > 0.5)
 	_action("move_forward", vector.y < -0.5)

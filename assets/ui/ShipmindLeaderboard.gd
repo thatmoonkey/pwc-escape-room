@@ -331,6 +331,17 @@ func _build_ui() -> void:
 	add_child(flicker)
 	flicker.start()
 
+	## Live board: while the screen is up, scores other pilots post arrive
+	## every minute without a reload. The refresh is quiet - _on_board only
+	## rewrites the status when it was still FETCHING, so an entry in progress
+	## is never talked over - and the screen frees on close, so the polling
+	## dies with it.
+	var refresh := Timer.new()
+	refresh.wait_time = 60.0
+	refresh.timeout.connect(func(): _client().fetch_leaderboard(_mode, MAX_ROWS))
+	add_child(refresh)
+	refresh.start()
+
 
 # --- Client signal handlers ---------------------------------------------------
 

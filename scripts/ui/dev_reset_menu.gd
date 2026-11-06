@@ -29,14 +29,12 @@ extends CanvasLayer
 @onready var close_button: Button = $Root/Card/Margin/VBox/Buttons/Close
 
 var _reloading: bool = false
-var _teaser: Label = null
 var _mode_buttons: Dictionary = {}
 
 
 func _ready() -> void:
 	add_to_group("dev_reset_menu")
 	root.visible = false
-	_build_teaser()
 	_build_mode_row()
 	reset_button.pressed.connect(_on_reset_all)
 	restore_button.pressed.connect(_on_restore_all)
@@ -52,14 +50,12 @@ func open() -> void:
 	_refresh_status()
 	_refresh_mode_buttons()
 	root.visible = true
-	_set_teaser(false)
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 func close() -> void:
 	root.visible = false
-	_set_teaser(true)
 	InputRouter.set_ui_blocking(false)
 
 
@@ -158,32 +154,5 @@ func _reload() -> void:
 	get_tree().call_deferred("reload_current_scene")
 
 
-## A small always-visible corner label. Without it the panel is undiscoverable:
-## it is hidden until the key is pressed, and the only hint lives inside the
-## panel you cannot see yet. Built in code so the dev scaffolding stays in one
-## file, and hidden while the panel is open so it never overlaps the card.
-func _build_teaser() -> void:
-	_teaser = Label.new()
-	_teaser.name = "Teaser"
-	_teaser.anchor_left = 1.0
-	_teaser.anchor_top = 1.0
-	_teaser.anchor_right = 1.0
-	_teaser.anchor_bottom = 1.0
-	_teaser.offset_left = -360.0
-	_teaser.offset_top = -34.0
-	_teaser.offset_right = -16.0
-	_teaser.offset_bottom = -12.0
-	_teaser.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_teaser.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_teaser.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_teaser.add_theme_color_override("font_color", Color(1.0, 0.55, 0.12, 0.85))
-	_teaser.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.03, 1.0))
-	_teaser.add_theme_constant_override("outline_size", 4)
-	_teaser.add_theme_font_size_override("font_size", 30)
-	_teaser.text = "DEV TOOL   F8 or `  -  reset progress"
-	add_child(_teaser)
-
-
-func _set_teaser(value: bool) -> void:
-	if _teaser != null and is_instance_valid(_teaser):
-		_teaser.visible = value
+## The panel is dev scaffolding: F8 or the backtick toggles it, and it stays
+## out of the player's screen entirely - no corner label advertising it.
