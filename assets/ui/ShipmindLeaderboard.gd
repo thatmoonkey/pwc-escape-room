@@ -324,6 +324,16 @@ func _client() -> Node:
 	return get_node("/root/LeaderboardClient")
 
 
+## Wire the autoload's signals to this screen. Called from _ready; _exit_tree
+## undoes it, so a freed screen never answers a late leaderboard response.
+func _connect_client() -> void:
+	var c := _client()
+	c.leaderboard_received.connect(_on_board)
+	c.rank_preview_received.connect(_on_rank_preview)
+	c.submit_completed.connect(_on_submitted)
+	c.request_failed.connect(_on_failed)
+
+
 func _on_log_entry() -> void:
 	var pilot := _name_edit.text.strip_edges()
 	if pilot.is_empty():
