@@ -122,7 +122,7 @@ func _build_shell() -> void:
 	margin.add_theme_constant_override("margin_bottom", 18)
 	_panel.add_child(margin)
 
-	_scroll := ScrollContainer.new()
+	_scroll = ScrollContainer.new()
 	_scroll.name = "Scroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
