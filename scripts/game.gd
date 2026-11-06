@@ -40,11 +40,6 @@ func _ready() -> void:
 	terminal.opened.connect(_on_terminal_opened)
 	terminal.closed.connect(_on_overlay_closed)
 	principle_card.closed.connect(_on_overlay_closed)
-	if launch_screen != null:
-		if not launch_screen.begun.is_connected(_on_session_begin):
-			launch_screen.begun.connect(_on_session_begin)
-		if not launch_screen.intro_requested.is_connected(_on_intro_requested):
-			launch_screen.intro_requested.connect(_on_intro_requested)
 	## The end of the run: the cutscene hands the camera back to the crew in the
 	## cockpit, and the completion screen then states what the five decisions
 	## added up to. It is the only screen that reads the whole run at once.
@@ -70,33 +65,31 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if OS.is_debug_build():
 		print("[Sfx] ", Sfx.debug_state())
-	## The crew declares the mandate before the run begins. A fresh session gets
-	## the intro first; a resumed session returns directly to the mandate screen.
+	## The mandate is fixed and the landing screen is gone: the ship loads
+	## straight into play, with the narrative intro (when one is wanted) the
+	## only thing standing between the crew and the corridor.
 	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
-	if launch_screen != null:
-		launch_screen.hide_screen()
+	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
+	if launch != null:
+		launch.hide_screen()
 	if intro != null and not get_tree().has_meta("shipmind_intro_played"):
 		hud.visible = false
 		intro.finished.connect(_on_intro_finished)
 	else:
 		if intro != null:
 			intro.visible = false
-		if launch_screen != null:
-			launch_screen.show_screen()
-		else:
-			_on_session_begin()
+		_on_session_begin()
 
 
-## The intro has told its three beats. The crew declares the mandate before
-## taking the ship.
+## The intro has told its three beats. The crew takes the ship directly - the
+## mandate card is retired, so the story hands straight over to the corridor.
 func _on_intro_finished() -> void:
 	get_tree().set_meta("shipmind_intro_played", true)
-	if launch_screen != null:
-		launch_screen.show_screen()
-	else:
-		_on_session_begin()
-## "Back to the title card" starts a clean run. The full reset wipes the record
-## and reloads the scene, where the crew can declare a fresh mandate.
+	_on_session_begin()
+## "Back to the title card" now means "start the run again": the mandate card
+## is retired, so there is no screen to hand back to. The full reset wipes the
+## record and reloads the scene, which is exactly the clean start the crew is
+## asking for when they leave the run.
 func _on_main_menu_requested() -> void:
 	GameState.clear_save()
 	InputRouter.set_ui_blocking(false)
@@ -130,9 +123,6 @@ func _on_intro_requested() -> void:
 ## not when the title card loads, so reading the briefing is not billed to them.
 func _on_session_begin() -> void:
 	hud.visible = true
-	## The intro and mandate overlays hold input while they are open; the corridor
-	## needs it back the moment the crew takes the ship.
-	InputRouter.set_ui_blocking(false)
 	GameState.begin_run()
 	_announce_boot()
 	## The crew have the ship: the cursor is taken back here as well as in the
