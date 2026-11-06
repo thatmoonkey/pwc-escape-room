@@ -169,7 +169,7 @@ func _build_teaser() -> void:
 	_teaser.anchor_top = 1.0
 	_teaser.anchor_right = 1.0
 	_teaser.anchor_bottom = 1.0
-	var inset: float = Brand.safe_inset(get_viewport_rect().size)
+	var inset: float = Brand.safe_inset(get_viewport().get_visible_rect().size)
 	_teaser.offset_left = -(inset + 344.0)
 	_teaser.offset_top = -(inset + 22.0)
 	_teaser.offset_right = -inset
