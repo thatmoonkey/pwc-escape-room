@@ -12,10 +12,10 @@ extends CanvasLayer
 ## together rather than in a list of sentences.
 ##
 ## Under the matrix is the one thing left to do: put the run on the board. The
-## board is the live SHIPMIND uplink - the network leaderboard behind the CRT
-## terminal screen, stored on the server so the whole venue can see it. The
-## uplink client queues submissions on disk when the network is down, so the
-## flow cannot lose a run even in a conference basement.
+## score is pre-filled from the record and can be corrected, with a name and an
+## email address or phone number. The board is stored on the device (see
+## Leaderboard), which is what lets this screen work the same in a browser, in
+## an Android app and in a headset, with no venue network to depend on.
 ##
 ## PLATFORM NOTE. Everything here is pointer-driven - a click, a tap, a
 ## controller-driven pointer - and no control needs a keyboard to be dismissed.
@@ -30,11 +30,27 @@ const PEACH := ScoreVisuals.PEACH
 const OFF_WHITE := ScoreVisuals.OFF_WHITE
 const SLATE := ScoreVisuals.SLATE
 
+## The two pages: the run's results, then the board. One decision per page, so
+## neither page has to be scrolled to be understood.
+const PAGE_RESULTS := 0
+const PAGE_BOARD := 1
+
 var _open: bool = false
+var _page: int = PAGE_RESULTS
 var _root: Control = null
 var _panel: PanelContainer = null
 var _scroll: ScrollContainer = null
 var _content: VBoxContainer = null
+var _board_box: VBoxContainer = null
+var _score_edit: LineEdit = null
+var _name_edit: LineEdit = null
+var _contact_edit: LineEdit = null
+var _status: Label = null
+var _last_submitted: String = ""
+## Kept on the screen rather than in the label, so the message survives a walk
+## back to the results and forward again.
+var _status_text: String = ""
+var _status_problem: bool = false
 ## The live SHIPMIND uplink screen while it is up, hosted inside this layer.
 var _board: ShipmindLeaderboard = null
 
@@ -53,8 +69,13 @@ func is_open() -> bool:
 ## The cockpit is visible behind this: the crew are back in their seats, looking
 ## at what their five decisions added up to.
 func show_screen() -> void:
+	Leaderboard.load_data()
 	_open = true
+	_page = PAGE_RESULTS
+	_status_text = ""
+	_status_problem = false
 	root_visible(true)
+	_last_submitted = ""
 	_rebuild()
 	_relayout()
 	InputRouter.set_ui_blocking(true)
@@ -122,7 +143,7 @@ func _build_shell() -> void:
 	margin.add_theme_constant_override("margin_bottom", 18)
 	_panel.add_child(margin)
 
-	_scroll := ScrollContainer.new()
+	_scroll = ScrollContainer.new()
 	_scroll.name = "Scroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -142,7 +163,12 @@ func root_visible(value: bool) -> void:
 
 func _rebuild() -> void:
 	_clear(_content)
-	_build_results_page()
+	_status = null
+	_board_box = null
+	if _page == PAGE_RESULTS:
+		_build_results_page()
+	else:
+		_build_board_page()
 
 
 ## PAGE ONE: WHAT THE RUN ADDED UP TO. Nothing to fill in, nothing to scroll to -
@@ -158,6 +184,42 @@ func _build_results_page() -> void:
 	_content.add_child(_matrix())
 	_content.add_child(_gap(_px(8)))
 	_content.add_child(_results_actions())
+
+
+## PAGE TWO: THE ONE THING LEFT TO DO WITH IT. The board and the way onto it,
+## with room to say what went wrong if the form is not filled in properly.
+func _build_board_page() -> void:
+	_content.add_child(_kicker("MISSION COMPLETE  —  YOUR RUN"))
+	_content.add_child(_title("PUT IT ON THE BOARD"))
+	_content.add_child(ScoreVisuals.caption(
+		"Score %d of %d, from your record - change it if you want."
+		% [Score.total(), Score.max_total()], Brand.NEUTRAL_LIGHT))
+	_content.add_child(_rule())
+	_content.add_child(_form())
+	_status = _status_label(_status_text)
+	_set_status(_status_text, _status_problem)
+	_content.add_child(_status)
+	_content.add_child(_gap(_px(6)))
+	_content.add_child(_uplink_actions())
+	_content.add_child(_gap(_px(6)))
+	_board_box = VBoxContainer.new()
+	_board_box.name = "Board"
+	_board_box.add_theme_constant_override("separation", 3)
+	_content.add_child(_board_box)
+	_refresh_board()
+	_content.add_child(_gap(_px(8)))
+	_content.add_child(_board_actions())
+
+
+func _show_page(page: int) -> void:
+	if _page == page:
+		return
+	_page = page
+	_rebuild()
+	_relayout()
+	## A page opens at its top: arriving halfway down a list you have not read
+	## yet is exactly the trip-up this split exists to remove.
+	_scroll.scroll_vertical = 0
 
 
 # --- The run, as a picture -----------------------------------------------------------
@@ -310,9 +372,157 @@ func _score_chip(system_id: String) -> Control:
 	return chip
 
 
+# --- The form ----------------------------------------------------------------------
+
+
+func _form() -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	## Stacked, not in a row: the form lives in its own column beside the matrix,
+	## and three fields across 330 points would leave none of them wide enough to
+	## read an email address back in.
+	var fields := VBoxContainer.new()
+	fields.add_theme_constant_override("separation", 10)
+	_score_edit = _field(fields, "SCORE", "%d" % Score.total(), _px(110))
+	_score_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
+	_name_edit = _field(fields, "NAME", _default_name(), 0.0)
+	_contact_edit = _field(fields, "EMAIL OR PHONE", Leaderboard.last_contact, 0.0)
+	_contact_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS
+	box.add_child(fields)
+
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
+	var submit := Button.new()
+	submit.name = "Submit"
+	submit.text = "ADD TO THE LEADERBOARD"
+	submit.custom_minimum_size = Vector2(0.0, _px(46))
+	submit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	submit.add_theme_font_size_override("font_size", _px(14))
+	submit.add_theme_color_override("font_color", ScoreVisuals.INK)
+	submit.add_theme_color_override("font_hover_color", ScoreVisuals.INK)
+	submit.add_theme_color_override("font_pressed_color", ScoreVisuals.INK)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = ORANGE
+	fill.set_corner_radius_all(2)
+	submit.add_theme_stylebox_override("normal", fill)
+	var hover: StyleBoxFlat = fill.duplicate()
+	hover.bg_color = Brand.ACCENT_TINT
+	submit.add_theme_stylebox_override("hover", hover)
+	submit.add_theme_stylebox_override("pressed", hover)
+	submit.pressed.connect(_on_submit)
+	actions.add_child(submit)
+	box.add_child(actions)
+
+	if InputMode.is_vr():
+		box.add_child(ScoreVisuals.caption(
+			"No keyboard in the headset: your crew name is used as the name and the "
+			+ "contact can be added later from the desktop version.", Brand.NEUTRAL))
+	return box
+
+
+func _field(parent: Control, label_text: String, value: String, width: float) -> LineEdit:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 3)
+	if width > 0.0:
+		box.custom_minimum_size = Vector2(width, 0.0)
+	else:
+		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(_cell_label(label_text, 10, Brand.NEUTRAL))
+	var edit := LineEdit.new()
+	edit.text = value
+	## Typing appends to what is already there. Without this the pre-filled
+	## callsign put the caret at the start, so the first keystroke landed in
+	## front of it ("wREY" instead of "REY").
+	edit.caret_column = value.length()
+	edit.custom_minimum_size = Vector2(0.0, _px(34))
+	edit.add_theme_font_size_override("font_size", _px(14))
+	edit.add_theme_color_override("font_color", Brand.INK)
+	edit.add_theme_color_override("font_placeholder_color", Brand.NEUTRAL)
+	edit.add_theme_color_override("caret_color", Brand.ACCENT_TINT)
+	edit.add_theme_stylebox_override("normal", _field_box(Brand.SURFACE_RAISED, Brand.NEUTRAL))
+	edit.add_theme_stylebox_override("focus", _field_box(Brand.SURFACE_RAISED, Brand.ACCENT_TINT))
+	edit.text_submitted.connect(func(_text: String) -> void: _on_submit())
+	box.add_child(edit)
+	parent.add_child(box)
+	return edit
+
+
+func _field_box(background: Color, border: Color) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = background
+	box.border_color = border
+	box.set_border_width_all(1)
+	box.set_corner_radius_all(2)
+	box.content_margin_left = 10.0
+	box.content_margin_right = 10.0
+	return box
+
+
+func _on_submit() -> void:
+	if _status == null or _score_edit == null:
+		return
+	var score_text: String = _score_edit.text.strip_edges()
+	if not score_text.is_valid_int():
+		_set_status("The score has to be a whole number.", true)
+		return
+	var result: Dictionary = Leaderboard.submit(
+		_name_edit.text, _contact_edit.text, int(score_text), not InputMode.is_vr())
+	if not bool(result.get("ok", false)):
+		_set_status(String(result.get("error", "That did not go through.")), true)
+		return
+	var entry: Dictionary = result.get("entry", {})
+	_last_submitted = String(entry.get("id", ""))
+	_set_status("ON THE BOARD  —  %s, rank %d of %d." % [
+		String(entry.get("name", "")), int(result.get("rank", 1)), Leaderboard.count()], false)
+	_refresh_board()
+
+
+func _refresh_board() -> void:
+	if _board_box == null:
+		return
+	_clear(_board_box)
+	var rows: Array = Leaderboard.top(5)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 14)
+	head.add_child(_cell_label("RANK", 10, Brand.NEUTRAL, 34.0))
+	head.add_child(_cell_label("NAME", 10, Brand.NEUTRAL))
+	head.add_child(_cell_label("SCORE", 10, Brand.NEUTRAL, 50.0))
+	head.add_child(_cell_label("CONTACT", 10, Brand.NEUTRAL))
+	_board_box.add_child(head)
+	if rows.is_empty():
+		_board_box.add_child(ScoreVisuals.caption(
+			"No runs on this device's board yet. Add yours above.", Brand.NEUTRAL))
+		return
+	var rank: int = 1
+	for entry in rows:
+		var mine: bool = String(entry.get("id", "")) == _last_submitted
+		var tint: Color = ORANGE if mine else Brand.NEUTRAL_LIGHT
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 14)
+		line.add_child(_cell_label("%d" % rank, 12, tint, 34.0))
+		line.add_child(_cell_label(String(entry.get("name", "")), 12, tint))
+		line.add_child(_cell_label("%d" % int(entry.get("score", 0)), 12, tint, 50.0))
+		var contact: String = String(entry.get("contact", ""))
+		if contact == "":
+			contact = "not shared"
+		line.add_child(_cell_label(contact, 11, Brand.NEUTRAL))
+		_board_box.add_child(line)
+		rank += 1
+
+
+## The run can also go onto the live SHIPMIND uplink - the network board behind
+## the CRT terminal screen, stored on the server rather than this device. It
+## sits beside the device board rather than instead of it: the device board is
+## the offline-safe path, the uplink is the one the whole venue can see.
+func _uplink_actions() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	row.add_child(_primary_button("LOG IT ON THE SHIPMIND UPLINK", _open_uplink_board))
+	return row
+
+
 ## The CRT screen covers this panel completely while it is up, so the root
-## steps out of the way; closing the board hands the results page back
-## untouched.
+## steps out of the way; closing the board hands the form back untouched.
 func _open_uplink_board() -> void:
 	if _board != null:
 		return
@@ -334,9 +544,8 @@ func _discard_uplink() -> void:
 		_board = null
 
 
-## Page one's actions. The primary is the one thing left to do with the run:
-## put it on the board. The board is the SHIPMIND uplink - there is no local
-## board any more.
+## Page one's single action. It is the only primary control on the page, so
+## there is nothing to choose between and nothing below it to scroll to.
 func _results_actions() -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
@@ -345,9 +554,31 @@ func _results_actions() -> Control:
 	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(note)
-	row.add_child(_quiet_button("BACK TO THE SHIP", close))
-	row.add_child(_primary_button("PUT IT ON THE BOARD", _open_uplink_board))
+	row.add_child(_primary_button("CONTINUE", _on_continue))
 	return row
+
+
+## Page two's two ways out: back for another look at the run, or back to the ship.
+func _board_actions() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	var note := ScoreVisuals.caption(
+		"The board lives on this device - works offline.",
+		Brand.NEUTRAL)
+	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(note)
+	row.add_child(_quiet_button("BACK TO THE RESULTS", func() -> void: _show_page(PAGE_RESULTS)))
+	row.add_child(_quiet_button("BACK TO THE SHIP", close))
+	return row
+
+
+func _on_continue() -> void:
+	_show_page(PAGE_BOARD)
+	## The form is the whole of page two, so the name field takes the keyboard as
+	## soon as it is the page in front of the player.
+	if _name_edit != null:
+		_race_safe_grab_focus(_name_edit)
 
 
 func _primary_button(label_text: String, handler: Callable) -> Button:
@@ -383,17 +614,6 @@ func _quiet_button(label_text: String, handler: Callable) -> Button:
 	button.add_theme_stylebox_override("hover", _field_box(Color(0.0, 0.0, 0.0, 0.0), Brand.ACCENT_TINT))
 	button.pressed.connect(handler)
 	return button
-
-
-func _field_box(background: Color, border: Color) -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = background
-	box.border_color = border
-	box.set_border_width_all(1)
-	box.set_corner_radius_all(2)
-	box.content_margin_left = 10.0
-	box.content_margin_right = 10.0
-	return box
 
 
 func _gap(height: float) -> Control:
@@ -443,11 +663,36 @@ func _cell_label(text: String, size: int, tint: Color, width: float = 0.0) -> La
 	return label
 
 
+func _status_label(text: String) -> Label:
+	var label := Label.new()
+	label.name = "Status"
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", _px(13))
+	label.add_theme_color_override("font_color", PEACH)
+	return label
+
+
+func _set_status(text: String, problem: bool) -> void:
+	_status_text = text
+	_status_problem = problem
+	if _status == null:
+		return
+	_status.text = text
+	_status.add_theme_color_override("font_color", PEACH if problem else ORANGE)
+
+
 func _rule() -> ColorRect:
 	var rule := ColorRect.new()
 	rule.color = Color(1.0, 1.0, 1.0, 0.12)
 	rule.custom_minimum_size = Vector2(0.0, 1.0)
 	return rule
+
+
+func _default_name() -> String:
+	if Leaderboard.last_name != "":
+		return Leaderboard.last_name
+	return GameState.callsign_or_default()
 
 
 func _mean_quality() -> float:
@@ -475,6 +720,14 @@ func _clear(container: Node) -> void:
 	for child in container.get_children():
 		container.remove_child(child)
 		child.queue_free()
+
+
+func _race_safe_grab_focus(control: Control) -> void:
+	## Focus is only wanted on a machine that can type into it; a headset or a
+	## bare controller would get an invisible caret it cannot use.
+	if InputMode.is_vr():
+		return
+	control.call_deferred("grab_focus")
 
 
 # --- Layout -----------------------------------------------------------------------
