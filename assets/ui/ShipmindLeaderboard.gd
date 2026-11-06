@@ -186,8 +186,8 @@ func _notification(what: int) -> void:
 func _build_ui() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", int(40 * _ui_scale))
-	margin.add_theme_constant_override("margin_right", int(40 * _ui_scale))
+	margin.add_theme_constant_override("margin_left", int(28 * _ui_scale))
+	margin.add_theme_constant_override("margin_right", int(28 * _ui_scale))
 	margin.add_theme_constant_override("margin_top", int(28 * _ui_scale))
 	margin.add_theme_constant_override("margin_bottom", int(24 * _ui_scale))
 	_text_root.add_child(margin)
@@ -225,7 +225,7 @@ func _build_ui() -> void:
 	_grid = GridContainer.new()
 	_grid.columns = 5
 	_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grid.add_theme_constant_override("h_separation", int(20 * _ui_scale))
+	_grid.add_theme_constant_override("h_separation", int(14 * _ui_scale))
 	_grid.add_theme_constant_override("v_separation", int(4 * _ui_scale))
 	vbox.add_child(_grid)
 	_add_row_cells(["RANK", "PILOT NAME", "SHIP TYPE", "SCORE", "STATUS"], COL_DIM, 20, false)
@@ -437,14 +437,14 @@ func _add_row_cells(
 	for i in texts.size():
 		var l := _mk_label(String(texts[i]), base_size, color)
 		if i == 0:
-			l.custom_minimum_size.x = int(70 * _ui_scale)
+			l.custom_minimum_size.x = int(64 * _ui_scale)
 		elif i == 1 or i == 2:
 			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		elif i == 3:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			l.custom_minimum_size.x = int(200 * _ui_scale)
+			l.custom_minimum_size.x = int(180 * _ui_scale)
 		elif i == 4:
-			l.custom_minimum_size.x = int(170 * _ui_scale)
+			l.custom_minimum_size.x = int(150 * _ui_scale)
 		if is_data:
 			l.custom_minimum_size.y = int(34 * _ui_scale)
 			l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
