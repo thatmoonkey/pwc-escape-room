@@ -123,6 +123,10 @@ func _on_intro_requested() -> void:
 ## not when the title card loads, so reading the briefing is not billed to them.
 func _on_session_begin() -> void:
 	hud.visible = true
+	## The landing card is retired, so its hand-over duty moved here: the intro
+	## holds the input block while it tells, and the corridor needs it back the
+	## moment the crew takes the ship. (The card's own begin() used to do this.)
+	InputRouter.set_ui_blocking(false)
 	GameState.begin_run()
 	_announce_boot()
 	## The crew have the ship: the cursor is taken back here as well as in the
