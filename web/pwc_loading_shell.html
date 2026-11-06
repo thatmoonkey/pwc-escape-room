@@ -110,7 +110,18 @@
 					.then(function (html) {
 						const match = html.match(/BUILD ([a-zA-Z0-9-]+)/);
 						const live = match ? match[1] : null;
-						if (live && live !== PWC_BUILD) {
+						// Only ever reload for a build strictly newer than the one
+						// running. The stamp's shape is b<count>-<hash>-<time>, so
+						// the count orders builds: a stale worker can serve an OLD
+						// index.html here, and reloading onto it would fight the
+						// download (the ping fires while the package is still
+						// arriving) - a loop that never lets the game finish
+						// loading. Anything unreadable means leave the player be.
+						const count = function (v) {
+							const m = /^b(\d+)-/.exec(String(v));
+							return m ? parseInt(m[1], 10) : 0;
+						};
+						if (live && live !== PWC_BUILD && count(live) > count(PWC_BUILD)) {
 							const detail = document.getElementById('pwc-detail');
 							const title = document.getElementById('pwc-title');
 							const overlay = document.getElementById('pwc-loading');
