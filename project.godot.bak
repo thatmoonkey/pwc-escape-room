@@ -24,6 +24,7 @@ run/quit_on_go_back=false
 XRToolsUserSettings="*uid://bqgb8i74tm0t"
 XRToolsRumbleManager="*uid://by853dk86g1qw"
 PwcLoading="*res://scripts/systems/pwc_loading.gd"
+LeaderboardClient="*uid://bk7h2822tk84l"
 
 [debug]
 
