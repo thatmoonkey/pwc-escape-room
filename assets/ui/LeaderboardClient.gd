@@ -1,4 +1,3 @@
-class_name LeaderboardClient
 extends Node
 ## Netlify leaderboard client. Add as an Autoload singleton
 ## (Project > Project Settings > Autoload > pick this file, name it
