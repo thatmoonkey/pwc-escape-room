@@ -16,11 +16,12 @@ signal request_failed(action: String, message: String)
 
 ## Your Netlify site's URL. The Android build must use the full https://
 ## address; the web build can use the same one.
-## Where the leaderboard API lives. Web builds serve it same-origin, so the
-## URL works on any host; native builds (Android) need the absolute address.
-var BASE_URL: String = (
-	"/api" if OS.has_feature("web") else "https://pwc-iom-space.netlify.app/api"
-)
+## Where the leaderboard API lives. Web builds point at their own origin, so
+## the same deploy works on any host; native builds (Android) need the absolute
+## address. The origin is read through Engine.get_singleton because
+## JavaScriptBridge only exists in web builds and a direct reference would not
+## parse elsewhere.
+var BASE_URL: String = "https://pwc-iom-space.netlify.app/api"
 const QUEUE_PATH := "user://leaderboard_queue.json"
 
 var _queue: Array = []
@@ -28,6 +29,11 @@ var _flushing := false
 
 
 func _ready() -> void:
+	if OS.has_feature("web") and Engine.has_singleton("JavaScriptBridge"):
+		var js_bridge: Object = Engine.get_singleton("JavaScriptBridge")
+		var origin := str(js_bridge.eval("window.location.origin", true))
+		if origin.begins_with("http"):
+			BASE_URL = origin + "/api"
 	_load_queue()
 	if _queue.size() > 0:
 		_flush()  # retry submissions that were saved while offline
