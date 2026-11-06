@@ -200,7 +200,7 @@ func _build() -> void:
 	# card while it is up and hands the card back when it closes; the clock is
 	# already stopped because the menu underneath it is open.
 	var board_button := Button.new()
-	board_button.text = "SHIPMIND BOARD"
+	board_button.text = "LEADERBOARD"
 	board_button.focus_mode = Control.FOCUS_ALL
 	board_button.add_theme_font_size_override("font_size", 30)
 	board_button.add_theme_color_override("font_color", PAPAYA)
