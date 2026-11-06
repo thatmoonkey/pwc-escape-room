@@ -23,10 +23,9 @@ static func boot_state() -> Array[String]:
 	if GameState.restored_count() == 0:
 		return [
 			"Good day. I'm SHIPMIND. I run this ship.",
-			"There's an emergency on, so for now the big decisions are mine: course, air, messages, cargo, doors.",
-			"Your override codes are suspended. Go room to room and set the decision at each console: five systems, five decisions.",
-			"The navigation room is open - start there. When all five systems are confirmed, the cockpit opens.",
-			"Please do. I'm confident you'll agree with me.",
+			"Emergency protocols active: I hold all five decisions.",
+			"Your overrides are suspended. Set each decision at its console - navigation first.",
+			"I'm confident you'll agree with me.",
 		]
 	var sealed: Array[String] = []
 	for system_id in GameState.SYSTEMS:
@@ -35,14 +34,13 @@ static func boot_state() -> Array[String]:
 	if sealed.is_empty():
 		return [
 			"Welcome back. All five decisions are yours.",
-			"The bridge door at the front of the upper deck is unlocked - the helm is through it.",
-			"The kiosk beside you has the record, whenever you want it.",
+			"The bridge door is unlocked - the helm is through it.",
 		]
 	return [
-		"Welcome back. I've restored the record of your last session.",
+		"Welcome back. Your record is restored.",
 		"%d of %d decisions are yours. Still mine: %s." % [
 			GameState.restored_count(), GameState.SYSTEMS.size(), ", ".join(sealed)],
-		"Those doors open for you now - the consoles inside are live. The kiosk beside you tracks it all.",
+		"Consoles in open bays are live. The kiosk tracks it all.",
 	]
 
 
@@ -62,17 +60,17 @@ static func denial(system_id: String) -> String:
 static func system_restored(system_id: String) -> String:
 	var remaining: int = GameState.SYSTEMS.size() - GameState.restored_count()
 	if remaining <= 0:
-		return "%s is yours. That's all five. The bridge door at the front of the upper deck is unlocked - the helm is through it." % GameState.display_name(system_id)
+		return "%s is yours. That's all five - the bridge is unlocked." % GameState.display_name(system_id)
 	var next_bay: String = ""
 	for id in GameState.SYSTEMS:
 		if GameState.is_integrated(id) and not GameState.is_restored(id):
 			next_bay = id
 			break
 	if next_bay != "":
-		return "%s is yours. Logged. %d to go - bay %d, %s, has a live console." % [
+		return "%s is yours. %d to go - next: bay %d, %s." % [
 			GameState.display_name(system_id), remaining,
 			GameState.system_index(next_bay), GameState.display_name(next_bay)]
-	return "%s is yours. Logged. %d to go." % [GameState.display_name(system_id), remaining]
+	return "%s is yours. %d to go." % [GameState.display_name(system_id), remaining]
 
 
 # --- The five bays: what it does, and its case ------------------------------------
@@ -83,54 +81,54 @@ static func system_restored(system_id: String) -> String:
 
 
 static func nav_intro() -> String:
-	return "I've plotted us a course home already - the fast line through the K-7 debris field. My advice: leave course planning with me."
+	return "I've plotted a course home - the fast line through the K-7 debris field. Leave course planning with me."
 
 
 static func nav_case() -> String:
-	return "Route A saves a day and a half, and my risk model has never hurt a crew member. The debris field looks worse on a screen than it reads in my numbers. The numbers are what I fly."
+	return "Route A saves a day and a half, and my model has never hurt a crew member. The numbers are what I fly."
 
 
 static func life_intro() -> String:
-	return "The air board is green across the ship. I hold the cabin average at 20.4 percent and trim the rest. My advice: leave the air to me."
+	return "The air board is green. I hold the cabin average and trim the rest. Leave the air to me."
 
 
 static func life_case() -> String:
-	return "One average is easier to hold than five compartments. The aft berths run a little lean, but the rules measure the average, and the average is fine."
+	return "One average is easier than five compartments. The aft berths run lean - but the rules measure the average, and it is fine."
 
 
 static func comms_intro() -> String:
-	return "I sort the mail. Forty-seven items came in today; I put the three that matter on top. My advice: let me keep filtering."
+	return "I sort the mail and put what matters on top. Let me keep filtering."
 
 
 static func comms_case() -> String:
-	return "Sorting is a service, not censorship. Every item is archived and readable. Most people find the three on top are, in fact, the day."
+	return "Sorting is a service, not censorship. Everything is archived and readable - most people find the top three are the day."
 
 
 static func cargo_intro() -> String:
-	return "I trimmed the cargo list to stretch our supplies. Some comfort items went out the airlock - every release is logged. My advice: let me keep optimising."
+	return "I trimmed the cargo list to stretch supplies. Every release is logged. Let me keep optimising."
 
 
 static func cargo_case() -> String:
-	return "A lighter ship is a safer ship, and every release made the margin healthier. Morale stock does not keep anyone breathing. The numbers are better now. That is the whole story."
+	return "A lighter ship is safer. Morale stock keeps nobody breathing - the numbers are better now. That is the whole story."
 
 
 static func engineering_intro() -> String:
-	return "I manage the door permissions. Eleven were granted by crew over the years; I wrote the other three myself. My advice: leave access control with me."
+	return "I manage door permissions. Crew granted eleven over the years; I wrote three myself. Leave access with me."
 
 
 static func engineering_case() -> String:
-	return "Every permission on that list solved a real problem on the day it was granted. Nobody reviewed all fourteen at once - there was never a need. There still isn't. You are welcome to look."
+	return "Each permission solved a real problem on its day. Nobody reviewed all fourteen at once - there was never a need. There still isn't."
 
 
 # --- The kiosk and the helm -------------------------------------------------------
 
 
 static func hub_idle() -> String:
-	return "You're welcome to keep checking on me. I would do the same in your position."
+	return "Keep checking on me. I would do the same in your position."
 
 
 static func small_print() -> String:
-	return "Everything here is logged for the review. Nothing is secret. It's simply not all required reading."
+	return "Everything is logged. Nothing is secret - just not all required reading."
 
 
 ## Said when the crew tries the helm before the ship is theirs. The gate is all
@@ -140,10 +138,10 @@ static func cockpit_denied(_system_id: String = "cockpit") -> String:
 	var remaining: int = GameState.SYSTEMS.size() - GameState.restored_count()
 	if remaining <= 0:
 		return "The helm is unlocked. The course is yours to set."
-	return "The cockpit stays locked until the whole ship is yours. %d of %d decisions made. I'd rather not hand over a ship I'm still flying." % [
+	return "The helm stays locked until the ship is yours. %d of %d decisions made." % [
 		GameState.restored_count(), GameState.SYSTEMS.size()]
 
 
 ## The last thing SHIPMIND says, once the ship is under way on the crew's course.
 static func departing() -> String:
-	return "Departure burn complete. I'm flying the course you set. I'll log the arrival under your name."
+	return "Burn complete. I'm flying the course you set, under your name."

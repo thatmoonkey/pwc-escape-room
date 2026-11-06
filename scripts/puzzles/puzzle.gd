@@ -106,7 +106,7 @@ func done_state() -> ScreenState:
 		# rather than re-decided.
 		state.status = "ON THE RECORD"
 		state.ok("%s is already recorded in this session." % GameState.display_name(puzzle_id))
-		state.dim("No decision is on the record for it. Nothing is charged for that.")
+		state.dim("No decision on the record. Nothing is charged.")
 	state.rule()
 	state.dim("This console reads the record back. The decision is not asked for twice.")
 	state.rule()
@@ -131,8 +131,8 @@ func no_mandate_state() -> ScreenState:
 	state.status = "NO MANDATE"
 	state.accent = Brand.NEUTRAL_LIGHT
 	state.rule()
-	state.warn("You haven't said what this mission is for yet, so a call here could not be judged against anything.")
-	state.dim("Leave the console and start the session from the briefing card: pick the objective and the risk level there, then come back.")
+	state.warn("No mandate yet - nothing here can be judged without one.")
+	state.dim("Start from the briefing card: pick the objective and risk level, then come back.")
 	state.rule()
 	state.option("close", "Leave the console")
 	return state
@@ -149,7 +149,7 @@ func not_placed_state() -> ScreenState:
 	state.accent = Brand.NEUTRAL_LIGHT
 	state.rule()
 	state.text("Nobody has made the decision on %s yet." % GameState.display_name(puzzle_id).to_lower())
-	state.dim("This console is not wired for decisions in this build. It records nothing, in either direction.")
+	state.dim("Not wired for decisions in this build. Nothing is recorded.")
 	state.rule()
 	state.option("close", "Leave the console")
 	return state

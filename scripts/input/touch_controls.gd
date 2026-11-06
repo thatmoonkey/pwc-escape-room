@@ -162,11 +162,11 @@ func _refresh_hint() -> void:
 	match _tutorial_stage:
 		TutorialStage.MOVE_ONLY:
 			_show_card("WALK THE SHIP",
-				"Drag the stick to move around -\nforward, back, left and right",
+				"Drag the stick to walk\n- forward, back, left, right",
 				float(_move_seen.size()) / MOVE_ACTIONS.size())
 		TutorialStage.LOOK_ONLY:
 			_show_card("LOOK AROUND",
-				"Drag the stick to look around\nand take in the bridge", 0.0)
+				"Drag the stick to look around", 0.0)
 		TutorialStage.BOTH:
 			if _console_in_focus and not _console_prompt_open:
 				_show_card("USE IT", "Tap the console to use it", -1.0)

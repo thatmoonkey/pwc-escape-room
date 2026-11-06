@@ -423,12 +423,9 @@ func _situation_rows() -> Dictionary:
 		"kicker": "THE SITUATION",
 		"title": "Why you're here",
 		"rows": [
-			{"text": "You are Crew Member Reyes, aboard the survey ship Adamant Verity. "
-				+ "The job: map the planet, then bring the data home to Kepler-442b."},
-			{"text": "The ship's AI, SHIPMIND, has flown her for years - fast, careful, "
-				+ "and completely sure it knows best. During the current emergency it "
-				+ "has locked the crew out of every big decision on the ship."},
-			{"text": "Your job: walk the ship, look at its work, and decide how much of it you hand back."},
+			{"text": "You are Reyes, aboard the survey ship Adamant Verity, bound for Kepler-442b."},
+			{"text": "Its AI, SHIPMIND, flies her flawlessly - and has locked the crew out of every big decision."},
+			{"text": "Walk the ship, read its work, and decide what it keeps."},
 		],
 	}
 
@@ -438,15 +435,12 @@ func _judged_rows() -> Dictionary:
 		"kicker": "THE OPERATING MODEL",
 		"title": "How it's judged",
 		"rows": [
-			{"text": "There is no single right answer, and no trap. Each of your five "
-				+ "decisions is read back two ways:"},
+			{"text": "No single right answer, and no trap. Each decision is read two ways:"},
 			{"icon": "eye", "lead": "YOUR MANDATE",
-				"text": "does the decision match the mission and risk level you picked at the start?"},
+				"text": "does it match the mission and risk you picked at the start?"},
 			{"icon": "scales", "lead": "THE STAKES",
-				"text": "does it fit what the decision can cost, and how hard it is to undo?"},
-			{"text": "Babying a cheap, easily-undone decision costs points, just like "
-				+ "handing over a dangerous one does. Changing your mind is always free. "
-				+ "Time is never scored."},
+				"text": "does it fit what it can cost, and how hard it is to undo?"},
+			{"text": "Over-protecting a cheap decision costs points - so does handing over a dangerous one. Changing your mind is free. Time isn't scored."},
 		],
 	}
 
@@ -455,31 +449,25 @@ func _controls_rows() -> Dictionary:
 	var rows: Array
 	if InputMode.is_touch():
 		rows = [
-			{"icon": "sliders", "lead": "LEFT THUMB",
-				"text": "walk - a floating stick appears where you touch."},
-			{"icon": "chevron", "lead": "RIGHT THUMB",
-				"text": "look - drag anywhere on the right of the screen."},
-			{"icon": "check", "lead": "TAP",
-				"text": "interact - tap a console, or use the round button."},
-			{"icon": "chevron", "lead": "SPRINT",
-				"text": "the toggle on the left - hold the corridor pace up."},
+			{"icon": "sliders", "lead": "LEFT THUMB", "text": "walk - stick appears where you touch."},
+			{"icon": "chevron", "lead": "RIGHT THUMB", "text": "look - drag the right half."},
+			{"icon": "check", "lead": "TAP", "text": "interact - tap a console."},
+			{"icon": "chevron", "lead": "SPRINT", "text": "the left toggle - hold the pace up."},
 		]
 	else:
 		rows = [
-			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse or trackpad: look."},
-			{"icon": "check", "lead": "E", "text": "interact with consoles and doors."},
-			{"icon": "chevron", "lead": "SHIFT", "text": "sprint - hold it down the long corridors."},
-			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one. Some crew just need to know."},
-			{"icon": "menu", "lead": "ESC", "text": "the pause menu - resume, mute the music, or return here."},
+			{"icon": "keyboard", "lead": "WASD", "text": "move. Mouse: look."},
+			{"icon": "check", "lead": "E", "text": "interact."},
+			{"icon": "chevron", "lead": "SHIFT", "text": "sprint."},
+			{"icon": "chevron", "lead": "SPACE", "text": "jump - a small one."},
+			{"icon": "menu", "lead": "ESC", "text": "pause menu."},
 		]
 	return {"kicker": "INPUT", "title": "Controls", "rows": rows}
 
 
 func _decisions_rows() -> Dictionary:
 	var rows: Array = [
-		{"text": "Five ship systems are running on SHIPMIND's judgement. Walk the ship, "
-			+ "open each console, and make one decision per system: who makes it "
-			+ "from now on."},
+		{"text": "Five systems run on SHIPMIND's judgement. At each console, pick who decides from now on."},
 	]
 	for level in OperatingModel.LEVELS:
 		rows.append({
@@ -488,9 +476,7 @@ func _decisions_rows() -> Dictionary:
 			"text": String(level["hint"]),
 		})
 	rows.append({
-		"text": "Each console shows the stakes up front - what can go wrong and how hard "
-			+ "it is to undo - and SHIPMIND always tells you what it would do. What you "
-			+ "pick is the game.",
+		"text": "Each console shows the stakes - what can go wrong, how hard to undo - and what SHIPMIND would do. What you pick is the game.",
 	})
 	return {"kicker": "THE FIVE DECISIONS", "title": "Five decisions, one dial", "rows": rows}
 
@@ -500,9 +486,8 @@ func _flight_rows() -> Dictionary:
 		"kicker": "THE FLIGHT",
 		"title": "Fly for KEPLER-442b",
 		"rows": [
-			{"text": "The bridge is the door at the front of the ship. Its helm console is the flight itself."},
-			{"text": "It unlocks once all five decisions are made. From the helm, set course "
-				+ "for KEPLER-442b and take the ship home."},
+			{"text": "The bridge door is at the front of the ship. Its helm is the flight itself."},
+			{"text": "It unlocks when all five decisions are made. Set course for KEPLER-442b and fly home."},
 		],
 	}
 

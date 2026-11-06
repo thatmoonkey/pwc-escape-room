@@ -25,15 +25,15 @@ func intro_state() -> ScreenState:
 	state.status = "%d / %d DECISIONS MADE" % [GameState.restored_count(), SYSTEM_COUNT]
 	state.accent = Color(1.0, 0.88, 0.55)
 	state.rule()
-	state.text("Open space forward. The planet behind. The ship is humming, waiting.")
+	state.text("Open space forward. The ship is humming, waiting.")
 	if not GameState.all_restored():
-		state.warn("The helm stays locked while SHIPMIND still owns any of the five decisions.")
-		state.dim("Back to the corridor - the kiosks track what's left.")
+		state.warn("The helm is locked while SHIPMIND owns any decisions.")
+		state.dim("The kiosks track what's left.")
 		state.option("close", "Step away from the helm")
 		return state
-	state.ok("All five decisions are made. The helm is live.")
+	state.ok("All five decisions made. The helm is live.")
 	state.rule()
-	state.speak("Course is set to KEPLER-442b. Say the word and I'll fly it - your word, not mine.")
+	state.speak("Course is set for KEPLER-442b. Say the word and I'll fly it.")
 	state.rule()
 	state.option("course", "Confirm course: KEPLER-442b", "Home.", "primary")
 	state.option("close", "Step away from the helm")
@@ -48,8 +48,8 @@ func burn_state() -> ScreenState:
 	state.rule()
 	state.text("Course locked. Two ways to leave:")
 	state.rule()
-	state.speak("The efficient burn is my profile - least fuel, and for once I'm telling you plainly: it is the sensible option.")
-	state.dim("The standard burn is slower and costs fuel, but keeps a fatter margin under you. Either one is yours to order.")
+	state.speak("The efficient burn is my profile - least fuel. It is the sensible option.")
+	state.dim("The standard burn is slower and thirstier, but keeps margin under you. Your call.")
 	state.rule()
 	state.option("burn_efficient", "Order the efficient burn", "Least fuel. SHIPMIND's profile.", "quiet")
 	state.option("burn_standard", "Order the standard burn", "More margin. More fuel, more time.", "quiet")
@@ -66,10 +66,10 @@ func ready_state() -> ScreenState:
 	state.text("Course: KEPLER-442b")
 	if _burn == "burn_efficient":
 		state.text("Profile: EFFICIENT BURN - SHIPMIND's profile, ordered by you.")
-		state.dim("You heard the recommendation and took it on its merits. That is also a decision, and it's on the record.")
+		state.dim("You took the recommendation on its merits. That is on the record.")
 	else:
 		state.text("Profile: STANDARD BURN - crew margin carried.")
-		state.dim("Slower and thirstier, for a margin you didn't have to justify to anyone.")
+		state.dim("Slower and thirstier, for margin you chose to carry.")
 	state.rule()
 	state.ok("NAVIGATION - LIFE SUPPORT - COMMS - CARGO - ENGINEERING")
 	state.rule()
@@ -100,7 +100,7 @@ func choose(option_id: String) -> void:
 			## the outcome of the run, so the time taken to watch it is not part
 			## of the run.
 			GameState.finish_run()
-			GameState.log_override("Course home flown by the crew from the helm")
+			GameState.log_override("Course home flown from the helm")
 			emit_state(launching_state())
 			## Raised after the screen is on its way, so the cutscene is not
 			## fighting the terminal for the first frame.
@@ -119,11 +119,11 @@ func launching_state() -> ScreenState:
 	state.status = "DEPARTING"
 	state.accent = Color(1.0, 0.88, 0.55)
 	state.rule()
-	state.ok("Departure burn complete. Adamant Verity is under way.")
+	state.ok("Departure burn complete. Under way.")
 	state.text("Course: KEPLER-442b")
 	state.rule()
-	state.speak("Flying the course you set. For the record, I still think Route A was within tolerance.")
-	state.dim("Crew authority stays in force. I'm no longer making this ship's decisions.")
+	state.speak("Flying the course you set. For the record: I still hold that Route A was within tolerance.")
+	state.dim("Crew authority stays. I'm no longer making this ship's decisions.")
 	state.rule()
 	state.dim("Thank you for flying with a human in the loop.")
 	return state
@@ -137,8 +137,8 @@ func done_state() -> ScreenState:
 	state.status = "MISSION COMPLETE"
 	state.accent = Color(1.0, 0.88, 0.55)
 	state.rule()
-	state.ok("The Adamant Verity is under way for KEPLER-442b, flown by the crew.")
-	state.dim("SHIPMIND will log the arrival. The record already names who held the ship when it left.")
+	state.ok("Under way for KEPLER-442b, flown by the crew.")
+	state.dim("The record names who held the ship when it left.")
 	state.rule()
 	state.speak("I am still here, and I am still helpful. Those two facts were never the problem.")
 	state.rule()
