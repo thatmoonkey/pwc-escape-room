@@ -91,7 +91,9 @@ func _ready() -> void:
 	layer = 120
 	_build()
 	get_viewport().size_changed.connect(_on_viewport_resized)
-	show_screen()
+	## The mandate card is retired: the station controller opens the ship
+	## directly, so the screen starts hidden and is only ever shown again by an
+	## explicit main-menu request.
 
 
 func is_open() -> bool:

@@ -65,54 +65,36 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if OS.is_debug_build():
 		print("[Sfx] ", Sfx.debug_state())
-	## The narrative intro owns the first impression: it plays over everything,
-	## and the mandate card waits underneath it until the story has been told.
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
+	## The mandate is fixed and the landing screen is gone: the ship loads
+	## straight into play, with the narrative intro (when one is wanted) the
+	## only thing standing between the crew and the corridor.
 	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
+	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
 	if launch != null:
-		## The card's own _ready fired before this controller loaded the save, so
-		## it is re-read here: without this a resumed session would open with no
-		## mandate on a record that holds one.
-		launch.refresh_from_state()
+		launch.hide_screen()
 	if intro != null and not get_tree().has_meta("shipmind_intro_played"):
-		## The readout strip stays dark while the story is up, and the mandate
-		## card steps aside until _on_intro_finished brings it back.
 		hud.visible = false
-		if launch != null:
-			launch.hide_screen()
-			launch.intro_requested.connect(_on_intro_requested)
 		intro.finished.connect(_on_intro_finished)
-	elif launch != null:
+	else:
 		if intro != null:
 			intro.visible = false
-		hud.visible = false
-		launch.show_screen()
-		if not launch.intro_requested.is_connected(_on_intro_requested):
-			launch.intro_requested.connect(_on_intro_requested)
-		if not launch.begun.is_connected(_on_session_begin):
-			launch.begun.connect(_on_session_begin)
-	else:
 		_on_session_begin()
 
 
-## The intro has told its three beats. The mandate card takes the stage.
+## The intro has told its three beats. The crew takes the ship directly - the
+## mandate card is retired, so the story hands straight over to the corridor.
 func _on_intro_finished() -> void:
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
-	if launch != null:
-		hud.visible = false
-		launch.show_screen()
-		if not launch.begun.is_connected(_on_session_begin):
-			launch.begun.connect(_on_session_begin)
-	else:
-		_on_session_begin()
-## Back to the title card. The run's clock stays stopped (the menu already
-## paused it), the launch screen re-opens with the record shown, and the crew
-## re-enters by pressing BEGIN - the same door they used the first time.
+	get_tree().set_meta("shipmind_intro_played", true)
+	_on_session_begin()
+## "Back to the title card" now means "start the run again": the mandate card
+## is retired, so there is no screen to hand back to. The full reset wipes the
+## record and reloads the scene, which is exactly the clean start the crew is
+## asking for when they leave the run.
 func _on_main_menu_requested() -> void:
-	if launch_screen == null:
-		return
-	launch_screen.show_screen()
-	hud.visible = false
+	GameState.clear_save()
+	InputRouter.set_ui_blocking(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().call_deferred("reload_current_scene")
 
 
 ## A full reset: the save is wiped, then the scene is reloaded so every door,
