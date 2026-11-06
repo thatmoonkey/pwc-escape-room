@@ -33,9 +33,14 @@ inject = anchor + """
 				} catch (e) { /* offline: fall through to cache */ }
 			}
 			// PWC PATCH (2): the engine files do the same. index.html is
-			// network-first, but a cache-first pck/wasm would keep an installed
-			// app running an old build forever; offline, the cache still answers.
-			const isEngineFile = /\\.(pck|wasm|zip)$/.test(local || url)
+			// network-first on navigation, but a cache-first pck/wasm would
+			// keep an installed app running an old build forever. The shell's
+			// own build ping fetches index.html as a plain GET, which must
+			// reach the network too: the install-time cache holds index.html
+			// under its literal path (navigations cache the root URL), so a
+			// cache-first answer compares the live build against a dead one.
+			// Offline, the cache still answers.
+			const isEngineFile = /\\.(pck|wasm|zip|html|js)$/.test(local || url)
 			if (isEngineFile) {
 				try {
 					const response = await self.fetch(event.request)
