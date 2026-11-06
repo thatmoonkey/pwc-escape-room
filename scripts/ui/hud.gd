@@ -123,9 +123,10 @@ func set_compact(value: bool) -> void:
 func _apply_touch_layout(touch: bool) -> void:
 	if subtitle == null:
 		return
-	var scale: float = 2.0 if touch else 1.0
-	subtitle_text.add_theme_font_size_override("font_size", int(30.0 * scale))
-	subtitle_speaker.add_theme_font_size_override("font_size", int(30.0 * scale))
+	## The subtitle reads at the same floor as every other touch popup. The
+	## old double-size step predated the 30px reading floor and shouted.
+	subtitle_text.add_theme_font_size_override("font_size", Brand.SIZE_LABEL)
+	subtitle_speaker.add_theme_font_size_override("font_size", Brand.SIZE_SMALL)
 	if touch:
 		subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		subtitle.anchor_top = 0.0
