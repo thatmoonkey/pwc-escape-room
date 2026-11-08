@@ -302,9 +302,25 @@ func set_active(value: bool) -> void:
 		_release_all()
 
 
+## Something owns the whole screen - the departure cutscene, for example - and
+## the sticks have no business sitting over it. Suppression wins over every
+## other visibility rule, including a touchscreen's always-on default, and
+## lets go of any stick a thumb was still holding.
+var _suppressed: bool = false
+
+
+func set_suppressed(value: bool) -> void:
+	if value == _suppressed:
+		return
+	_suppressed = value
+	_refresh_visibility()
+	if not root.visible:
+		_release_all()
+
+
 func _refresh_visibility() -> void:
-	root.visible = force_visible or _active_override \
-		or DisplayServer.is_touchscreen_available()
+	root.visible = not _suppressed and (force_visible or _active_override \
+		or DisplayServer.is_touchscreen_available())
 
 
 func _mouse_drives() -> bool:
