@@ -13,7 +13,6 @@ const DESKTOP_RIG_PATH := "res://scenes/player/player.tscn"
 @onready var hud: HUD = $UI/HUD
 @onready var terminal: TerminalUI = $UI/TerminalUI
 @onready var principle_card: PrincipleCard = $UI/PrincipleCard
-@onready var launch_screen: LaunchScreen = $UI/LaunchScreen
 @onready var pause_menu: PauseMenu = $UI/PauseMenu
 @onready var completion: CompletionScreen = $UI/CompletionScreen
 
@@ -69,9 +68,6 @@ func _ready() -> void:
 	## straight into play, with the narrative intro (when one is wanted) the
 	## only thing standing between the crew and the corridor.
 	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
-	if launch != null:
-		launch.hide_screen()
 	if intro != null and not get_tree().has_meta("shipmind_intro_played"):
 		hud.visible = false
 		intro.finished.connect(_on_intro_finished)
@@ -107,18 +103,6 @@ func _on_reset_requested() -> void:
 	get_tree().call_deferred("reload_current_scene")
 
 
-## The crew asked for the story again from the mandate card. The card steps
-## aside - so Enter cannot begin the session underneath the telling - and the
-## narrative plays over everything until it hands back.
-func _on_intro_requested() -> void:
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
-	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
-	if intro != null:
-		if launch != null:
-			launch.hide_screen()
-		intro.replay()
-
-
 ## The run starts here. The clock begins at the moment the crew takes the ship,
 ## not when the title card loads, so reading the briefing is not billed to them.
 func _on_session_begin() -> void:
@@ -129,16 +113,16 @@ func _on_session_begin() -> void:
 	InputRouter.set_ui_blocking(false)
 	GameState.begin_run()
 	_announce_boot()
-	## The crew have the ship: the cursor is taken back here as well as in the
-	## launch card's own hand-over, because a capture requested while a window is
+	## The crew have the ship: the cursor is taken back here as well as at the
+	## close of any overlay, because a capture requested while a window is
 	## still coming up is refused, and the first look must work without a click.
 	_grab_cursor_back()
 
 
 ## Platform selection. The input mode layer decides - hardware detection first,
-## with the launch screen's test chips able to override it for the session -
-## and this controller re-wires the rig, the touch layer and the HUD whenever
-## it changes.
+## with the pause menu's mode chips able to override it for the session - and
+## this controller re-wires the rig, the touch layer and the HUD whenever it
+## changes.
 func _activate_player() -> Node3D:
 	InputMode.ensure_detected()
 	var default_player: Node3D = get_node_or_null("Player") as Node3D
@@ -177,8 +161,6 @@ func _on_back_requested() -> void:
 		return
 	if pause_menu != null and pause_menu.is_open():
 		pause_menu.close()
-		return
-	if launch_screen != null and launch_screen.is_open():
 		return
 	if pause_menu != null:
 		pause_menu.open()
@@ -269,7 +251,7 @@ func _restore_desktop_environment() -> void:
 	_desktop_environment = null
 
 
-## The same hand-back the launch screen does on BEGIN: whoever owns the
+## The same hand-back every overlay close performs: whoever owns the
 ## "input_layer" group decides whether the cursor may be captured, and in a
 ## touch or XR mode it will decline on its own. Refused while an overlay owns
 ## the input - a mode flip inside the pause menu must not capture the cursor

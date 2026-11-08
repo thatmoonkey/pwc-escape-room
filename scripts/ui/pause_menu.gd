@@ -5,10 +5,9 @@ extends CanvasLayer
 ##
 ## Three jobs, in the order a player needs them: RESUME (the common case, so it
 ## is the primary button), the music switch (so muting the soundtrack does not
-## require leaving the run), the input mode chips (the same test switch the
-## launch screen carries, usable mid-run), and MAIN MENU - the explicit door
-## back to the title card, which pauses the clock and re-opens the briefing
-## with the run's record already on it.
+## require leaving the run), the input mode chips (the test switch, usable
+## mid-run), and MAIN MENU - the explicit door out of the run, which wipes the
+## record and reloads the ship: a clean start from the top.
 ##
 ## Escape opens and closes this menu. While it is up the run clock is stopped -
 ## GameState.tick only advances while run_running, and the menu owns that flag
@@ -122,7 +121,9 @@ func _open_board() -> void:
 	_board = ShipmindLeaderboard.new()
 	add_child(_board)
 	_board.closed.connect(_close_board)
-	_board.show_board()
+	## Same note as the completion screen's uplink: the board assembles itself
+	## one frame after it enters the tree, so the fetch starts on that frame.
+	_board.call_deferred("show_board")
 	_root.visible = false
 
 
