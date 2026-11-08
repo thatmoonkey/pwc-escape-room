@@ -633,9 +633,9 @@ func _on_commit_pressed() -> void:
 	placement_chosen.emit(level_id, _guardrail_choice, _owner_choice)
 	if _puzzle != null and is_instance_valid(_puzzle):
 		_puzzle.place(level_id)
-	## The decision is in: release the console at once. The standing record
-	## still shows what was chosen when the crew opens this bay again.
-	close()
+	## No close here: place() just emitted the DECISION RECORDED read-back, and
+	## the crew read the results before releasing the console themselves with
+	## "Done", which runs the completion flow (solve -> solved -> close).
 
 
 # --- The level slider ----------------------------------------------------------
@@ -890,12 +890,11 @@ func _on_mobile_placement(level_id: String) -> void:
 	placement_chosen.emit(level_id, "", "")
 	if _puzzle != null and is_instance_valid(_puzzle):
 		_puzzle.place(level_id)
-	## The decision is in: release the console at once, same as the desktop
-	## spectrum commit. The standing record shows what was chosen on reopen.
-	close()
-	## The decision is in: release the console at once, same as the desktop
-	## spectrum commit. The standing record shows what was chosen on reopen.
-	close()
+	## No close here, and no release on decision: place() just emitted the
+	## DECISION RECORDED read-back, and the shell renders it. The crew read the
+	## results and release the console with "Done", which runs the completion
+	## flow (solve -> solved -> close). Closing here killed the results, skipped
+	## the solve, and left every bay uncompleted and re-asking on reopen.
 
 
 ## Reveals the readout on a click or a tap. Both are needed: a touchscreen never
