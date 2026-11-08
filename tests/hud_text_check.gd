@@ -22,7 +22,7 @@ func _process(_d: float) -> bool:
 		1:
 			if _ticks > 150:
 				_stage = 2
-				Brand.info_text_size = 24
+				TextZoom.set_size(24)
 		2:
 			if _ticks > 240:
 				_stage = 3
@@ -31,7 +31,7 @@ func _process(_d: float) -> bool:
 				var menu: int = _hud._menu_button_ref.get_theme_font_size("font_size")
 				print("SIZE CHECK S(24): subtitle=%d mandate=%d menu=%d" % [sub, mandate, menu])
 				if sub == 24 and mandate == 24 and menu == 24:
-					Brand.info_text_size = 30
+					TextZoom.set_size(30)
 				else:
 					print("SIZE CHECK: FAIL at S")
 					quit(1)

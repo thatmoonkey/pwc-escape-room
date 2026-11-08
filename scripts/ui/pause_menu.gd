@@ -45,6 +45,7 @@ func _ready() -> void:
 	layer = 110
 	_build()
 	visible = false
+	TextZoom.register(root)
 
 
 func is_open() -> bool:
@@ -103,8 +104,10 @@ func main_menu() -> void:
 ## needed - the clock is stopped and the input block is already held by open().
 func _on_text_size(size: int) -> void:
 	GameState.ui_text_size = size
-	Brand.info_text_size = size
 	GameState.save()
+	## One call re-derives every registered screen - including this menu,
+	## live, while it is open.
+	TextZoom.set_size(size)
 
 
 func _refresh_text_size_chips() -> void:

@@ -43,6 +43,7 @@ func _ready() -> void:
 	_build_shell()
 	get_viewport().size_changed.connect(_relayout)
 	root_visible(false)
+	TextZoom.register(_root)
 
 
 func is_open() -> bool:
@@ -56,6 +57,7 @@ func show_screen() -> void:
 	root_visible(true)
 	_rebuild()
 	_relayout()
+	TextZoom.apply(_root)
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 

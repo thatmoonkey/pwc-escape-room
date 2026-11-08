@@ -99,6 +99,7 @@ func _ready() -> void:
 	# The aim signal lives on the player, which may not be in the tree yet:
 	# the wiring defers one frame so the group lookup always finds it.
 	call_deferred("_wire_aim")
+	TextZoom.register(root)
 
 
 ## First-time crews learn the sticks in two steps: walk, then look. The stage
@@ -179,8 +180,9 @@ func _show_card(title: String, text: String, progress: float) -> void:
 	tutorial_text.text = text
 	## The card reads at the menu's TEXT SIZE choice; its title stays a step
 	## above, the same step the terminal's title keeps over its body.
-	tutorial_title.add_theme_font_size_override("font_size", Brand.scaled(36))
-	tutorial_text.add_theme_font_size_override("font_size", Brand.scaled(30))
+	tutorial_title.add_theme_font_size_override("font_size", 36)
+	tutorial_text.add_theme_font_size_override("font_size", 30)
+	TextZoom.apply(tutorial_card)
 	if progress < 0.0:
 		tutorial_progress.visible = false
 	else:

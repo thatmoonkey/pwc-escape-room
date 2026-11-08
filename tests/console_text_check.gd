@@ -22,7 +22,7 @@ func _process(_d: float) -> bool:
 		1:
 			if _ticks > 150:
 				_stage = 2
-				Brand.info_text_size = 24
+				TextZoom.set_size(24)
 		2:
 			if _ticks > 240:
 				_stage = 3
@@ -31,7 +31,7 @@ func _process(_d: float) -> bool:
 				# Title 36 base: 36 * 0.8 * 0.9 = 25.92 -> 26. Body 30 base: 21.6 -> 22.
 				print("CONSOLE S(24): title=%d (expect 26) body=%d (expect 22)" % [band, status])
 				if band == 26 and status == 22:
-					Brand.info_text_size = 30
+					TextZoom.set_size(30)
 				else:
 					print("CONSOLE CHECK: FAIL at S")
 					quit(1)

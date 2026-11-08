@@ -56,7 +56,6 @@ var _score_signature: String = ""
 ## The code-built strip.
 var _strip: VBoxContainer = null
 var _menu_button_ref: Button = null
-var _applied_text_size: int = 0
 var _mandate_objective_glyph: Glyph = null
 var _mandate_appetite_glyph: Glyph = null
 var _mandate_label: Label = null
@@ -87,17 +86,15 @@ func _ready() -> void:
 	## The safe zone is measured against the live viewport, so it re-applies
 	## whenever the window changes shape under us.
 	get_viewport().size_changed.connect(_apply_safe_area)
+	## The screen joins the text-zoom system: the menu's TEXT SIZE choice
+	## re-derives every label here from its design size.
+	TextZoom.register(root)
 
 
 func _process(delta: float) -> void:
 	if GameState.run_running:
 		GameState.tick(delta)
 	_refresh_score()
-	## The menu's TEXT SIZE control retunes the info popups live; the readout
-	## corrects itself on the next frame, like the score.
-	if Brand.info_text_size != _applied_text_size:
-		_applied_text_size = Brand.info_text_size
-		_apply_text_size()
 
 
 func clear_prompt() -> void:
@@ -150,28 +147,6 @@ func _apply_touch_layout(touch: bool) -> void:
 ## pills, buttons and captions keep a margin from every display edge, and the
 ## subtitle's width clamps to the live viewport instead of a fixed 860px that
 ## a narrow window would push through the margins. Re-applied on resize.
-func _apply_text_size() -> void:
-	if root == null:
-		return
-	## Every label re-derives its size from the setting: the single labels take
-	## it live, and the strip's rows are rebuilt wholesale because their layout
-	## was measured at the old size.
-	subtitle_text.add_theme_font_size_override("font_size", Brand.scaled(30))
-	subtitle_speaker.add_theme_font_size_override("font_size", Brand.scaled(30))
-	prompt_label.add_theme_font_size_override("font_size", Brand.scaled(30))
-	_callsign_label.add_theme_font_size_override("font_size", Brand.scaled(30))
-	_menu_button_ref.add_theme_font_size_override("font_size", Brand.scaled(30))
-	_mandate_label.add_theme_font_size_override("font_size", Brand.scaled(30))
-	_chip_counter.add_theme_font_size_override("font_size", Brand.scaled(30))
-	_detail_label.add_theme_font_size_override("font_size", Brand.scaled(30))
-	if _strip != null:
-		for child in _strip.get_children():
-			child.free()
-		_strip.add_child(_mandate_row_control())
-		_strip.add_child(_chips_row_control())
-		_bars_row_ref = _bars_row_control()
-		_strip.add_child(_bars_row_ref)
-		refresh_objective()
 
 
 func _apply_safe_area() -> void:
@@ -413,7 +388,7 @@ func _build_strip() -> void:
 	_callsign_label.add_theme_color_override("font_color", PAPAYA)
 	_callsign_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_callsign_label.add_theme_constant_override("outline_size", 4)
-	_callsign_label.add_theme_font_size_override("font_size", Brand.scaled(30))
+	_callsign_label.add_theme_font_size_override("font_size", 30)
 	root.add_child(_callsign_label)
 
 	_menu_button_ref = _menu_button()
@@ -435,7 +410,7 @@ func _menu_button() -> Button:
 	button.offset_top = 16.0
 	button.offset_right = -22.0
 	button.offset_bottom = 44.0
-	button.add_theme_font_size_override("font_size", Brand.scaled(30))
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", MUTED)
 	button.add_theme_color_override("font_hover_color", GOLD)
 	button.add_theme_color_override("font_pressed_color", GOLD)
@@ -501,7 +476,7 @@ func _mandate_row_control() -> HBoxContainer:
 	_mandate_appetite_glyph = Glyph.make("question", 16.0, DIM)
 	inner.add_child(_mandate_appetite_glyph)
 	_mandate_label = Label.new()
-	_mandate_label.add_theme_font_size_override("font_size", Brand.scaled(30))
+	_mandate_label.add_theme_font_size_override("font_size", 30)
 	_mandate_label.add_theme_color_override("font_color", MUTED)
 	_mandate_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_mandate_label.add_theme_constant_override("outline_size", 4)
@@ -536,7 +511,7 @@ func _chips_row_control() -> HBoxContainer:
 	_chip_counter.name = "Counter"
 	_chip_counter.text = "0/%d" % GameState.SYSTEMS.size()
 	_chip_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_chip_counter.add_theme_font_size_override("font_size", Brand.scaled(30))
+	_chip_counter.add_theme_font_size_override("font_size", 30)
 	_chip_counter.add_theme_color_override("font_color", MUTED)
 	_chip_counter.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 	_chip_counter.add_theme_constant_override("outline_size", 4)
@@ -581,7 +556,7 @@ func _bars_row_control() -> HBoxContainer:
 		var name_label := Label.new()
 		name_label.text = String(axis_labels.get(axis, axis.to_upper()))
 		name_label.custom_minimum_size = Vector2(92.0, 0.0)
-		name_label.add_theme_font_size_override("font_size", Brand.scaled(30))
+		name_label.add_theme_font_size_override("font_size", 30)
 		name_label.add_theme_color_override("font_color", MUTED)
 		name_label.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 		name_label.add_theme_constant_override("outline_size", 4)
@@ -598,7 +573,7 @@ func _bars_row_control() -> HBoxContainer:
 		var percent := Label.new()
 		percent.custom_minimum_size = Vector2(38.0, 0.0)
 		percent.text = "--"
-		percent.add_theme_font_size_override("font_size", Brand.scaled(30))
+		percent.add_theme_font_size_override("font_size", 30)
 		percent.add_theme_color_override("font_color", MUTED)
 		percent.add_theme_color_override("font_outline_color", Color(0.06, 0.03, 0.02))
 		percent.add_theme_constant_override("outline_size", 4)
@@ -629,7 +604,7 @@ func _build_detail() -> void:
 
 	_detail_label = Label.new()
 	_detail_label.name = "Text"
-	_detail_label.add_theme_font_size_override("font_size", Brand.scaled(30))
+	_detail_label.add_theme_font_size_override("font_size", 30)
 	_detail_label.add_theme_color_override("font_color", INK)
 	_detail_label.add_theme_constant_override("line_spacing", 3)
 	margin.add_child(_detail_label)

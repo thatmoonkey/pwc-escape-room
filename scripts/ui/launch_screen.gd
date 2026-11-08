@@ -91,6 +91,7 @@ func _ready() -> void:
 	_build()
 	get_viewport().size_changed.connect(_on_viewport_resized)
 	_root.visible = false
+	TextZoom.register(_root)
 
 
 func is_open() -> bool:

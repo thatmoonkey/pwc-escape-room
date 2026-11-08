@@ -64,9 +64,6 @@ const FOOTER_TOUCH := "TAP a tile to open it   -   TAP CLOSE to leave"
 
 
 @onready var root: Control = $Root
-
-## The TEXT SIZE setting last applied to this screen's baked overrides.
-var _applied_text_size: int = 0
 @onready var dim: ColorRect = $Root/Dim
 @onready var panel: PanelContainer = $Root/Panel
 @onready var band: PanelContainer = $Root/Panel/VBox/Band
@@ -133,6 +130,7 @@ func _ready() -> void:
 	root.visible = false
 	readout_overlay.visible = false
 	shipmind_overlay.visible = false
+	TextZoom.register(root)
 
 
 ## The console's type re-derives from the menu's TEXT SIZE choice and its own
@@ -143,12 +141,6 @@ func _apply_console_text_size() -> void:
 	Brand.apply_tui(footer, Brand.console_size(Brand.SIZE_TUI_SMALL))
 	Brand.apply_tui(readout_title, Brand.console_size(Brand.SIZE_TUI_TITLE))
 	Brand.apply_tui(shipmind_title, Brand.console_size(Brand.SIZE_TUI_TITLE))
-
-
-func _process(_delta: float) -> void:
-	if Brand.info_text_size != _applied_text_size:
-		_applied_text_size = Brand.info_text_size
-		_apply_console_text_size()
 
 
 ## True on a device whose only pointer is a finger.
@@ -603,6 +595,7 @@ func _add_flyout_line(body: VBoxContainer, value: String, tone: String) -> void:
 	label.modulate = TONES.get(tone, TONES["data"])
 	label.text = ("SHIPMIND:  " + value) if tone == "shipmind" else value
 	body.add_child(label)
+	TextZoom.apply_node(label)
 
 
 const TONES := {
