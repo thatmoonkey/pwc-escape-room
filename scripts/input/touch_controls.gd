@@ -164,11 +164,11 @@ func _refresh_hint() -> void:
 			_show_card("LOOK AROUND",
 				"Drag the stick to look around", 0.0)
 		TutorialStage.BOTH:
-			if _console_in_focus and not _console_prompt_open:
-				_show_card("USE IT", "Tap the console to use it", -1.0)
-				_console_prompt_open = true
-			elif not _console_in_focus and _console_prompt_open:
-				_console_prompt_open = false
+			if _console_in_focus:
+				if not _console_prompt_open:
+					_show_card("USE IT", "Tap the console to use it", -1.0)
+					_console_prompt_open = true
+			else:
 				_hide_card()
 
 
@@ -271,6 +271,7 @@ func _advance_tutorial() -> void:
 func _finish_tutorial_now() -> void:
 	_tutorial_stage = TutorialStage.BOTH
 	_apply_tutorial_stage()
+	_hide_card()
 	GameState.touch_tutorial_done = true
 	GameState.save()
 
