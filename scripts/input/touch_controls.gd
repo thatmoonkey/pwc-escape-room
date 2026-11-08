@@ -179,8 +179,8 @@ func _show_card(title: String, text: String, progress: float) -> void:
 	tutorial_text.text = text
 	## The card reads at the menu's TEXT SIZE choice; its title stays a step
 	## above, the same step the terminal's title keeps over its body.
-	tutorial_title.add_theme_font_size_override("font_size", Brand.info_text_size + 6)
-	tutorial_text.add_theme_font_size_override("font_size", Brand.info_text_size)
+	tutorial_title.add_theme_font_size_override("font_size", Brand.scaled(36))
+	tutorial_text.add_theme_font_size_override("font_size", Brand.scaled(30))
 	if progress < 0.0:
 		tutorial_progress.visible = false
 	else:
