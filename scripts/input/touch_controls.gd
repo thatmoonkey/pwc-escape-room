@@ -385,7 +385,9 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 			if _console_prompt_open:
 				_console_prompt_open = false
 				_hide_card()
-			InputRouter.queue_interact()
+			# The tap carries where it landed: the interactor requires the tap
+			# to land on the highlighted console, not anywhere on the screen.
+			InputRouter.queue_interact_at(position)
 		return
 	if index == _move_touch:
 		_move_touch = -1
