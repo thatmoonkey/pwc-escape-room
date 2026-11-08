@@ -37,10 +37,11 @@ func _physics_process(_delta: float) -> void:
 	_set_target(found)
 	if current != null and InputRouter.consume_interact():
 		## A touch tap carries where it landed: the tap must land on the
-		## highlighted console itself, not anywhere on the screen. The aim
-		## path (a click, a key, a controller button) keeps the reticule rule.
+		## highlighted console's own orange box, not anywhere on the screen.
+		## The aim path (a click, a key, a controller button) keeps the
+		## reticule rule.
 		var tap: Variant = InputRouter.consume_interact_position()
-		if tap != null and not _tap_hits_current(tap):
+		if tap != null and not current.screen_rect_contains(get_viewport().get_camera_3d(), tap):
 			return
 		current.interact(self)
 

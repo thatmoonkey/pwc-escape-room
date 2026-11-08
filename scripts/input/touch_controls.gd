@@ -266,6 +266,15 @@ func _advance_tutorial() -> void:
 		GameState.save()
 
 
+## The crew reached for the look stick on their own: the walkthrough's job is
+## done. Ends every stage at once, hides the card and remembers it.
+func _finish_tutorial_now() -> void:
+	_tutorial_stage = TutorialStage.BOTH
+	_apply_tutorial_stage()
+	GameState.touch_tutorial_done = true
+	GameState.save()
+
+
 ## The sticks rest at the bottom corners, and teleport to under a thumb that
 ## claims them in the lower half of the screen.
 func _layout_sticks() -> void:
@@ -366,13 +375,14 @@ func _handle_press(index: int, position: Vector2, pressed: bool) -> void:
 		# Every touch is a candidate tap first: it only becomes a stick once the
 		# thumb moves, so a quick touch-and-release is always a use, never a
 		# stick that briefly appeared.
-		# A thumb landing on the right half reveals the look stick at once -
-		# the walkthrough never makes the crew ask twice for the second stick.
-		if _tutorial_stage == TutorialStage.MOVE_ONLY:
+		# A thumb landing on the right half ends the walkthrough at once: the
+		# look stick appears under the thumb's next drag, and no instruction
+		# card stays up while the crew are already reaching for it.
+		if _tutorial_stage != TutorialStage.BOTH:
 			var view: Vector2 = get_viewport().get_visible_rect().size
 			if position.x >= view.x * 0.5 \
 					and position.y > view.y * (1.0 - stick_grab_region):
-				_advance_tutorial()
+				_finish_tutorial_now()
 		_pending_touch = index
 		_pending_start = position
 		return
@@ -431,6 +441,8 @@ func _claim_stick(index: int, position: Vector2) -> void:
 		_move_center = position
 		move_base.position = position - Vector2(move_radius, move_radius)
 		_center_knob(move_knob, move_radius, move_knob_radius)
+		if _tutorial_stage == TutorialStage.MOVE_ONLY:
+			_finish_tutorial_now()
 	elif in_grab and _look_touch == -1 and position.x >= view.x * 0.5:
 		if _tutorial_stage == TutorialStage.MOVE_ONLY:
 			_advance_tutorial()
@@ -438,6 +450,8 @@ func _claim_stick(index: int, position: Vector2) -> void:
 		_look_center = position
 		look_base.position = position - Vector2(look_radius, look_radius)
 		_center_knob(look_knob, look_radius, look_knob_radius)
+		if _tutorial_stage == TutorialStage.LOOK_ONLY:
+			_finish_tutorial_now()
 
 
 ## A released stick glides back to its corner instead of staying where the

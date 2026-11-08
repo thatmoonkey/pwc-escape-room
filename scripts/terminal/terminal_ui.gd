@@ -893,6 +893,9 @@ func _on_mobile_placement(level_id: String) -> void:
 	## The decision is in: release the console at once, same as the desktop
 	## spectrum commit. The standing record shows what was chosen on reopen.
 	close()
+	## The decision is in: release the console at once, same as the desktop
+	## spectrum commit. The standing record shows what was chosen on reopen.
+	close()
 
 
 ## Reveals the readout on a click or a tap. Both are needed: a touchscreen never
