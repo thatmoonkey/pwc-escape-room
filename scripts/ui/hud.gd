@@ -83,6 +83,17 @@ func _ready() -> void:
 	## save arrived.
 	refresh_objective()
 	_refresh_score()
+	## The speech box is pure information: it never blocks a tap. While
+	## SHIPMIND talks at the top of the screen the box sits over the MENU
+	## button's corner, and a thumb reaching for the menu must not land in
+	## a panel that is only reading aloud.
+	var stack: Array[Node] = [subtitle]
+	while not stack.is_empty():
+		var node: Node = stack.pop_back()
+		for child in node.get_children():
+			stack.append(child)
+		if node is Control:
+			(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	## The safe zone is measured against the live viewport, so it re-applies
 	## whenever the window changes shape under us.
 	get_viewport().size_changed.connect(_apply_safe_area)
