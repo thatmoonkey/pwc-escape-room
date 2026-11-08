@@ -54,35 +54,35 @@ func _process(_d: float) -> bool:
 				_check(_last_state != null and _last_state.has_spectrum(),
 					"unplaced bay offers the decision (spectrum present)")
 		2:
-			# Commit: the read-back must STAY on screen and the placement recorded.
+			# Commit: the console releases at once, the decision persists, and the
+			# completion flow runs - the score card is raised by game.gd on solved.
 			if _ticks > 90:
 				_stage = 3
 				_terminal._on_mobile_placement("automated")
-				_check(_terminal.is_open(), "console stays open after the commit (results visible)")
-				_check(_last_state != null and _last_state.title.contains("DECISION RECORDED"),
-					"the read-back (DECISION RECORDED) is on screen after the commit")
+				_check(not _terminal.is_open(), "console releases the moment the decision lands")
 				_check(GameState.has_placement("navigation"), "the placement is on the record")
+				_check(GameState.is_restored("navigation"), "the bay completed (score card flow ran)")
 		3:
-			# Done: releases the console through the completion flow.
+			# Reopen: the standing record, not a second ask and no confirmation.
 			if _ticks > 120:
 				_stage = 4
-				_terminal._on_option_pressed("return")
-				_check(not _terminal.is_open(), "\"Done\" releases the console")
-				_check(GameState.is_restored("navigation"), "the bay completed (marked restored)")
-		4:
-			# Reopen: the standing record, not a second ask.
-			if _ticks > 150:
-				_stage = 5
 				_terminal.open(_puzzle)
 				_check(_last_state != null and _last_state.status == "DECISION MADE",
 					"reopen shows the standing record (DECISION MADE), not the spectrum")
-		5:
+		4:
 			# Revise from the record returns to the decision surface.
-			if _ticks > 180:
-				_stage = 6
+			if _ticks > 150:
+				_stage = 5
 				_terminal._on_option_pressed("revise")
 				_check(_last_state != null and _last_state.has_spectrum(),
 					"\"Change the decision\" returns to the decision surface")
+		5:
+			# A re-commit from the record also releases the console at once.
+			if _ticks > 180:
+				_terminal._on_mobile_placement("review")
+				_check(not _terminal.is_open(), "a re-commit from the record also releases")
+				_check(GameState.placement("navigation").get("level", "") == "review",
+					"the re-commit replaced the placement")
 				_terminal.close()
 				var fatal := _failures.size() > 0
 				print("decision_flow_check: %d failure(s)" % _failures.size())
