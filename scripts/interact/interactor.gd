@@ -58,7 +58,7 @@ func _tap_hits_current(screen_position: Vector2) -> bool:
 	var params := PhysicsRayQueryParameters3D.create(
 		from, from + direction * target_position.length(), collision_mask)
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(params)
-	return not hit.is_empty() and hit.collider == target
+	return not hit.is_empty() and hit.collider == current
 
 
 func _set_target(next: Interactable) -> void:
