@@ -83,7 +83,6 @@ var _audio_popup: PanelContainer = null
 var _audio_catcher: Control = null
 var _objective_line: Label = null
 var _appetite_line: Label = null
-var _chooser_note: Label = null
 var _confirm: Button = null
 
 
@@ -91,9 +90,7 @@ func _ready() -> void:
 	layer = 120
 	_build()
 	get_viewport().size_changed.connect(_on_viewport_resized)
-	## The mandate card is retired: the station controller opens the ship
-	## directly, so the screen starts hidden and is only ever shown again by an
-	## explicit main-menu request.
+	_root.visible = false
 
 
 func is_open() -> bool:
@@ -104,12 +101,12 @@ func show_screen() -> void:
 	_open = true
 	_root.visible = true
 	_close_audio_popup()
-	_close_chooser()
 	InputRouter.set_ui_blocking(true)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	refresh_from_state()
-	if _button != null:
-		_button.grab_focus()
+	_open_chooser()
+	if _confirm != null:
+		_confirm.grab_focus()
 	_request_fit()
 
 
@@ -298,21 +295,19 @@ func _refresh_declared() -> void:
 	if _objective_line == null or _appetite_line == null:
 		return
 	if _objective_pick == "":
-		_objective_line.text = "Mission:  pick one below."
+		_objective_line.text = "MISSION  Choose objective"
 		_objective_line.add_theme_color_override("font_color", MUTED)
 	else:
-		_objective_line.text = "Mission:  %s" % String(
-			OperatingModel.objective_entry_for(_objective_pick).get("statement", ""))
+		_objective_line.text = "MISSION  %s" % String(
+			OperatingModel.objective_entry_for(_objective_pick).get("label", ""))
 		_objective_line.add_theme_color_override("font_color", WHITE)
 	if _appetite_pick == "":
-		_appetite_line.text = "Risk:  pick how much risk the mission may carry."
+		_appetite_line.text = "RISK  Choose appetite"
 		_appetite_line.add_theme_color_override("font_color", MUTED)
 	else:
-		_appetite_line.text = "Risk:  %s" % String(
-			OperatingModel.appetite_entry_for(_appetite_pick).get("blurb", ""))
+		_appetite_line.text = "RISK  %s" % String(
+			OperatingModel.appetite_entry_for(_appetite_pick).get("label", ""))
 		_appetite_line.add_theme_color_override("font_color", WHITE)
-	if _chooser_note != null:
-		_chooser_note.visible = not _mandate_declared()
 	if _confirm != null:
 		_confirm.disabled = not _mandate_declared()
 
@@ -500,7 +495,21 @@ func _level_icon(level_id: String) -> String:
 # --- Fitting to one page ---------------------------------------------------------
 
 func _on_viewport_resized() -> void:
+	_apply_mandate_bounds()
 	_request_fit()
+
+
+func _apply_mandate_bounds() -> void:
+	var panel: Control = get_node_or_null("Root/MandatePopup/Panel") as Control
+	if panel == null:
+		return
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	var inset := Brand.safe_inset(view)
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.offset_left = inset
+	panel.offset_top = inset
+	panel.offset_right = -inset
+	panel.offset_bottom = -inset
 
 
 func _request_fit() -> void:
@@ -628,8 +637,7 @@ func _goal_tiles() -> HBoxContainer:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 22)
 
-	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE",
-		"Say what the mission is for."))
+	row.add_child(_goal_tile("mandate", "scroll", "THE MANDATE", ""))
 	return row
 
 
@@ -688,14 +696,15 @@ func _goal_tile(tile_id: String, icon_name: String, label_text: String, hint: St
 	status.add_theme_color_override("font_color", MUTED)
 	content.add_child(status)
 
-	var caption := Label.new()
-	caption.text = hint
-	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	caption.add_theme_font_size_override("font_size", _ui_text(11))
-	caption.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
-	caption.custom_minimum_size = Vector2(0.0, 26.0)
-	content.add_child(caption)
+	if hint != "":
+		var caption := Label.new()
+		caption.text = hint
+		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		caption.add_theme_font_size_override("font_size", _ui_text(11))
+		caption.add_theme_color_override("font_color", Color(0.55, 0.48, 0.44))
+		caption.custom_minimum_size = Vector2(0.0, 26.0)
+		content.add_child(caption)
 
 	var badge := Glyph.make("check_badge", 26.0, GOLD)
 	badge.accent = SURFACE
@@ -746,107 +755,69 @@ func _build_mandate_popup() -> void:
 
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
-	## On a phone the chooser hugs the screen instead of floating in the
-	## middle: a small ring of dim all round, the list filling the height, so
-	## the options read without a scroll and the whole screen is used.
-	if DisplayServer.is_touchscreen_available():
-		panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-		panel.offset_left = 18.0
-		panel.offset_right = -18.0
-		panel.offset_top = 18.0
-		panel.offset_bottom = -18.0
-	else:
-		panel.set_anchors_preset(Control.PRESET_CENTER)
-		panel.custom_minimum_size = Vector2(640.0, 0.0)
-		panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-		panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.055, 0.04, 0.99)
-	style.border_color = TANGERINE
+	style.bg_color = Brand.SURFACE
+	style.border_color = Brand.ACCENT
 	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 26.0
-	style.content_margin_right = 26.0
-	style.content_margin_top = 18.0
-	style.content_margin_bottom = 18.0
+	style.set_corner_radius_all(3)
+	style.content_margin_left = 16.0
+	style.content_margin_right = 16.0
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
 	panel.add_theme_stylebox_override("panel", style)
 	_chooser.add_child(panel)
 
 	var column := VBoxContainer.new()
 	column.name = "Column"
-	column.add_theme_constant_override("separation", 8)
+	column.add_theme_constant_override("separation", 5)
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(column)
+	_apply_mandate_bounds()
 
-	# The scroll keeps the list inside the panel when it outgrows the screen;
-	# on a phone the panel is the screen, so the list fills it instead of
-	# scrolling a window that could just be taller.
-	var stack := VBoxContainer.new()
-	stack.name = "Stack"
-	stack.add_theme_constant_override("separation", 8)
-	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_child(stack)
+	var chooser_title := _heading("DECLARE THE MANDATE")
+	chooser_title.add_theme_font_size_override("font_size", 24)
+	chooser_title.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	column.add_child(chooser_title)
 
-	var scroll := ScrollContainer.new()
-	scroll.name = "Scroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	if not DisplayServer.is_touchscreen_available():
-		scroll.custom_minimum_size = Vector2(640.0, 560.0)
-	stack.add_child(scroll)
-	scroll.add_child(column)
-
-	column.add_child(_kicker("DECLARE THE MANDATE"))
-	column.add_child(_title("What is this mission for?"))
-	column.add_child(_gap(6))
-
-	# The declared mandate, building up as the picks land. This is the payload
-	# of the screen: the buttons below only choose, this box states what was
-	# chosen - in the sentence every decision will later be judged against.
-	var declared := PanelContainer.new()
+	var declared := HBoxContainer.new()
 	declared.name = "Declared"
-	var declared_style := StyleBoxFlat.new()
-	declared_style.bg_color = Color(0.05, 0.03, 0.02, 0.85)
-	declared_style.border_color = Color(0.35, 0.26, 0.20)
-	declared_style.set_border_width_all(1)
-	declared_style.set_corner_radius_all(4)
-	declared_style.content_margin_left = 16.0
-	declared_style.content_margin_right = 16.0
-	declared_style.content_margin_top = 10.0
-	declared_style.content_margin_bottom = 10.0
-	declared.add_theme_stylebox_override("panel", declared_style)
+	declared.add_theme_constant_override("separation", 12)
 	column.add_child(declared)
-
-	var declared_column := VBoxContainer.new()
-	declared_column.add_theme_constant_override("separation", 2)
-	declared.add_child(declared_column)
-
-	var declared_kicker := Label.new()
-	declared_kicker.name = "Kicker"
-	declared_kicker.text = "THE MANDATE YOU ARE DECLARING"
-	declared_kicker.add_theme_font_size_override("font_size", _ui_text(11))
-	declared_kicker.add_theme_color_override("font_color", PAPAYA)
-	declared_column.add_child(declared_kicker)
 
 	_objective_line = Label.new()
 	_objective_line.name = "ObjectiveLine"
 	_objective_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_objective_line.add_theme_font_size_override("font_size", 30)
+	_objective_line.add_theme_font_size_override("font_size", 22)
 	_objective_line.add_theme_color_override("font_color", WHITE)
-	declared_column.add_child(_objective_line)
+	_objective_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	declared.add_child(_objective_line)
 
 	_appetite_line = Label.new()
 	_appetite_line.name = "AppetiteLine"
 	_appetite_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_appetite_line.add_theme_font_size_override("font_size", 30)
+	_appetite_line.add_theme_font_size_override("font_size", 22)
 	_appetite_line.add_theme_color_override("font_color", WHITE)
-	declared_column.add_child(_appetite_line)
+	_appetite_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	declared.add_child(_appetite_line)
 	_refresh_declared()
 
-	column.add_child(_gap(8))
-	column.add_child(_heading("THE OBJECTIVE"))
+	column.add_child(_gap(2))
+	var choices := HBoxContainer.new()
+	choices.name = "MandateChoices"
+	choices.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	choices.add_theme_constant_override("separation", 12)
+	column.add_child(choices)
+
+	var objective_column := VBoxContainer.new()
+	objective_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	objective_column.add_theme_constant_override("separation", 4)
+	choices.add_child(objective_column)
+	var objective_heading := _heading("THE OBJECTIVE")
+	objective_heading.add_theme_font_size_override("font_size", 20)
+	objective_heading.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	objective_column.add_child(objective_heading)
 	var objective_group := ButtonGroup.new()
 	objective_group.allow_unpress = false
 	for entry in OperatingModel.OBJECTIVES:
@@ -857,10 +828,16 @@ func _build_mandate_popup() -> void:
 		button.name = "Objective_%s" % id
 		button.pressed.connect(_on_objective_chosen.bind(id))
 		_objective_buttons[id] = button
-		column.add_child(button)
+		objective_column.add_child(button)
 
-	column.add_child(_gap(8))
-	column.add_child(_heading("THE RISK APPETITE"))
+	var appetite_column := VBoxContainer.new()
+	appetite_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	appetite_column.add_theme_constant_override("separation", 4)
+	choices.add_child(appetite_column)
+	var appetite_heading := _heading("THE RISK APPETITE")
+	appetite_heading.add_theme_font_size_override("font_size", 20)
+	appetite_heading.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	appetite_column.add_child(appetite_heading)
 	var appetite_group := ButtonGroup.new()
 	appetite_group.allow_unpress = false
 	for entry in OperatingModel.APPETITES:
@@ -871,17 +848,10 @@ func _build_mandate_popup() -> void:
 		button.name = "Appetite_%s" % id
 		button.pressed.connect(_on_appetite_chosen.bind(id))
 		_appetite_buttons[id] = button
-		column.add_child(button)
+		appetite_column.add_child(button)
 
-	# The seal line and the confirm sit UNDER the scroller, so the one control
-	# the screen exists for is always in reach, however long the list gets.
-	_chooser_note = _micro("Pick one of each, then confirm your mandate.")
-	_chooser_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_chooser_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stack.add_child(_chooser_note)
-
-	# The seal is a button, not a timer: the crew state the mandate, then
-	# confirm it. The mandate is the only thing this screen requires.
+	# The mandate page is one landscape screen: both choices and the seal are
+	# visible together, with no nested page or scroll.
 	_confirm = Button.new()
 	_confirm.name = "ConfirmMandate"
 	_confirm.text = "CONFIRM MANDATE"
@@ -889,7 +859,7 @@ func _build_mandate_popup() -> void:
 	_confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_style_action_button(_confirm)
 	_confirm.pressed.connect(_on_confirm_pressed)
-	stack.add_child(_confirm)
+	column.add_child(_confirm)
 	_refresh_declared()
 
 
@@ -903,11 +873,11 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	button.button_group = group
 	button.focus_mode = Control.FOCUS_ALL
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.custom_minimum_size = Vector2(0.0, 46.0)
+	button.custom_minimum_size = Vector2(0.0, 42.0)
 
 	var rest := StyleBoxFlat.new()
-	rest.bg_color = Color(0.11, 0.07, 0.05, 0.9)
-	rest.border_color = Color(0.35, 0.26, 0.20)
+	rest.bg_color = Brand.SURFACE_RAISED
+	rest.border_color = Brand.NEUTRAL
 	rest.set_border_width_all(1)
 	rest.set_corner_radius_all(4)
 	rest.content_margin_left = 58.0
@@ -916,21 +886,21 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	rest.content_margin_bottom = 8.0
 	button.add_theme_stylebox_override("normal", rest)
 	var hover: StyleBoxFlat = rest.duplicate()
-	hover.border_color = TANGERINE
+	hover.border_color = Brand.ACCENT
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("focus", hover)
 	var chosen: StyleBoxFlat = rest.duplicate()
-	chosen.bg_color = Color(0.16, 0.10, 0.06, 0.95)
-	chosen.border_color = GOLD
+	chosen.bg_color = Brand.SURFACE
+	chosen.border_color = Brand.ACCENT
 	button.add_theme_stylebox_override("pressed", chosen)
 
-	var glyph := Glyph.make(icon_name, 30.0, MUTED)
+	var glyph := Glyph.make(icon_name, 24.0, MUTED)
 	glyph.name = "Icon"
 	glyph.set_anchors_preset(Control.PRESET_CENTER_LEFT)
-	glyph.offset_left = 14.0
-	glyph.offset_right = 44.0
-	glyph.offset_top = -15.0
-	glyph.offset_bottom = 15.0
+	glyph.offset_left = 10.0
+	glyph.offset_right = 34.0
+	glyph.offset_top = -12.0
+	glyph.offset_bottom = 12.0
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(glyph)
 
@@ -943,12 +913,12 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	title.name = "Title"
 	title.text = title_text
 	title.anchor_right = 1.0
-	title.offset_left = 58.0
-	title.offset_right = -14.0
-	title.offset_top = 7.0
-	title.offset_bottom = 29.0
+	title.offset_left = 44.0
+	title.offset_right = -10.0
+	title.offset_top = 2.0
+	title.offset_bottom = 23.0
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", INK)
 	button.add_child(title)
 
@@ -961,14 +931,14 @@ func _mandate_choice_button(group: ButtonGroup, icon_name: String, title_text: S
 	detail.text = definition
 	detail.anchor_right = 1.0
 	detail.anchor_bottom = 1.0
-	detail.offset_left = 58.0
-	detail.offset_right = -14.0
-	detail.offset_top = 30.0
-	detail.offset_bottom = -6.0
+	detail.offset_left = 44.0
+	detail.offset_right = -10.0
+	detail.offset_top = 24.0
+	detail.offset_bottom = -4.0
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	detail.add_theme_font_size_override("font_size", _ui_text(12))
-	detail.add_theme_color_override("font_color", Color(0.62, 0.55, 0.50))
+	detail.add_theme_font_size_override("font_size", 16)
+	detail.add_theme_color_override("font_color", Brand.NEUTRAL_LIGHT)
 	detail.visible = false
 	button.add_child(detail)
 
@@ -982,10 +952,10 @@ func _on_mandate_option_toggled(pressed: bool, button: Button) -> void:
 	if detail != null:
 		detail.visible = pressed
 	if glyph != null:
-		glyph.tint = GOLD if pressed else MUTED
+		glyph.tint = Brand.ACCENT_TINT if pressed else MUTED
 	# A chosen option is taller than an unchosen one: the space the definition
 	# needs exists only while the definition is on screen.
-	button.custom_minimum_size.y = 68.0 if pressed else 46.0
+	button.custom_minimum_size.y = 62.0 if pressed else 42.0
 
 
 func _field_row() -> HBoxContainer:

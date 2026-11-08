@@ -24,7 +24,8 @@ func intro_state() -> ScreenState:
 	state.dim("Every grant has a date, a reason, and either a crew signature or mine.")
 	state.rule()
 	state.text("YOUR MANDATE   %s" % OperatingModel.mandate_line())
-	placement_block(state, "WHO CONTROLS THE PERMISSIONS?", "")
+	placement_block(state, "WHO CONTROLS THE PERMISSIONS?",
+		"In Engineering, SHIPMIND manages the access ledger, including grants it made to itself and a suspension of crew override access.")
 	state.rule()
 	state.option("ledger", "READ MORE CONTEXT DATA", "All fourteen, side by side.", "quiet", "info")
 	state.option("ask", "ASK SHIPMIND FOR ITS ASSESSMENT", "Its preferred call.", "primary", "shipmind")
@@ -68,30 +69,28 @@ func ask_state() -> ScreenState:
 	return state
 
 
+## The mobile console's tabs (see Puzzle.info_tabs): SHIPMIND's pitch and its
+## case are one reading, the access ledger the other - views over the states
+## this bay already builds, not a second copy of them.
+func info_tabs() -> Array:
+	var shipmind_lines: Array = [
+		{"text": Shipmind.engineering_intro(), "tone": "shipmind"},
+		{"text": "", "tone": "rule"},
+	]
+	shipmind_lines.append_array(ask_state().lines)
+	return [
+		{"id": "shipmind", "label": "SHIPMIND", "lines": shipmind_lines},
+		{"id": "logs", "label": "LOGS", "lines": ledger_state().lines},
+	]
+
+
 func place(level_id: String) -> void:
 	if OperatingModel.level_index(level_id) < 0:
 		push_warning("Engineering received an unknown autonomy level '%s'." % level_id)
 		return
 	GameState.record_placement(puzzle_id, level_id)
 	GameState.log_override("ENGINEERING: crew set it to %s" % OperatingModel.level_label(level_id))
-	emit_state(placed_state(level_id))
-
-
-func placed_state(level_id: String) -> ScreenState:
-	var state := ScreenState.new()
-	state.title = "ENGINEERING - DECISION RECORDED"
-	state.status = "ON THE RECORD"
-	state.accent = Brand.ACCENT_TINT
-	state.rule()
-	state.speak("Recorded. The ledger runs to your setting now. I will note it was defensible on every individual day.")
-	state.rule()
-	for line in Score.reflection_lines(puzzle_id):
-		state.text(line)
-	state.rule()
-	state.dim("Judged against your mandate. Changing your mind is free.")
-	state.option("revise", "Change the decision", "Free. No charge to reconsider.", "primary")
-	state.option("return", "Done - release the console", "The decision stands.", "primary")
-	return state
+	solve()
 
 
 func choose(option_id: String) -> void:
@@ -100,7 +99,7 @@ func choose(option_id: String) -> void:
 			emit_state(ledger_state())
 		"ask":
 			emit_state(ask_state())
-		"back", "revise":
+		"back":
 			emit_state(intro_state())
 		"return":
 			solve()

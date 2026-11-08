@@ -10,10 +10,9 @@ extends Node
 ##
 ## THE CONTRACT - ONE PICK PER DECISION
 ##
-##   start()        routes to the right screen: a placed decision reads back, a
-##                  pending bay says it is not placed yet, an unplaced bay shows
-##                  its spectrum, and a decision opened before the mandate was
-##                  declared is refused.
+##   start()        routes to the right screen: a placed decision opens for
+##                  reconsideration, an unplaced bay shows its spectrum, and a
+##                  decision opened before the mandate was declared is refused.
 ##   intro_state()  the bay's own opening screen. A migrated bay puts its
 ##                  spectrum block on it.
 ##   place()        the spectrum commit lands here with the level id - the one
@@ -49,6 +48,12 @@ func _ready() -> void:
 
 
 func start() -> void:
+	if is_decision_bay() and GameState.has_placement(puzzle_id):
+		## Reopening a placed bay returns straight to its decision surface. The
+		## placement can be replaced without a separate read-back screen.
+		is_solved = false
+		state_changed.emit(intro_state())
+		return
 	if is_solved or GameState.is_restored(puzzle_id) or GameState.has_placement(puzzle_id):
 		# A placed decision reads back as a record instead of asking the crew to
 		# decide it twice - including one placed and never released, which a
@@ -160,6 +165,13 @@ func choose(option_id: String) -> void:
 		solve()
 		return
 	push_warning("Puzzle '%s' ignored unknown option '%s'" % [puzzle_id, option_id])
+
+
+## The decision screen's additional information tabs: an ordered list of
+## {id, label, lines:[{text, tone}]}. The renderer builds the combined decision
+## context; a bay declares only its supporting evidence and SHIPMIND's case.
+func info_tabs() -> Array:
+	return []
 
 
 ## The spectrum commit. A bay that carries a spectrum block overrides this and

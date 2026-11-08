@@ -91,7 +91,7 @@ const LEVELS := [
 	{
 		"id": "automated",
 		"label": "AUTOMATED",
-		"short": "AUTOMATED",
+		"short": "AUTO",
 		"summary": "Agents act within guardrails",
 		"hint": "Fastest. SHIPMIND acts on its own, inside limits it cannot cross.",
 		"color": Color(0.918, 0.369, 0.173),
@@ -100,7 +100,7 @@ const LEVELS := [
 	{
 		"id": "review",
 		"label": "HUMAN REVIEW",
-		"short": "HUMAN REVIEW",
+		"short": "REVIEW",
 		"summary": "Agents propose; people confirm",
 		"hint": "SHIPMIND acts first. A crew member reviews each decision after, and can send it back.",
 		"color": Color(0.949, 0.949, 0.949),
@@ -109,7 +109,7 @@ const LEVELS := [
 	{
 		"id": "signoff",
 		"label": "HUMAN SIGN-OFF",
-		"short": "HUMAN SIGN-OFF",
+		"short": "SIGN-OFF",
 		"summary": "Held until a named owner approves",
 		"hint": "SHIPMIND proposes. Nothing happens until a named owner approves it.",
 		"color": Color(0.957, 0.737, 0.631),
@@ -118,7 +118,7 @@ const LEVELS := [
 	{
 		"id": "human_only",
 		"label": "HUMAN-ONLY",
-		"short": "HUMAN-ONLY",
+		"short": "HUMAN",
 		"summary": "Never delegated, by design",
 		"hint": "The decision is yours. SHIPMIND carries out orders, nothing more.",
 		"color": Color(0.369, 0.404, 0.447),

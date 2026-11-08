@@ -55,13 +55,15 @@ static func meter_block(title: String, value: float, colour: Color,
 		word: String, compact: bool = false) -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4 if compact else 6)
+	var label_size: int = 18 if Platform.touch_ui() else 16 if compact else 18
+	var word_size: int = 18 if Platform.touch_ui() else 16 if compact else 18
 
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 10)
 	var name_label := Label.new()
 	name_label.text = title
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.add_theme_font_size_override("font_size", 12 if compact else 13)
+	name_label.add_theme_font_size_override("font_size", label_size)
 	name_label.add_theme_color_override("font_color", Brand.NEUTRAL_LIGHT)
 	head.add_child(name_label)
 	var number := Label.new()
@@ -82,7 +84,7 @@ static func meter_block(title: String, value: float, colour: Color,
 		var word_label := Label.new()
 		word_label.text = word
 		word_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		word_label.add_theme_font_size_override("font_size", 11 if compact else 12)
+		word_label.add_theme_font_size_override("font_size", word_size)
 		word_label.add_theme_color_override("font_color", Brand.NEUTRAL)
 		box.add_child(word_label)
 	return box

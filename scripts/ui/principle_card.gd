@@ -49,18 +49,22 @@ func _build_frame() -> void:
 	for child in card.get_children():
 		card.remove_child(child)
 		child.queue_free()
+	var frame := StyleBoxFlat.new()
+	frame.bg_color = Brand.SURFACE
+	frame.border_color = Brand.ACCENT
+	frame.border_width_top = 3
+	frame.set_corner_radius_all(3)
+	card.add_theme_stylebox_override("panel", frame)
 	var margin := MarginContainer.new()
 	margin.name = "Margin"
-	var side: int = 24 if _is_touch() else 30
-	margin.add_theme_constant_override("margin_left", side)
-	margin.add_theme_constant_override("margin_right", side)
-	margin.add_theme_constant_override("margin_top", 18 if _is_touch() else 26)
-	margin.add_theme_constant_override("margin_bottom", 14 if _is_touch() else 22)
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
 	card.add_child(margin)
-	## The reading scrolls; the way out does not.
 	var stack := VBoxContainer.new()
 	stack.name = "Stack"
-	stack.add_theme_constant_override("separation", 10)
+	stack.add_theme_constant_override("separation", 6)
 	margin.add_child(stack)
 	_scroll = ScrollContainer.new()
 	_scroll.name = "Scroll"
@@ -81,7 +85,16 @@ func _build_frame() -> void:
 	_dismiss.focus_mode = Control.FOCUS_NONE
 	_dismiss.custom_minimum_size = Vector2(0.0, 44.0 if _is_touch() else 34.0)
 	_dismiss.add_theme_font_size_override("font_size", _px(15))
-	_dismiss.add_theme_color_override("font_color", Brand.ACCENT_TINT)
+	_dismiss.add_theme_color_override("font_color", Brand.SURFACE)
+	_dismiss.add_theme_color_override("font_hover_color", Brand.SURFACE)
+	var dismiss_style := StyleBoxFlat.new()
+	dismiss_style.bg_color = Brand.ACCENT
+	dismiss_style.set_corner_radius_all(3)
+	_dismiss.add_theme_stylebox_override("normal", dismiss_style)
+	var dismiss_hover: StyleBoxFlat = dismiss_style.duplicate()
+	dismiss_hover.bg_color = Brand.ACCENT_TINT
+	_dismiss.add_theme_stylebox_override("hover", dismiss_hover)
+	_dismiss.add_theme_stylebox_override("pressed", dismiss_hover)
 	_dismiss.pressed.connect(dismiss)
 	stack.add_child(_dismiss)
 
@@ -329,32 +342,12 @@ func _relayout() -> void:
 	if card == null:
 		return
 	var view: Vector2 = get_viewport().get_visible_rect().size
-	var width: float = minf(view.x - 56.0, 880.0 if not _is_portrait() else view.x - 32.0)
-	card.size.x = maxf(width, 280.0)
-	card.size.y = minf(card.size.y, view.y - 56.0)
-	card.position = (view - card.size) * 0.5
+	var inset := Brand.safe_inset(view)
+	card.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	card.position = Vector2(inset, inset)
+	card.size = view - Vector2(inset * 2.0, inset * 2.0)
 	if _meters != null and is_instance_valid(_meters):
 		_meters.columns = 1 if _is_portrait() else 2
-	_fit_height.call_deferred()
-
-
-## The panel hugs its reading: a card with three lines in it should not leave
-## two thirds of a screen of empty panel under them. The measurement has to
-## happen after a layout pass at the new width - a wrapped label measured
-## before it reports the height it would need at the old, narrow width, which
-## is how the panel used to end up full height every time.
-func _fit_height() -> void:
-	if card == null or not is_instance_valid(card) or not _open:
-		return
-	await get_tree().process_frame
-	if card == null or not is_instance_valid(card) or not _open:
-		return
-	var view: Vector2 = get_viewport().get_visible_rect().size
-	var wanted: float = _body.get_combined_minimum_size().y + 54.0
-	if _dismiss != null and is_instance_valid(_dismiss):
-		wanted += _dismiss.get_combined_minimum_size().y + 10.0
-	card.size.y = minf(view.y - 56.0, maxf(wanted, 200.0))
-	card.position = (view - card.size) * 0.5
 
 
 func _is_portrait() -> bool:
@@ -370,4 +363,7 @@ func _is_touch() -> bool:
 ## The floor rule clamps after the multiplier: no platform scale may render a
 ## label below the game's reading floor.
 func _px(base: float) -> int:
+	var view: Vector2 = get_viewport().get_visible_rect().size
+	if view.y < 500.0:
+		return max(int(round(base * Platform.ui_scale() * 0.75)), 18)
 	return max(int(round(base * Platform.ui_scale())), Brand.SIZE_SMALL)
