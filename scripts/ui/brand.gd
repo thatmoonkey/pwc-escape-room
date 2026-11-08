@@ -100,7 +100,11 @@ static func scaled(base: int) -> int:
 const CONSOLE_TEXT_SCALE := 0.9
 
 static func console_size(base: int) -> int:
-	return int(round(base * CONSOLE_TEXT_SCALE))
+	## The console screens keep their own -10% step (they carry the most
+	## text), but that step rides on top of the menu's TEXT SIZE setting:
+	## L keeps the approved 27px readouts, M and S take the consoles down
+	## with everything else.
+	return int(round(base * text_scale() * CONSOLE_TEXT_SCALE))
 
 static var _tui_font: Font = null
 
