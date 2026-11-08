@@ -45,7 +45,7 @@ func _ready() -> void:
 	layer = 110
 	_build()
 	visible = false
-	TextZoom.register(root)
+	TextZoom.register(_root)
 
 
 func is_open() -> bool:
