@@ -13,7 +13,6 @@ const DESKTOP_RIG_PATH := "res://scenes/player/player.tscn"
 @onready var hud: HUD = $UI/HUD
 @onready var terminal: TerminalUI = $UI/TerminalUI
 @onready var principle_card: PrincipleCard = $UI/PrincipleCard
-@onready var launch_screen: LaunchScreen = $UI/LaunchScreen
 @onready var pause_menu: PauseMenu = $UI/PauseMenu
 @onready var completion: CompletionScreen = $UI/CompletionScreen
 
@@ -65,13 +64,11 @@ func _ready() -> void:
 	await get_tree().process_frame
 	if OS.is_debug_build():
 		print("[Sfx] ", Sfx.debug_state())
-	## The mandate is fixed and the landing screen is gone: the ship loads
-	## straight into play, with the narrative intro (when one is wanted) the
-	## only thing standing between the crew and the corridor.
+	## The mandate is fixed and the landing screen is gone - the scene does not
+	## even instantiate the launch card any more: the ship loads straight into
+	## play, with the narrative intro (when one is wanted) the only thing
+	## standing between the crew and the corridor.
 	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
-	if launch != null:
-		launch.hide_screen()
 	if intro != null and not get_tree().has_meta("shipmind_intro_played"):
 		hud.visible = false
 		intro.finished.connect(_on_intro_finished)
@@ -86,10 +83,12 @@ func _ready() -> void:
 func _on_intro_finished() -> void:
 	get_tree().set_meta("shipmind_intro_played", true)
 	_on_session_begin()
-## "Back to the title card" now means "start the run again": the mandate card
-## is retired, so there is no screen to hand back to. The full reset wipes the
-## record and reloads the scene, which is exactly the clean start the crew is
-## asking for when they leave the run.
+
+
+## "Main menu" now means "start the run again": the mandate card and the title
+## card are both gone, so there is no screen to hand back to. The full reset
+## wipes the record and reloads the scene, which is exactly the clean start the
+## crew is asking for when they leave the run.
 func _on_main_menu_requested() -> void:
 	GameState.clear_save()
 	InputRouter.set_ui_blocking(false)
@@ -105,18 +104,6 @@ func _on_reset_requested() -> void:
 	InputRouter.set_ui_blocking(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().call_deferred("reload_current_scene")
-
-
-## The crew asked for the story again from the mandate card. The card steps
-## aside - so Enter cannot begin the session underneath the telling - and the
-## narrative plays over everything until it hands back.
-func _on_intro_requested() -> void:
-	var launch := get_node_or_null("UI/LaunchScreen") as LaunchScreen
-	var intro := get_node_or_null("UI/IntroScreen") as IntroScreen
-	if intro != null:
-		if launch != null:
-			launch.hide_screen()
-		intro.replay()
 
 
 ## The run starts here. The clock begins at the moment the crew takes the ship,
@@ -155,7 +142,8 @@ func _process(_delta: float) -> void:
 ## Android's back gesture and a browser's back action arrive here rather than as
 ## a key, and the default is to quit the app outright - which on a phone means
 ## dropping the run from inside a menu. The rule is the same one the ESC key
-## follows: one layer back at a time, and only the title card lets go of the app.
+## follows: one layer back at a time, and the menu is the last layer before
+## the app itself.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		_on_back_requested()
@@ -177,8 +165,6 @@ func _on_back_requested() -> void:
 		return
 	if pause_menu != null and pause_menu.is_open():
 		pause_menu.close()
-		return
-	if launch_screen != null and launch_screen.is_open():
 		return
 	if pause_menu != null:
 		pause_menu.open()
